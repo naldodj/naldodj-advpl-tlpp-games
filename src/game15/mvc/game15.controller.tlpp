@@ -39,10 +39,14 @@ method New() class Game15Controller
 return(self)
 
 method Activate() class Game15Controller
+    local lActive as logical
+    local oView:=self:oView
+    local oModel:=self:oModel
     if ((self:CanExecute()).and.(!self:lActive))
-        self:lActive:=self:oModel:Activate()
+        FWMsgRun(nil,{||lActive:=oModel:Activate()},"Wait..","Start of new game")
+        self:lActive:=lActive
         if (self:lActive)
-            self:oView:Activate()
+            oView:Activate()
         endif
     endif
 return(self:lActive)

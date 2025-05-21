@@ -3,6 +3,9 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-21 20:37 UTC naldodj (FWMsgRun to start a new game)
+  * src/game15/mvc/game15.controller.tlpp
+
 2025-05-21 20:12 UTC naldodj (.bmp to .png)
   + src/game15/resources/bmps_aux/game15_closebtn.png
   + src/game15/resources/bmps_aux/game15_mainform.png
