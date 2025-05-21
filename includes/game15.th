@@ -28,7 +28,7 @@
     #define COPYRIGHT           "2012-"+StrZero(Year(Date()),4)
     #define AUTHOR              "Marinaldo de Jesus"
     #define URL_COPYRIGHT       "http://www.blacktdn.com.br"
-    #define URL_BTDNGAME15      "http://goo.gl/guiaK"
+    #define URL_BTDNGAME15      "https://github.com/naldodj/naldodj-advpl-tlpp-games/edit/main/src/game15/README.md"
 
     #ifndef SYMBOL_UNUSED
         #define SYMBOL_UNUSED(symbol) (symbol:=(symbol))

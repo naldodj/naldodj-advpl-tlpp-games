@@ -3,6 +3,9 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-21 16:38 UTC naldodj
+  * includes/game15.th
+
 2025-05-21 16:24 UTC naldodj (Fix comment)
   * src/game15/mvc/game15.model.tlpp
 
