@@ -784,6 +784,8 @@ static procedure RestoreGame(oModel as object,bUpdateView as codeblock)
 
         if (oModel:RestoreGame(@cG15File,@bUpdateView))
             ApMsgInfo("Arquivo ["+cG15File+"] restaurado com sucesso",ProcName())
+            //Reinicia a Contagem de Tempo apos o Reload
+            oModel:StartTime()
         else
             ApMsgInfo("Ocorreram problemas para restaurar o Arquivo ["+cG15File+"]",ProcName())
         endif

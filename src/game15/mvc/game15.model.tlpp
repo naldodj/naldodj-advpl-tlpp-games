@@ -45,6 +45,7 @@ class Game15Model
     public method SaveGame(cG15File as character) as logical
     public method RestoreGame(cG15File as character,bUpdateView as codeblock) as logical
 
+    public method StartTime() as logical
     public method Time2NextDay(cTime as character,dDate as date) as array
 
 endclass
@@ -65,6 +66,9 @@ method Activate() class Game15Model
         self:lActive:=self:lActive.and.(self:jGame15Data["Game15_Table"]:HasProperty("G15_Alias"))
         self:lActive:=self:lActive.and.(Select(self:jGame15Data["Game15_Table"]["G15_Alias"])>0)
         self:lActive:=self:lActive.and.Activate(self:jGame15Data)
+        if (self:lActive)
+            self:StartTime()
+        endif
     endif
 return(self:lActive)
 
@@ -190,6 +194,17 @@ method RestoreGame(cG15File,bUpdateView) class Game15Model
         lRestoreGame:=RestoreGame(@aShapes,@cG15File,@bUpdateView)
     endif
 return(lRestoreGame)
+
+method StartTime() class Game15Model
+    lStartTime:=self:IsActive()
+    if (lStartTime)
+        if (!self:jGame15Data:HasProperty("Game15_Time"))
+            self:jGame15Data["Game15_Time"]:=JSONObject():New()
+        endif
+        self:jGame15Data["Game15_Time"]["cStartTime"]:=Time()
+        self:jGame15Data["Game15_Time"]["dStartDate"]:=Date()
+    endif
+return(lStartTime)
 
 method Time2NextDay(cTime,dDate) class Game15Model
     paramtype 1 var cTime as character
@@ -595,12 +610,6 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
     AddProperty(@cProperties,"is-container=",0)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
-
-    if (!jGame15Data:HasProperty("Game15_Time"))
-        jGame15Data["Game15_Time"]:=JSONObject():New()
-    endif
-    jGame15Data["Game15_Time"]["cStartTime"]:=Time()
-    jGame15Data["Game15_Time"]["dStartDate"]:=Date()
 
     LoadMsgAbout(@jGame15Data)
     LoadTopTable(@jGame15Data)
