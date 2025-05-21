@@ -1361,12 +1361,12 @@ static function ClearTopTable(jGame15Data as json) as logical
 
 return(lLock)
 
-/*/
+/*
     Funcao:InitGame15
     Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
     Data:16/04/2012
     Uso:Inicializa Parametros
-/*/
+*/
 static function InitGame15() as json
 
     local cFile as character
@@ -1434,12 +1434,12 @@ static function InitGame15() as json
 
 return(jGame15Data)
 
-/*/
+/*
     Funcao:ExtractFiles
     Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
     Data:16/04/2012
     Uso:Extrai os arquivos do RPO
-/*/
+*/
 static procedure ExtractFiles(jGame15Data,cName)
 
     local aNames:=jGame15Data[cName]:GetNames() as array
@@ -1469,12 +1469,12 @@ static procedure ExtractFiles(jGame15Data,cName)
 
 return
 
-/*/
+/*
     Funcao:RemoveFiles
     Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
     Data:16/04/2012
     Uso:Exclui os arquivos Temporarios
-/*/
+*/
 static procedure RemoveFiles(jGame15Data,cName)
     local aNames:=jGame15Data[cName]:GetNames() as array
     aEval(aNames,{|cItemName|if(File(jGame15Data[cName][cItemName]),fErase(jGame15Data[cName][cItemName]),NIL)})
