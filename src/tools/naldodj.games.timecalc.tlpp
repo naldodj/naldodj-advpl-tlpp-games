@@ -1,0 +1,523 @@
+/*----------------------------------------------------------------------
+ _    _                                _
+| |_ (_) _ __ ___    ___   ___   __ _ | |  ___
+| __|| || '_ ` _ \  / _ \ / __| / _` || | / __|
+| |_ | || | | | | ||  __/| (__ | (_| || || (__
+ \__||_||_| |_| |_| \___| \___| \__,_||_| \___|
+
+*/
+
+#include "totvs.ch"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace naldodj.games
+using namespace naldodj.games
+
+
+//------------------------------------------------------------------------------------------------
+    /*/
+        class:timeCalc
+        Autor:Marinaldo de Jesus [BlackTDN:(http://www.blacktdn.com.br/)]
+        Data:23/12/2013
+        Descricao:Calculo de Horas
+    /*/
+//------------------------------------------------------------------------------------------------
+class timeCalc
+    static method HMSToTime(nHours as numeric,nMinuts as numeric,nSeconds as numeric) as character
+    static method SecsToHMS(nSecsToHMS as numeric,nHours as numeric,nMinuts as numeric,nSeconds as numeric,cRet as character) as numeric
+    static method SecsToTime(nSecs as numeric) as character
+    static method TimeToSecs(cTime as character) as numeric
+    static method SecsToHrs(nSeconds as numeric) as numeric
+    static method HrsToSecs(nHours as numeric) as numeric
+    static method SecsToMin(nSeconds as numeric) as numeric
+    static method MinToSecs(nMinuts as numeric) as numeric
+    static method IncTime(cTime as character,nIncHours as numeric,nIncMinuts as numeric,nIncSeconds as numeric) as character
+    static method DecTime(cTime as character,nDecHours as numeric,nDecMinuts as numeric,nDecSeconds as numeric) as character
+    static method Time2NextDay(cTime as character,dDate as date) as array
+    static method ExtractTime(cTime as character,nHours as numeric,nMinutes as numeric,nSeconds as numeric,cRet as character) as numeric
+    static method AverageTime(cTime as character,nDividendo as numeric,lMiliSecs as logical) as character
+    static method TimeSum(cTime1 as character,cTime2 as character) as character
+    static method TimeSub(cTime1,cTime2) as character
+    static method TimeToVal(cTime as character) as numeric
+    static method ValToTime(nTime as numeric) as character
+    static method ValToSecs(nTime as numeric) as numeric
+    static method DaysToSecs(nDays as numeric) as numeric
+    static method SecsToDays(nSeconds) as numeric
+end class
+
+static method HMSToTime(nHours,nMinuts,nSeconds) class timeCalc
+
+    local cTime as character
+
+    paramtype nHours as numeric optional default 0
+    paramtype nMinuts as numeric optional default 0
+    paramtype nSeconds as numeric optional default 0
+
+    cTime:=LTrim(Str(nHours))
+    cTime:=StrZero(Val(cTime),Max(Len(cTime),2))
+    cTime+=":"
+    cTime+=StrZero(Val(LTrim(Str(nMinuts))),2)
+    cTime+=":"
+    cTime+=StrZero(Val(LTrim(Str(nSeconds))),2)
+
+    return(cTime)
+
+static method SecsToHMS(nSecsToHMS,nHours,nMinuts,nSeconds,cRet) class timeCalc
+
+    local nRet as numeric
+
+    nRet:=0
+
+    paramtype nSecsToHMS as numeric optional default 0
+    paramtype cRet as character optional default "H"
+
+    nHours:=timeCalc():SecsToHrs(nSecsToHMS)
+    nMinuts:=timeCalc():SecsToMin(nSecsToHMS)
+    nSeconds:=(timeCalc():HrsToSecs(nHours)+timeCalc():MinToSecs(nMinuts))
+    nSeconds:=(nSecsToHMS-nSeconds)
+    nSeconds:=Int(nSeconds)
+    nSeconds:=Mod(nSeconds,60)
+
+    if (cRet$"Hh")
+        nRet:=nHours
+    elseif (cRet$"Mm")
+        nRet:=nMinuts
+    elseif (cRet$"Ss")
+        nRet:=nSeconds
+    endif
+
+    return(nRet)
+
+static method SecsToTime(nSecs) class timeCalc
+
+    local cTime as character
+
+    local nHours as numeric
+    local nMinuts as numeric
+    local nSeconds as numeric
+
+    timeCalc():SecsToHMS(nSecs,@nHours,@nMinuts,@nSeconds)
+
+    cTime:=timeCalc():HMSToTime(nHours,nMinuts,nSeconds)
+
+    return(cTime)
+
+static method TimeToSecs(cTime) class timeCalc
+
+    local nHours as numeric
+    local nMinuts as numeric
+    local nSeconds as numeric
+
+    paramtype cTime as character optional default "00:00:00"
+
+    timeCalc():ExtractTime(cTime,@nHours,@nMinuts,@nSeconds)
+
+    nMinuts+=__Hrs2Min(nHours)
+    nSeconds+=(nMinuts*60)
+
+    return(nSeconds)
+
+static method SecsToHrs(nSeconds) class timeCalc
+    local nHours as numeric
+    paramtype nSeconds as numeric optional default 0
+    nHours:=(nSeconds/3600)
+    nHours:=Int(nHours)
+    return(nHours)
+
+static method HrsToSecs(nHours) class timeCalc
+    local nSeconds as numeric
+    paramtype nHours as numeric optional default 0
+    nSeconds:=(nHours*3600)
+    return(nSeconds)
+
+static method SecsToMin(nSeconds) class timeCalc
+    local nMinuts as numeric
+    paramtype nSeconds as numeric optional default 0
+    nMinuts:=(nSeconds/60)
+    nMinuts:=Int(nMinuts)
+    nMinuts:=Mod(nMinuts,60)
+    return(nMinuts)
+
+static method MinToSecs(nMinuts) class timeCalc
+    local nSeconds as numeric
+    paramtype nMinuts as numeric optional default 0
+    nSeconds:=(nMinuts*60)
+    return(nSeconds)
+
+static method IncTime(cTime,nIncHours,nIncMinuts,nIncSeconds) class timeCalc
+
+    local nSeconds as numeric
+    local nMinuts as numeric
+    local nHours as numeric
+
+    paramtype nIncHours as numeric optional default 0
+    paramtype nIncMinuts as numeric optional default 0
+    paramtype nIncSeconds as numeric optional default 0
+
+    timeCalc():ExtractTime(cTime,@nHours,@nMinuts,@nSeconds)
+
+    nHours+=nIncHours
+    nMinuts+=nIncMinuts
+    nSeconds+=nIncSeconds
+    nSeconds:=(timeCalc():HrsToSecs(nHours)+timeCalc():MinToSecs(nMinuts)+nSeconds)
+
+    return(timeCalc():SecsToTime(nSeconds))
+
+static method DecTime(cTime,nDecHours,nDecMinuts,nDecSeconds) class timeCalc
+
+    local cTime as character
+
+    local nSeconds as numeric
+    local nMinuts as numeric
+    local nHours as numeric
+
+    paramtype nDecHours as numeric optional default 0
+    paramtype nDecMinuts as numeric optional default 0
+    paramtype nDecSeconds as numeric optional default 0
+
+    timeCalc():ExtractTime(cTime,@nHours,@nMinuts,@nSeconds)
+
+    nHours-=nDecHours
+    nMinuts-=nDecMinuts
+    nSeconds-=nDecSeconds
+    nSeconds:=(timeCalc():HrsToSecs(nHours)+timeCalc():MinToSecs(nMinuts)+nSeconds)
+
+    cTime:=timeCalc():SecsToTime(nSeconds)
+
+    return(cTime)
+
+static method Time2NextDay(cTime,dDate) class timeCalc
+
+    local aNextDay as array
+
+    local nHours as numeric
+    local nMinuts as numeric
+    local nSeconds as numeric
+    local nIncDays:=0 as numeric
+    local nDecHours:=0 as numeric
+
+    paramtype cTime as character optional default "00:00:00"
+    paramtype dDate as date optional default Date()
+
+    timeCalc():ExtractTime(cTime,@nHours,@nMinuts,@nSeconds)
+    while (nHours>=24)
+        nHours-=24
+        nDecHours+=24
+        nIncDays++
+    end while
+
+    cTime:=timeCalc():DecTime(cTime,nDecHours)
+    dDate+=nIncDays
+
+    aNextDay:={cTime,dDate,nIncDays,nDecHours}
+
+    return(aNextDay)
+
+static method ExtractTime(cTime,nHours,nMinutes,nSeconds,cRet) class timeCalc
+
+    local nRet as numeric
+
+    local nAT as numeric
+
+    nRet:=0
+
+    paramtype cTime as character optional default "00:00:00"
+    paramtype cRet as character optional default "H"
+
+    nAT:=AT(":",cTime)
+
+    if (nAT==0)
+        nHours:=Val(cTime)
+        nMinutes:=0
+        nSeconds:=0
+    else
+        nHours:=Val(SubStr(cTime,1,nAT-1))
+        cTime:=SubStr(cTime,nAT+1)
+        nAT:=(At(":",cTime))
+        if (nAT==0)
+            nMinutes:=Val(cTime)
+            nSeconds:=0
+        else
+            nMinutes:=Val(SubStr(cTime,1,nAT-1))
+            nSeconds:=Val(SubStr(cTime,nAT+1))
+        endif
+    endif
+
+    if (cRet$"Hh")
+        nRet:=nHours
+    elseif (cRet$"Mm")
+        nRet:=nMinutes
+    elseif (cRet$"Ss")
+        nRet:=nSeconds
+    endif
+
+    return(nRet)
+
+static method AverageTime(cTime,nDividendo,lMiliSecs) class timeCalc
+
+    local cAverageTime as character
+
+    local nSeconds as numeric
+    local nAverageTime as numeric
+    local nMiliSecs as numeric
+
+    paramtype cTime as character optional default "00:00:00"
+    paramtype nDividendo as numeric optional default 0
+    paramtype lMiliSecs as logical optional default .T.
+
+    cAverageTime:="00:00:00:000"
+
+    DEFAULT nDividendo:=0
+
+    if (nDividendo>0)
+
+        nSeconds:=timeCalc():TimeToSecs(cTime)
+        nSeconds:=(nSeconds/nDividendo)
+        nAverageTime:=Int(nSeconds)
+
+        nMiliSecs:=(nSeconds-nAverageTime)
+        nMiliSecs*=1000
+        nMiliSecs:=Int(nMiliSecs)
+
+        cAverageTime:=timeCalc():SecsToTime(nAverageTime)
+
+    endif
+
+    if (lMiliSecs)
+        dfv():Default(@nMiliSecs,0)
+        cAverageTime+=(":"+StrZero(nMiliSecs,IF(nMiliSecs>999,4,3)))
+    endif
+
+    return(cAverageTime)
+
+static method TimeSum(cTime1,cTime2) class timeCalc
+    local nSecsTime1:=timeCalc():TimeToSecs(cTime1) as numeric
+    local nSecsTime2:=timeCalc():TimeToSecs(cTime2) as numeric
+    local nTimeSum:=(nSecsTime1+nSecsTime2) as numeric
+    paramtype cTime1 as character optional default "00:00:00"
+    paramtype cTime2 as character optional default "00:00:00"
+    nSecsTime1:=timeCalc():TimeToSecs(cTime1)
+    nSecsTime2:=timeCalc():TimeToSecs(cTime2)
+    nTimeSum:=(nSecsTime1+nSecsTime2)
+return(timeCalc():SecsToTime(nTimeSum))
+
+static method TimeSub(cTime1,cTime2) class timeCalc
+    local nSecsTime1:=timeCalc():TimeToSecs(cTime1) as numeric
+    local nSecsTime2:=timeCalc():TimeToSecs(cTime2) as numeric
+    local nTimeSub:=(nSecsTime1-nSecsTime2) as numeric
+    paramtype cTime1 as character optional default "00:00:00"
+    paramtype cTime2 as character optional default "00:00:00"
+    nSecsTime1:=timeCalc():TimeToSecs(cTime1)
+    nSecsTime2:=timeCalc():TimeToSecs(cTime2)
+    nTimeSub:=(nSecsTime1-nSecsTime2)
+return(timeCalc():SecsToTime(nTimeSub))
+
+static method TimeToVal(cTime) class timeCalc
+    paramtype cTime as character optional default "00:00:00"
+return(val(strTran(cTime,":",".")))
+
+static method ValToTime(nTime) class timeCalc
+    local nHours as numeric
+    local nMinuts as numeric
+    local nSeconds as numeric
+    paramtype nTime as numeric optional default 0
+    nHours:=Int(nTime)
+    nMinuts:=abs(nTime-nHours)
+    nSeconds:=0
+return(timeCalc():HMSToTime(nHours,nMinuts,nSeconds))
+
+static method ValToSecs(nTime) class timeCalc
+    paramtype nTime as numeric optional default 0
+return(timeCalc():TimeToSecs(timeCalc():ValToTime(nTime)))
+
+static method DaysToSecs(nDays) class timeCalc
+    paramtype nDays as numeric optional default 0
+return(nDays*86400)
+
+static method SecsToDays(nSeconds) class timeCalc
+    paramtype nSeconds as numeric optional default 0
+return(nSeconds/86400)
+
+
+//------------------------------------------------------------------------------------------------
+    /*/
+        class:timeRemaining
+        Autor:Marinaldo de Jesus [BlackTDN:(http://www.blacktdn.com.br/)]
+        Data:23/12/2013
+        Descricao:Calculo de Tempo Remanescente
+        Sintaxe:timeRemaining():New()->Objeto do Tipo Remaining
+    /*/
+//------------------------------------------------------------------------------------------------
+class timeRemaining from timeCalc
+
+    public data cAverageTime as character
+    public data cEndTime as character
+    public data cStartTime as character
+    public data cTimeDiff as character
+    public data cTRemaining as character
+    public data dEndTime as date
+    public data dStartTime as date
+    public data nProgress as numeric
+    public data nSRemaining as numeric
+    public data nSecondsStartTime as numeric
+    public data nSecondsDiff as numeric
+    public data nSecondsTotal as numeric
+    public data nTotal as numeric
+
+    //-------------------------------------------------------------------
+        // EXPORTED:Instancia um novo objeto
+    //-------------------------------------------------------------------
+    public method New(nTotal as numeric)  /*/\constructor/\*/
+
+    //-------------------------------------------------------------------
+        // EXPORTED:Retorna o Nome da classe
+    //-------------------------------------------------------------------
+    public method className()
+
+    //-------------------------------------------------------------------
+        // EXPORTED:Seta novo Total para Calcule()
+    //-------------------------------------------------------------------
+    public method SetRemaining(nTotal)
+
+    //-------------------------------------------------------------------
+        // EXPORTED:Para Obter os Tempos utilize o Metodo Calcule
+    //-------------------------------------------------------------------
+    public method Calcule(lProgress)
+
+    //-------------------------------------------------------------------
+        // EXPORTED:Retorna os Valores das Propriedades
+    //-------------------------------------------------------------------
+    public method GetcAverageTime()
+    public method GetcEndTime()
+    public method GetcStartTime()
+    public method GetcTimeDiff()
+    public method GetcTRemaining()
+    public method GetdEndTime()
+    public method GetdStartTime()
+    public method GetnProgress()
+    public method GetnSRemaining()
+    public method GetnTotal()
+
+Endclass
+
+method New(nTotal) class timeRemaining
+    self:SetRemaining(nTotal)
+    return(self)
+
+method className() class timeRemaining
+    return("timeRemaining")
+
+method SetRemaining(nTotal) class timeRemaining
+    paramtype nTotal as numeric optional default 1
+    self:cAverageTime:="00:00:00:000"
+    self:cEndTime:="00:00:00"
+    self:cStartTime:=Time()
+    self:cTimeDiff:="00:00:00"
+    self:cTRemaining:="00:00:00"
+    self:dEndTime:=CToD("//")
+    self:dStartTime:=Date()
+    self:nSecondsStartTime:=Seconds()
+    self:nSecondsDiff:=self:nSecondsStartTime
+    self:nSecondsTotal:=self:nSecondsStartTime
+    self:nProgress:=0
+    self:nSRemaining:=0
+    self:nTotal:=nTotal
+    return(self)
+
+method Calcule(lProgress) class timeRemaining
+
+    local aEndTime as array
+
+    local cTime  as character
+
+    local dDate  as date
+
+    local nTime  as numeric
+    local nSeconds as numeric
+    local nTimeEnd as numeric
+    local nTimeDiff as numeric
+
+    paramtype lProgress as logical optional default .T.
+
+    begin sequence
+
+        nSeconds:=Seconds()
+
+        cTime:=Time()
+        dDate:=Date()
+
+        if (lProgress)
+            ++self:nProgress
+        endif
+
+        self:nSecondsDiff:=(nSeconds-self:nSecondsDiff)
+        if (self:nSecondsDiff<0)
+            self:nSecondsDiff+=86400
+        endif
+        self:nSecondsTotal+=self:nSecondsDiff
+        self:nSecondsDiff:=nSeconds
+
+        nTimeDiff:=(self:nSecondsTotal-self:nSecondsStartTime)
+        self:cTimeDiff:=timeCalc():SecsToTime(nTimeDiff)
+
+        self:cAverageTime:=timeCalc():AverageTime(self:cTimeDiff,self:nProgress,.T.)
+
+        if (self:nTotal<self:nProgress)
+            nTimeEnd:=self:nTotal
+            self:nTotal:=self:nProgress
+            self:nProgress:=nTimeEnd
+        endif
+
+        nTimeEnd:=(((self:nTotal-self:nProgress)*nTimeDiff)/self:nProgress)
+
+        self:cEndTime:=timeCalc():IncTime(cTime,nil,nil,nTimeEnd)
+
+        aEndTime:=timeCalc():Time2NextDay(self:cEndTime,dDate)
+
+        self:cEndTime:=aEndTime[1]
+        self:dEndTime:=aEndTime[2]
+
+        nTime:=timeCalc():TimeToSecs(self:cEndTime)
+        nTime+=timeCalc():HrsToSecs(aEndTime[4])
+
+        FWFreeArray(@aEndTime)
+
+        self:nSRemaining:=(nTime-nSeconds)
+        self:cTRemaining:=timeCalc():SecsToTime(self:nSRemaining)
+
+        self:cTimeDiff:=timeCalc():SecsToTime(self:nSecondsTotal-self:nSecondsStartTime)
+
+    end sequence
+
+    return(self)
+
+method GetcAverageTime() class timeRemaining
+    return(self:cAverageTime)
+
+method GetcEndTime() class timeRemaining
+    return(self:cEndTime)
+
+method GetcStartTime() class timeRemaining
+    return(self:cStartTime)
+
+method GetcTimeDiff() class timeRemaining
+    return(self:cTimeDiff)
+
+method GetcTRemaining() class timeRemaining
+    return(self:cTRemaining)
+
+method GetdEndTime() class timeRemaining
+    return(self:dEndTime)
+
+method GetdStartTime() class timeRemaining
+    return(self:dStartTime)
+
+method GetnProgress() class timeRemaining
+    return(self:nProgress)
+
+method GetnSRemaining() class timeRemaining
+    return(self:nSRemaining)
+
+method GetnTotal() class timeRemaining
+    return(self:nTotal)
