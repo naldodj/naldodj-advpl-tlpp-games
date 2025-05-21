@@ -3,6 +3,10 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-21 16:08 UTC naldodj (Initial Commit)
+  + .gitattributes
+  + .gitignore
+
 2025-05-21 16:04 UTC naldodj (Initial Commit)
   + bin/3rdpatch.hb
   + bin/check.hb
