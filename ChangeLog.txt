@@ -3,6 +3,63 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-21 20:12 UTC naldodj (.bmp to .png)
+  + src/game15/resources/bmps_aux/game15_closebtn.png
+  + src/game15/resources/bmps_aux/game15_mainform.png
+  + src/game15/resources/bmps_aux/game15_minbtn.png
+  + src/game15/resources/bmps_play/game15_b01.png
+  + src/game15/resources/bmps_play/game15_b02.png
+  + src/game15/resources/bmps_play/game15_b03.png
+  + src/game15/resources/bmps_play/game15_b04.png
+  + src/game15/resources/bmps_play/game15_b05.png
+  + src/game15/resources/bmps_play/game15_b06.png
+  + src/game15/resources/bmps_play/game15_b07.png
+  + src/game15/resources/bmps_play/game15_b08.png
+  + src/game15/resources/bmps_play/game15_b09.png
+  + src/game15/resources/bmps_play/game15_b10.png
+  + src/game15/resources/bmps_play/game15_b11.png
+  + src/game15/resources/bmps_play/game15_b12.png
+  + src/game15/resources/bmps_play/game15_b13.png
+  + src/game15/resources/bmps_play/game15_b14.png
+  + src/game15/resources/bmps_play/game15_b15.png
+  + src/game15/resources/bmps_play/game15_b16.png
+  + src/game15/resources/buttons/game15_about.png
+  + src/game15/resources/buttons/game15_clear.png
+  + src/game15/resources/buttons/game15_exit.png
+  + src/game15/resources/buttons/game15_load.png
+  + src/game15/resources/buttons/game15_ok.png
+  + src/game15/resources/buttons/game15_save.png
+  + src/game15/resources/buttons/game15_start.png
+  + src/game15/resources/buttons/game15_top10.png
+  - src/game15/resources/bmps_aux/game15_closebtn.bmp
+  - src/game15/resources/bmps_aux/game15_mainform.bmp
+  - src/game15/resources/bmps_aux/game15_minbtn.bmp
+  - src/game15/resources/bmps_play/game15_b01.bmp
+  - src/game15/resources/bmps_play/game15_b02.bmp
+  - src/game15/resources/bmps_play/game15_b03.bmp
+  - src/game15/resources/bmps_play/game15_b04.bmp
+  - src/game15/resources/bmps_play/game15_b05.bmp
+  - src/game15/resources/bmps_play/game15_b06.bmp
+  - src/game15/resources/bmps_play/game15_b07.bmp
+  - src/game15/resources/bmps_play/game15_b08.bmp
+  - src/game15/resources/bmps_play/game15_b09.bmp
+  - src/game15/resources/bmps_play/game15_b10.bmp
+  - src/game15/resources/bmps_play/game15_b11.bmp
+  - src/game15/resources/bmps_play/game15_b12.bmp
+  - src/game15/resources/bmps_play/game15_b13.bmp
+  - src/game15/resources/bmps_play/game15_b14.bmp
+  - src/game15/resources/bmps_play/game15_b15.bmp
+  - src/game15/resources/bmps_play/game15_b16.bmp
+  - src/game15/resources/buttons/game15_about.bmp
+  - src/game15/resources/buttons/game15_clear.bmp
+  - src/game15/resources/buttons/game15_exit.bmp
+  - src/game15/resources/buttons/game15_load.bmp
+  - src/game15/resources/buttons/game15_ok.bmp
+  - src/game15/resources/buttons/game15_save.bmp
+  - src/game15/resources/buttons/game15_start.bmp
+  - src/game15/resources/buttons/game15_top10.bmp
+  * src/game15/mvc/game15.model.tlpp
+
 2025-05-21 18:15 UTC naldodj (StartTime)
   * src/game15/mvc/game15.model.tlpp
   * src/game15/mvc/game15.view.tlpp

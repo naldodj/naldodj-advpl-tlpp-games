@@ -1417,23 +1417,23 @@ static function InitGame15() as json
     nFiles:=16
     for nFile:=1 to nFiles
         cFile:=StrZero(nFile,2)
-        jGame15Data["Game15_Files_bmps_play"]["b"+cFile]:="game15_b"+cFile+".bmp"
+        jGame15Data["Game15_Files_bmps_play"]["b"+cFile]:="game15_b"+cFile+".png"
     next nFile
 
     jGame15Data["Game15_Files_bmps_aux"]:=JSONObject():New()
-    jGame15Data["Game15_Files_bmps_aux"]["minbtn"]:="game15_minbtn.bmp"
-    jGame15Data["Game15_Files_bmps_aux"]["mainform"]:="game15_mainform.bmp"
-    jGame15Data["Game15_Files_bmps_aux"]["closebtn"]:="game15_closebtn.bmp"
+    jGame15Data["Game15_Files_bmps_aux"]["minbtn"]:="game15_minbtn.png"
+    jGame15Data["Game15_Files_bmps_aux"]["mainform"]:="game15_mainform.png"
+    jGame15Data["Game15_Files_bmps_aux"]["closebtn"]:="game15_closebtn.png"
 
     jGame15Data["Game15_Files_buttons"]:=JSONObject():New()
-    jGame15Data["Game15_Files_buttons"]["about"]:="game15_about.bmp"
-    jGame15Data["Game15_Files_buttons"]["clear"]:="game15_clear.bmp"
-    jGame15Data["Game15_Files_buttons"]["Exit"]:="game15_exit.bmp"
-    jGame15Data["Game15_Files_buttons"]["load"]:="game15_load.bmp"
-    jGame15Data["Game15_Files_buttons"]["ok"]:="game15_ok.bmp"
-    jGame15Data["Game15_Files_buttons"]["save"]:="game15_save.bmp"
-    jGame15Data["Game15_Files_buttons"]["start"]:="game15_start.bmp"
-    jGame15Data["Game15_Files_buttons"]["top10"]:="game15_top10.bmp"
+    jGame15Data["Game15_Files_buttons"]["about"]:="game15_about.png"
+    jGame15Data["Game15_Files_buttons"]["clear"]:="game15_clear.png"
+    jGame15Data["Game15_Files_buttons"]["Exit"]:="game15_exit.png"
+    jGame15Data["Game15_Files_buttons"]["load"]:="game15_load.png"
+    jGame15Data["Game15_Files_buttons"]["ok"]:="game15_ok.png"
+    jGame15Data["Game15_Files_buttons"]["save"]:="game15_save.png"
+    jGame15Data["Game15_Files_buttons"]["start"]:="game15_start.png"
+    jGame15Data["Game15_Files_buttons"]["top10"]:="game15_top10.png"
 
     ExtractFiles(@jGame15Data,"Game15_Files_buttons")
     ExtractFiles(@jGame15Data,"Game15_Files_bmps_aux")
