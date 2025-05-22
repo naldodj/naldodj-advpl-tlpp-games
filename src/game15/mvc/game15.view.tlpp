@@ -22,15 +22,14 @@ class Game15View
 
     private data lActive as logical
     private data lExecute as logical
-    private data lSetDeleted as logical
 
     public data aNotPlayButtonsActions as array
 
     public data oDlg as object
-    public data oModel as object
+    public data oController as object
     public data oTPaintPanel as object
 
-    public method New(oModel as object) as object
+    public method New(oController as object) as object
     public method Activate() as logical
     public method DeActivate() as logical
 
@@ -46,21 +45,20 @@ class Game15View
 
 endclass
 
-method New(oModel) class Game15View
-    paramtype 1 var oModel as object
+method New(oController) class Game15View
+    paramtype 1 var oController as object
     self:lActive:=.F.
-    if (self:CanExecute())
+    if (self:CanExecute().and.(GetClassName(oController)=="GAME15.GAME15CONTROLLER"))
         self:aNotPlayButtonsActions:=Array(0)
-        self:lSetDeleted:=Set(_SET_DELETED,.T.)
-        self:oModel:=oModel
+        self:oController:=oController
     endif
 return(self)
 
 method Activate() class Game15View
     if (;
-            (ValType(self:oModel)=="O");
+            ((ValType(self:oController)=="O").and.(GetClassName(self:oController)=="GAME15.GAME15CONTROLLER"));
             .and.;
-            (self:oModel:IsActive());
+            (self:oController:IsActive());
             .and.;
             (!self:lActive).and.(self:CanExecute());
     )
@@ -81,7 +79,6 @@ method DeActivate() class Game15View
         DelClassIntf()
         self:lActive:=.F.
     endif
-    Set(_SET_DELETED,self:lSetDeleted)
 return(self:lActive)
 
 method Create() class Game15View
@@ -89,14 +86,12 @@ method Create() class Game15View
     local bRestoreGameUpdateView as codeblock
 
     local cIcon as character
-    local cTitle:="Jogo Game15::by Naldo DJ::v2" as character
+    local cTitle:=GAME15_TITLE as character
 
     local jCoordinates as json
 
     local oView:=self as object
-    local oModel:=self:oModel as object
-
-    lSetDeleted:=Set(_SET_DELETED,.T.)
+    local oController:=self:oController as object
 
     begin sequence
 
@@ -107,19 +102,19 @@ method Create() class Game15View
         bRestoreGameUpdateView:={|nID as numeric,nLeft as numeric,nTop as numeric|oView:oTPaintPanel:SetPosition(nID,nLeft,nTop)}
 
         aAdd(oView:aNotPlayButtonsActions,{"Close",{||oView:oTPaintPanel:ClearAll(),oView:oTPaintPanel:oWnd:End()}})
-        aAdd(oView:aNotPlayButtonsActions,{"Load Game",{||RestoreGame(@oModel,@bRestoreGameUpdateView)}})
-        aAdd(oView:aNotPlayButtonsActions,{"Start of new game",{||FWMsgRun(nil,{||oView:oTPaintPanel:ClearAll(),oModel:Reload(),LoadGame(nil,nil,@oModel,@oView:oTPaintPanel)},"Wait..","Start of new game")}})
-        aAdd(oView:aNotPlayButtonsActions,{"Save a game",{||SaveGame(@oModel)}})
+        aAdd(oView:aNotPlayButtonsActions,{"Load Game",{||RestoreGame(@oController,@bRestoreGameUpdateView)}})
+        aAdd(oView:aNotPlayButtonsActions,{"Start of new game",{||FWMsgRun(nil,{||oView:oTPaintPanel:ClearAll(),oController:Reload(),LoadGame(nil,nil,@oController,@oView:oTPaintPanel)},"Wait..","Start of new game")}})
+        aAdd(oView:aNotPlayButtonsActions,{"Save a game",{||SaveGame(@oController)}})
         aAdd(oView:aNotPlayButtonsActions,{"About",{||oView:MsgAbout()}})
         aAdd(oView:aNotPlayButtonsActions,{"Top Table",{||oView:ShowTopTable()}})
         aAdd(oView:aNotPlayButtonsActions,{"Exit",{||oView:oTPaintPanel:ClearAll(),oView:oTPaintPanel:oWnd:End()}})
 
         oTRect:=TRect():New(0,0,365,305)
 
-        cIcon:=oModel:jGame15Data["Game15_Files_ico"]["ico"]
+        cIcon:=oController:GetGame15Data("Game15_Files_ico","ico")
         DEFINE MSDIALOG oView:oDlg TITLE OemToAnsi(cTitle) FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF GetWndDefault() ICON cIcon PIXEL STYLE WS_POPUP
 
-        jCoordinates:=oModel:jGame15Data["Coordinates"]
+        jCoordinates:=oController:GetGame15Data("Coordinates")
         jCoordinates["nTop"]:=oTRect:nTop
         jCoordinates["nLeft"]:=oTRect:nLeft
         jCoordinates["nWidth"]:=oTRect:nRight
@@ -128,13 +123,13 @@ method Create() class Game15View
         oView:oTPaintPanel:=TPaintPanel():New(jCoordinates["nTop"],jCoordinates["nLeft"],jCoordinates["nWidth"],jCoordinates["nHeight"],oView:oDlg,.F.)
         oView:oTPaintPanel:Align:=CONTROL_ALIGN_ALLCLIENT
 
-        oView:oTPaintPanel:bRClicked:={|x,y|rClickGame15(@x,@y,@oView,@oModel)}
-        oView:oTPaintPanel:blClicked:={|x,y|lClickGame15(@x,@y,@oView,@oModel)}
+        oView:oTPaintPanel:bRClicked:={|x,y|rClickGame15(@x,@y,@oView,@oController)}
+        oView:oTPaintPanel:blClicked:={|x,y|lClickGame15(@x,@y,@oView,@oController)}
         oView:oTPaintPanel:blDBLClick:=oView:oTPaintPanel:blClicked
 
         FreeObj(@oTRect)
 
-        oView:bInit:={||LoadGame(nil,nil,@oModel,@oView:oTPaintPanel)}
+        oView:bInit:={||LoadGame(nil,nil,@oController,@oView:oTPaintPanel)}
         oView:bValid:={||.T.}
 
     end sequence
@@ -146,12 +141,14 @@ return(self:lActive)
 
 method CanExecute() class Game15View
     self:lExecute:=FWIsInCallStack("GAME15.U_GAME15RUN")
+    if (self:lExecute).and.(ValType(self:oController)=="O")
+        self:lExecute:=(GetClassName(self:oController)=="GAME15.GAME15CONTROLLER")
+    endif
 return(self:lExecute)
 
 method SaveTopTable() class Game15View
 
     local cG15Name as character
-    local cG15Alias as character
 
     local cElapTime as character
     local cStartTime as character
@@ -159,7 +156,7 @@ method SaveTopTable() class Game15View
     local dStartDate as date
 
     local oView:=self as object
-    local oModel:=self:oModel as object
+    local oController:=self:oController as object
 
     local oDlg as object
     local oBtn as object
@@ -171,22 +168,12 @@ method SaveTopTable() class Game15View
             break
         endif
 
-        cG15Alias:=oModel:jGame15Data["Game15_Table"]["G15_Alias"]
-
-        if (;
-                Empty(cG15Alias);
-                .or.;
-                (Select(cG15Alias)==0);
-        )
-            break
-        endif
-
-        cStartTime:=oModel:jGame15Data["Game15_Time"]["cStartTime"]
-        dStartDate:=oModel:jGame15Data["Game15_Time"]["dStartDate"]
-        cStartTime:=oModel:Time2NextDay(@cStartTime,@dStartDate)[1]
+        cStartTime:=oController:GetGame15Data("Game15_Time","cStartTime")
+        dStartDate:=oController:GetGame15Data("Game15_Time","dStartDate")
+        cStartTime:=oController:Time2NextDay(@cStartTime,@dStartDate)[1]
         cElapTime:=ElapTime(cStartTime,Time())
 
-        cG15Name:=Space(Len((cG15Alias)->G15_NAME))
+        cG15Name:=Space(oController:GetPlayerNameSize())
 
         DEFINE FONT oFont NAME "Arial" SIZE 0,-15 BOLD
         DEFINE MSDIALOG oDlg TITLE OemToAnsi("You Win! Elapsed Time:"+cElapTime+". Enter your name.") FROM 0,0 TO 040,405 OF oView:oDlg PIXEL
@@ -205,8 +192,8 @@ method SaveTopTable() class Game15View
             cG15Name:="NONAME"
         endif
 
-        oModel:SetGame15Player(cG15Name)
-        oModel:SaveTopTable()
+        oController:SetGame15Player(cG15Name)
+        oController:SaveTopTable()
 
     end sequence
 
@@ -214,23 +201,21 @@ return
 
 method ShowTopTable() class Game15View
 
-    local aShapes as array
     local aListBox as array
 
     local bInit as codeblock
     local bValid as codeblock
 
     local cIcon as character
-    local cG15Alias as character
 
     local jCoordinates as json
 
     local oView:=self as object
-    local oModel:=self:oModel as object
+    local oController:=self:oController as object
 
     local oDlg as object
     local oTRect as object
-    local oTListBox as object
+    local oTWBrowse as object
     local oTPaintPanel as object
 
     begin sequence
@@ -239,25 +224,15 @@ method ShowTopTable() class Game15View
             break
         endif
 
-        cG15Alias:=oModel:jGame15Data["Game15_Table"]["G15_Alias"]
-
-        if (;
-                Empty(cG15Alias);
-                .or.;
-                (Select(cG15Alias)==0);
-        )
-            break
-        endif
-
         oTRect:=TRect():New(0,0,365,305)
 
         aListBox:=Array(0)
-        BuildLBoxArray(@cG15Alias,@aListBox)
+        oController:BuildLBoxArray(@aListBox)
 
-        cIcon:=oModel:jGame15Data["Game15_Files_ico"]["ico"]
+        cIcon:=oController:GetGame15Data("Game15_Files_ico","ico")
         DEFINE MSDIALOG oDlg TITLE OemToAnsi("TOP Results") FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF oView:oDlg ICON cIcon PIXEL STYLE WS_POPUP
 
-            jCoordinates:=oModel:jGame15Data["Coordinates"]
+            jCoordinates:=oController:GetGame15Data("Coordinates")
             jCoordinates["nTop"]:=oTRect:nTop
             jCoordinates["nLeft"]:=oTRect:nLeft
             jCoordinates["nWidth"]:=oTRect:nRight
@@ -266,31 +241,24 @@ method ShowTopTable() class Game15View
             oTPaintPanel:=TPaintPanel():New(jCoordinates["nTop"],jCoordinates["nLeft"],jCoordinates["nWidth"],jCoordinates["nHeight"],oDlg,.F.)
             oTPaintPanel:Align:=CONTROL_ALIGN_ALLCLIENT
 
-            @ oTRect:nTop+20,oTRect:nLeft+5 LISTBOX oTListBox FIELDS HEADER "Time","Result","Name" SIZE oTRect:nRight/2.05,oTRect:nBottom/2.35 OF oTPaintPanel PIXEL COLSIZES 15,25,50
-            oTListBox:SetArray(aListBox)
-            oTListBox:bLine:={||(cG15Alias)->(MsGoto(aListBox[oTListBox:nAT][AT_R_E_C_N_O_])),;
-                                    {;
-                                        aListBox[oTListBox:nAT][AT_G15_TIME],;
-                                        aListBox[oTListBox:nAT][AT_G15_RESULT],;
-                                        aListBox[oTListBox:nAT][AT_G15_NAME];
-                           };
-                        }
+            @ oTRect:nTop+20,oTRect:nLeft+5 LISTBOX oTWBrowse FIELDS HEADER "Time","Result","Name" SIZE oTRect:nRight/2.05,oTRect:nBottom/2.35 OF oTPaintPanel PIXEL COLSIZES 15,25,50
+            oTWBrowse:SetArray(aListBox)
+            oController:ViewSetListBoxLine(@oTWBrowse,@aListBox)
 
-            oTPaintPanel:bRClicked:={|x,y|rClickTopTable(@x,@y,@oView,@oTPaintPanel,@aShapes,@oTListBox,@aListBox,@cG15Alias)}
-            oTPaintPanel:blClicked:={|x,y|lClickTopTable(@x,@y,@oView,@oTPaintPanel,@aShapes,@oTListBox,@aListBox,@cG15Alias)}
+            oTPaintPanel:bRClicked:={|x,y|rClickTopTable(@x,@y,@oView,@oTPaintPanel,@oTWBrowse,@aListBox)}
+            oTPaintPanel:blClicked:={|x,y|lClickTopTable(@x,@y,@oView,@oTPaintPanel,@oTWBrowse,@aListBox)}
             oTPaintPanel:blDBLClick:=oTPaintPanel:blClicked
 
             FreeObj(@oTRect)
 
-            bInit:={||LoadTopTable(@oTPaintPanel,@oModel,@aShapes)}
+            bInit:={||LoadTopTable(@oTPaintPanel,@oController)}
             bValid:={||.T.}
 
         ACTIVATE DIALOG oDlg CENTERED ON INIT Eval(bInit) VALID Eval(bValid)
 
-        FWFreeArray(@aShapes)
         FWFreeArray(@aListBox)
 
-        FreeObj(oTListBox)
+        FreeObj(oTWBrowse)
         FreeObj(@oTPaintPanel)
         FreeObj(@oDlg)
         DelClassIntf()
@@ -302,12 +270,11 @@ return
 method ClearTopTable() class Game15View
 
     local cG15Name as character
-    local cG15Alias as character
 
     local lClear:=.F. as logical
 
     local oView:=self as object
-    local oModel:=self:oModel as object
+    local oController:=self:oController as object
 
     local oDlg as object
     local oBtn as object
@@ -315,29 +282,7 @@ method ClearTopTable() class Game15View
 
     begin sequence
 
-        if (!valType(oModel:jGame15Data)=="J")
-            break
-        endif
-
-        if (;
-                (!oModel:jGame15Data:HasProperty("Game15_Table"));
-                .or.;
-                (!oModel:jGame15Data["Game15_Table"]:HasProperty("G15_Alias"));
-        )
-            break
-        endif
-
-        cG15Alias:=oModel:jGame15Data["Game15_Table"]["G15_Alias"]
-
-        if (;
-                Empty(cG15Alias);
-                .or.;
-                (Select(cG15Alias)==0);
-        )
-            break
-        endif
-
-        cG15Name:=Space(Len((cG15Alias)->G15_NAME))
+        cG15Name:=Space(oController:GetPlayerNameSize())
 
         DEFINE FONT oFont NAME "Arial" SIZE 0,-15 BOLD
         DEFINE MSDIALOG oDlg TITLE OemToAnsi("Enter your name.") FROM 0,0 TO 040,405 OF oView:oDlg PIXEL
@@ -356,22 +301,22 @@ method ClearTopTable() class Game15View
             cG15Name:="NONAME"
         endif
 
-        oModel:jGame15Data["Game15_Player"]["cGame15Player"]:=cG15Name
-        lClear:=oModel:ClearTopTable()
+        oController:SetGame15Data("Game15_Player","cGame15Player",cG15Name)
+        lClear:=oController:ClearTopTable()
 
     end sequence
 
 return(lClear)
 
-static procedure LoadGame(x as variant,y as variant,oModel as object,oTPaintPanel as object)
+static procedure LoadGame(x as numeric,y as numeric,oController as object,oTPaintPanel as object)
 
-    local aShapes as array
-
+    local cShape:="Game15_Shapes" as character
     local cProperties as character
 
     local lCanMove:=.F. as logical
     local lCanDeform:=.F. as logical
 
+    local nID
     local nShape
     local nShapes
 
@@ -380,70 +325,70 @@ static procedure LoadGame(x as variant,y as variant,oModel as object,oTPaintPane
 
     oTPaintPanel:ClearAll()
 
-    aShapes:=aClone(oModel:jGame15Data["Game15_Shapes"]["aShapes"])
-    nShapes:=Len(aShapes)
+    nShapes:=oController:ShapeGetSize(cShape)
     for nShape:=1 to nShapes
-        cProperties:=aShapes[nShape][SHAPE_PROPERTIES]
+        nID:=oController:ShapeGetATValue(cShape,nShape,SHAPE_ID)
+        cProperties:=oController:ShapeGetATValue(cShape,nShape,SHAPE_PROPERTIES)
         oTPaintPanel:AddShape(cProperties)
-        oTPaintPanel:SetCanMove(aShapes[nShape][SHAPE_ID],lCanMove)
-        oTPaintPanel:SetCanDeform(aShapes[nShape][SHAPE_ID],lCanDeform)
+        oTPaintPanel:SetCanMove(nID,lCanMove)
+        oTPaintPanel:SetCanDeform(nID,lCanDeform)
     next nShape
-
-    FWFreeArray(@aShapes)
 
 return
 
-static function rClickGame15(x as variant,y as variant,oTPaintPanel as object,oModel as object) as logical
+static function rClickGame15(x as numeric,y as numeric,oTPaintPanel as object,oController as object) as logical
     SYMBOL_UNUSED(x)
     SYMBOL_UNUSED(y)
     SYMBOL_UNUSED(oTPaintPanel)
-    SYMBOL_UNUSED(oModel)
+    SYMBOL_UNUSED(oController)
 return(.T.)
 
-static function lClickGame15(x as variant,y as variant,oView as object,oModel as object) as logical
+static function lClickGame15(x as numeric,y as numeric,oView as object,oController as object) as logical
 
-    local aShapes as array
-
+    local bUpdateView as codeblock
     local bShapeAction as codeblock
+
+    local cShape:="Game15_Shapes" as character
+    local cShapeToolTip as character
+    local cShapeProperties as character
 
     local lAction as logical
 
     local nShape as numeric
-    local nATShape as numeric
+    local nShapeAT as numeric
     local nATNoPlayButton as numeric
+
+    SYMBOL_UNUSED(x)
+    SYMBOL_UNUSED(y)
 
     begin sequence
 
         nShape:=oView:oTPaintPanel:ShapeAtu
-        oModel:jGame15Data["Game15_Shapes"]["nShapeAtu"]:=nShape
-        aShapes:=aClone(oModel:jGame15Data["Game15_Shapes"]["aShapes"])
+        oController:SetGame15Data(cShape,"nShapeAtu",nShape)
 
-        nATShape:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)},nShape)
-        lAction:=(nATShape>0)
-
-        if (!lAction)
-            nATShape:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)})
-            lAction:=(nATShape>0)
-        endif
+        nShapeAT:=oController:ShapeGetIDAT(cShape,nShape)
+        lAction:=(nShapeAT>0)
 
         if (!lAction)
             break
         endif
 
-        bShapeAction:=aShapes[nATShape][SHAPE_ACTION]
+        bShapeAction:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_ACTION)
         lAction:=(ValType(bShapeAction)=="B")
 
         if (!lAction)
             break
         endif
 
-        nATNoPlayButton:=aScan(oView:aNotPlayButtonsActions,{|x|x[1]==aShapes[nATShape][SHAPE_TOOLTIP]})
+        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_TOOLTIP)
+        nATNoPlayButton:=aScan(oView:aNotPlayButtonsActions,{|e as array|e[1]==cShapeToolTip})
         if (nATNoPlayButton>0)
             Eval(oView:aNotPlayButtonsActions[nATNoPlayButton][2])
             break
         endif
 
-        lICanMove:=ICanMove(x,y,aShapes[nATShape])
+        cShapeProperties:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_PROPERTIES)
+        lICanMove:=ICanMove(x,y,cShapeToolTip,cShapeProperties)
         if (!lICanMove)
             break
         endif
@@ -461,44 +406,45 @@ static function lClickGame15(x as variant,y as variant,oView as object,oModel as
                ,oView:oTPaintPanel:SetPosition(nIDFree,nLeftFree,nTopFree);
                ,Tone(3000,1);
         }
-        oModel:jGame15Data["Game15_Shapes"]["bUpdateView"]:=bUpdateView
+        oController:SetGame15Data("Game15_Shapes","bUpdateView",bUpdateView)
 
-        Eval(bShapeAction,{||if(oModel:SwapButtons(),oView:SaveTopTable(),nil)})
+        Eval(bShapeAction,{||if(oController:SwapButtons(),oView:SaveTopTable(),nil)})
 
     end sequence
 
-    FWFreeArray(@aShapes)
-
 return(lAction)
 
-static function ICanMove(x,y,aShape) as logical
-    local cToolTip:=Left(aShape[SHAPE_TOOLTIP],3)
-    local lICanMove:=("can-move=1"$aShape[SHAPE_PROPERTIES]) as logical
+static function ICanMove(x as numeric,y as numeric,cShapeToolTip as character,cShapeProperties as character) as logical
+    local cToolTip:=Left(cShapeToolTip,3)
+    local lICanMove:=("can-move=1"$cShapeProperties) as logical
     SYMBOL_UNUSED(x)
     SYMBOL_UNUSED(y)
     lICanMove:=((lICanMove).and.(cToolTip>="b01".and.cToolTip<="b15"))
 return(lICanMove)
 
-static function rClickTopTable(x as variant,y as variant,oView as object,oTPaintPanel as object,aShapes as array,oTListBox as object,aListBox as array,cG15Alias as character) as logical
+static function rClickTopTable(x as numeric,y as numeric,oView as object,oTPaintPanel as object,oTWBrowse as object,aListBox as array) as logical
     SYMBOL_UNUSED(x)
     SYMBOL_UNUSED(y)
     SYMBOL_UNUSED(oView)
     SYMBOL_UNUSED(oTPaintPanel)
-    SYMBOL_UNUSED(aShapes)
-    SYMBOL_UNUSED(oTListBox)
+    SYMBOL_UNUSED(oTWBrowse)
     SYMBOL_UNUSED(aListBox)
-    SYMBOL_UNUSED(cG15Alias)
 return(.T.)
 
-static function lClickTopTable(x as variant,y as variant,oView as object,oTPaintPanel as object,aShapes as array,oTListBox as object,aListBox as array,cG15Alias as character) as logical
+static function lClickTopTable(x as numeric,y as numeric,oView as object,oTPaintPanel as object,oTWBrowse as object,aListBox as array) as logical
 
     local aTopTableAction as array
+
+    local cShape:="Game15_TopTable" as character
+    local cShapeToolTip as character
 
     local lAction as logical
 
     local nShape as numeric
-    local nATShape as numeric
+    local nShapeAT as numeric
     local nATTopTableAction as numeric
+
+    local oController:=oView:oController as object
 
     SYMBOL_UNUSED(x)
     SYMBOL_UNUSED(y)
@@ -506,13 +452,8 @@ static function lClickTopTable(x as variant,y as variant,oView as object,oTPaint
     begin sequence
 
         nShape:=oTPaintPanel:ShapeAtu
-        nATShape:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)},nShape)
-        lAction:=(nATShape>0)
-
-        if (!lAction)
-            nATShape:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)})
-            lAction:=(nATShape>0)
-        endif
+        nShapeAT:=oController:ShapeGetIDAT(cShape,nShape)
+        lAction:=(nShapeAT>0)
 
         if (!lAction)
             break
@@ -521,9 +462,10 @@ static function lClickTopTable(x as variant,y as variant,oView as object,oTPaint
         aTopTableAction:=Array(0)
         aAdd(aTopTableAction,{"Close",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
         aAdd(aTopTableAction,{"OK",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
-        aAdd(aTopTableAction,{"Clear Top Table",{||oView:ClearTopTable(),BuildLBoxArray(@cG15Alias,@aListBox),oTListBox:Refresh()}})
+        aAdd(aTopTableAction,{"Clear Top Table",{||oView:ClearTopTable(),oController:BuildLBoxArray(@aListBox),oTWBrowse:Refresh()}})
 
-        nATTopTableAction:=aScan(aTopTableAction,{|x|x[1]==aShapes[nATShape][SHAPE_TOOLTIP]})
+        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_TOOLTIP)
+        nATTopTableAction:=aScan(aTopTableAction,{|e as array|e[1]==cShapeToolTip})
         if (nATTopTableAction>0)
             Eval(aTopTableAction[nATTopTableAction][2])
         endif
@@ -534,77 +476,32 @@ static function lClickTopTable(x as variant,y as variant,oView as object,oTPaint
 
 return(lAction)
 
-static procedure BuildLBoxArray(cG15Alias,aListBox)
+static procedure LoadTopTable(oTPaintPanel as object,oController as object)
 
-    local cNickName:=(cG15Alias)->(IndexKey())
-
-    local nListBox:=0
-
-    local lBuildOk
-
-    (cG15Alias)->(dbOrderNickName("G15_TIME"))
-
-    aSize(aListBox,0)
-
-    (cG15Alias)->(dbGoTop())
-
-    While (cG15Alias)->(.NOT.(Eof()))
-
-        ++nListBox
-        aAdd(aListBox,Array(AT_FIELDS))
-
-        aListBox[nListBox][AT_G15_TIME ]:=(cG15Alias)->G15_TIME
-        aListBox[nListBox][AT_G15_RESULT]:=(cG15Alias)->G15_RESULT
-        aListBox[nListBox][AT_G15_NAME ]:=(cG15Alias)->G15_NAME
-        aListBox[nListBox][AT_R_E_C_N_O_]:=(cG15Alias)->(Recno())
-
-        (cG15Alias)->(dbSkip())
-
-    End While
-
-    lBuildOk:=(nListBox>0)
-
-    if .NOT.(lBuildOk)
-
-        ++nListBox
-        aAdd(aListBox,Array(AT_FIELDS))
-        aListBox[nListBox][AT_G15_TIME ]:=Space(Len((cG15Alias)->G15_TIME))
-        aListBox[nListBox][AT_G15_RESULT]:=Space(10)
-        aListBox[nListBox][AT_G15_NAME ]:=Space(Len((cG15Alias)->G15_NAME))
-        aListBox[nListBox][AT_R_E_C_N_O_]:=0
-
-    endif
-
-    (cG15Alias)->(dbOrderNickName(cNickName))
-
-return(lBuildOk)
-
-static procedure LoadTopTable(oTPaintPanel as object,oModel as object,aShapes as array)
-
+    local cShape:="Game15_TopTable" as character
     local cProperties as character
 
     local lCanMove:=.F. as logical
     local lCanDeform:=.F. as logical
 
+    local nID as numeric
     local nShape as numeric
     local nShapes as numeric
 
     oTPaintPanel:ClearAll()
 
-    aShapes:=aClone(oModel:jGame15Data["Game15_TopTable"]["aShapes"])
-    nShapes:=Len(aShapes)
+    nShapes:=oController:ShapeGetSize(cShape)
     for nShape:=1 to nShapes
-        cProperties:=aShapes[nShape][SHAPE_PROPERTIES]
+        nID:=oController:ShapeGetATValue(cShape,nShape,SHAPE_ID)
+        cProperties:=oController:ShapeGetATValue(cShape,nShape,SHAPE_PROPERTIES)
         oTPaintPanel:AddShape(cProperties)
-        oTPaintPanel:SetCanMove(aShapes[nShape][SHAPE_ID],lCanMove)
-        oTPaintPanel:SetCanDeform(aShapes[nShape][SHAPE_ID],lCanDeform)
+        oTPaintPanel:SetCanMove(nID,lCanMove)
+        oTPaintPanel:SetCanDeform(nID,lCanDeform)
     next nShape
 
 return
 
 method MsgAbout() class Game15View
-
-    local aShapes as array
 
     local bInit as codeblock
     local bValid as codeblock
@@ -614,7 +511,7 @@ method MsgAbout() class Game15View
     local jCoordinates as json
 
     local oView:=self as object
-    local oModel:=self:oModel as object
+    local oController:=self:oController as object
 
     local oDlg as object
     local oTRect as object
@@ -628,10 +525,10 @@ method MsgAbout() class Game15View
 
         oTRect:=TRect():New(0,0,365,305)
 
-        cIcon:=oModel:jGame15Data["Game15_About"]["ico"]
-        DEFINE MSDIALOG oDlg TITLE OemToAnsi(PROGRAM+" About") FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF oView:oDlg ICON cIcon PIXEL STYLE WS_POPUP
+        cIcon:=oController:GetGame15Data("Game15_About","ico")
+        DEFINE MSDIALOG oDlg TITLE OemToAnsi(GAME15_PROGRAM+" About") FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF oView:oDlg ICON cIcon PIXEL STYLE WS_POPUP
 
-            jCoordinates:=oModel:jGame15Data["Coordinates"]
+            jCoordinates:=oController:GetGame15Data("Coordinates")
             jCoordinates["nTop"]:=oTRect:nTop
             jCoordinates["nLeft"]:=oTRect:nLeft
             jCoordinates["nWidth"]:=oTRect:nRight
@@ -640,10 +537,10 @@ method MsgAbout() class Game15View
             oTPaintPanel:=TPaintPanel():New(jCoordinates["nTop"],jCoordinates["nLeft"],jCoordinates["nWidth"],jCoordinates["nHeight"],oDlg,.F.)
             oTPaintPanel:Align:=CONTROL_ALIGN_ALLCLIENT
 
-            LoadMsgAbout(@oTPaintPanel,oModel,@aShapes)
+            LoadMsgAbout(@oTPaintPanel,oController)
 
-            oTPaintPanel:bRClicked:={|x,y|rClickMsgAbout(@x,@y,@oTPaintPanel,@aShapes)}
-            oTPaintPanel:blClicked:={|x,y|lClickMsgAbout(@x,@y,@oTPaintPanel,@aShapes)}
+            oTPaintPanel:bRClicked:={|x,y|rClickMsgAbout(@x,@y,@oTPaintPanel,@oController)}
+            oTPaintPanel:blClicked:={|x,y|lClickMsgAbout(@x,@y,@oTPaintPanel,@oController)}
             oTPaintPanel:blDBLClick:=oTPaintPanel:blClicked
 
             FreeObj(@oTRect)
@@ -653,8 +550,6 @@ method MsgAbout() class Game15View
 
         ACTIVATE DIALOG oDlg CENTERED ON INIT Eval(bInit) VALID Eval(bValid)
 
-        FWFreeArray(@aShapes)
-
         FreeObj(@oTPaintPanel)
         FreeObj(@oDlg)
         DelClassIntf()
@@ -663,44 +558,49 @@ method MsgAbout() class Game15View
 
 return
 
-static procedure LoadMsgAbout(oTPaintPanel as object,oModel as object,aShapes as array)
+static procedure LoadMsgAbout(oTPaintPanel as object,oController as object)
 
+    local cShape:="Game15_About" as character
     local cProperties as character
 
     local lCanMove:=.F. as logical
     local lCanDeform:=.F. as logical
 
+    local nID as numeric
     local nShape as numeric
     local nShapes as numeric
 
     oTPaintPanel:ClearAll()
 
-    aShapes:=aClone(oModel:jGame15Data["Game15_About"]["aShapes"])
-    nShapes:=Len(aShapes)
+    nShapes:=oController:ShapeGetSize(cShape)
     for nShape:=1 to nShapes
-        cProperties:=aShapes[nShape][SHAPE_PROPERTIES]
+        nID:=oController:ShapeGetATValue(cShape,nShape,SHAPE_ID)
+        cProperties:=oController:ShapeGetATValue(cShape,nShape,SHAPE_PROPERTIES)
         oTPaintPanel:AddShape(cProperties)
-        oTPaintPanel:SetCanMove(aShapes[nShape][SHAPE_ID],lCanMove)
-        oTPaintPanel:SetCanDeform(aShapes[nShape][SHAPE_ID],lCanDeform)
+        oTPaintPanel:SetCanMove(nID,lCanMove)
+        oTPaintPanel:SetCanDeform(nID,lCanDeform)
     next nShape
 
 return
 
-static function rClickMsgAbout(x as variant,y as variant,oTPaintPanel as object,aShapes as array) as logical
+static function rClickMsgAbout(x as numeric,y as numeric,oTPaintPanel as object,oController as object) as logical
     SYMBOL_UNUSED(x)
     SYMBOL_UNUSED(y)
     SYMBOL_UNUSED(oTPaintPanel)
-    SYMBOL_UNUSED(aShapes)
+    SYMBOL_UNUSED(oController)
 return(.T.)
 
-static function lClickMsgAbout(x as variant,y as variant,oTPaintPanel as object,aShapes as array) as logical
+static function lClickMsgAbout(x as numeric,y as numeric,oTPaintPanel as object,oController as object) as logical
 
     local aMsgAboutAction as array
+
+    local cShape:="Game15_About" as character
+    local cShapeToolTip as character
 
     local lAction as logical
 
     local nShape as numeric
-    local nATShape as numeric
+    local nShapeAT as numeric
     local nATMsgAboutAction as numeric
 
     SYMBOL_UNUSED(x)
@@ -709,13 +609,8 @@ static function lClickMsgAbout(x as variant,y as variant,oTPaintPanel as object,
     begin sequence
 
         nShape:=oTPaintPanel:ShapeAtu
-        nATShape:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)},nShape)
-        lAction:=(nATShape>0)
-
-        if (!lAction)
-            nATShape:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)})
-            lAction:=(nATShape>0)
-        endif
+        nShapeAT:=oController:ShapeGetIDAT(cShape,nShape)
+        lAction:=(nShapeAT>0)
 
         if (!lAction)
             break
@@ -723,11 +618,12 @@ static function lClickMsgAbout(x as variant,y as variant,oTPaintPanel as object,
 
         aMsgAboutAction:=Array(0)
         aAdd(aMsgAboutAction,{"Close",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
-        aAdd(aMsgAboutAction,{PadC("BlackTDN::ADVPL Games ~ GAME 15",40),{||ShellExecute("open",URL_BTDNGAME15,"","",1)}})
-        aAdd(aMsgAboutAction,{PadC(URL_COPYRIGHT,40),{||ShellExecute("open",URL_COPYRIGHT,"","",1)}})
+        aAdd(aMsgAboutAction,{PadC("BlackTDN::ADVPL Games ~ GAME 15",40),{||ShellExecute("open",GAME15_URL_BTDNGAME15,"","",1)}})
+        aAdd(aMsgAboutAction,{PadC(GAME15_URL_COPYRIGHT,40),{||ShellExecute("open",GAME15_URL_COPYRIGHT,"","",1)}})
         aAdd(aMsgAboutAction,{"OK",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
 
-        nATMsgAboutAction:=aScan(aMsgAboutAction,{|x|x[1]==aShapes[nATShape][SHAPE_TOOLTIP]})
+        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_TOOLTIP)
+        nATMsgAboutAction:=aScan(aMsgAboutAction,{|e as array|e[1]==cShapeToolTip})
         if (nATMsgAboutAction>0)
             Eval(aMsgAboutAction[nATMsgAboutAction][2])
         endif
@@ -738,7 +634,7 @@ static function lClickMsgAbout(x as variant,y as variant,oTPaintPanel as object,
 
 return(lAction)
 
-static procedure SaveGame(oModel as object)
+static procedure SaveGame(oController as object)
 
     local cG15File as character
     local cMGFile as character
@@ -755,7 +651,7 @@ static procedure SaveGame(oModel as object)
             break
         endif
 
-        if (oModel:SaveGame(cG15File))
+        if (oController:SaveGame(@cG15File))
             ApMsgInfo("Arquivo ["+cG15File+".sav] salvo com sucesso",ProcName())
         else
             ApMsgInfo("Ocorreram problemas para salvar o Arquivo ["+cG15File+".sav]",ProcName())
@@ -765,7 +661,7 @@ static procedure SaveGame(oModel as object)
 
 return
 
-static procedure RestoreGame(oModel as object,bUpdateView as codeblock)
+static procedure RestoreGame(oController as object,bUpdateView as codeblock)
 
     local cG15File as character
     local cMGFile as character
@@ -782,10 +678,10 @@ static procedure RestoreGame(oModel as object,bUpdateView as codeblock)
             break
         endif
 
-        if (oModel:RestoreGame(@cG15File,@bUpdateView))
+        if (oController:RestoreGame(@cG15File,@bUpdateView))
             ApMsgInfo("Arquivo ["+cG15File+"] restaurado com sucesso",ProcName())
             //Reinicia a Contagem de Tempo apos o Reload
-            oModel:StartTime()
+            oController:StartTime()
         else
             ApMsgInfo("Ocorreram problemas para restaurar o Arquivo ["+cG15File+"]",ProcName())
         endif

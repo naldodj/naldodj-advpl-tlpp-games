@@ -40,19 +40,19 @@ static method Run() class Game15
 
     local lRun as logical
 
-    local oControler as object
+    local oController as object
 
-    oControler:=Game15Controller():New()
+    oController:=Game15Controller():New()
 
-    lRun:=oControler:CanExecute()
+    lRun:=oController:CanExecute()
 
     if (lRun)
-        lRun:=oControler:Activate()
+        lRun:=oController:Activate()
         if (lRun)
-            oControler:DeActivate()
+            oController:DeActivate()
         endif
     endif
 
-    FreeObj(@oControler)
+    FreeObj(@oController)
 
 return(lRun)

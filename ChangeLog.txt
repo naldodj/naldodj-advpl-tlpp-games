@@ -3,6 +3,14 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-22 10:51 UTC naldodj (TODO: Refatorar para MVC 100% aderente)
+  - src/game15/TODO.md
+  * includes/game15.th
+  * src/game15/game15.tlpp
+  * src/game15/mvc/game15.controller.tlpp
+  * src/game15/mvc/game15.model.tlpp
+  * src/game15/mvc/game15.view.tlpp
+
 2025-05-21 20:37 UTC naldodj (FWMsgRun to start a new game)
   * src/game15/mvc/game15.controller.tlpp
 

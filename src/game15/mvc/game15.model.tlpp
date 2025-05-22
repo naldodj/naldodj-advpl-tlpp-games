@@ -273,12 +273,12 @@ static function Activate(jGame15Data as json) as logical
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //PROGRAM+" "+VERSION
+    //GAME15_PROGRAM+" "+GAME15_VERSION
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
     aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(PROGRAM+" "+VERSION,35)
+    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
     aShapes[nID][SHAPE_TOP]:=10
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=300
@@ -656,12 +656,12 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //PROGRAM+" "+VERSION
+    //GAME15_PROGRAM+" "+GAME15_VERSION
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
     aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(PROGRAM+" "+VERSION,35)
+    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
     aShapes[nID][SHAPE_TOP]:=10
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=300
@@ -715,12 +715,12 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //Copyright "+Chr(169)+" "+COPYRIGHT
+    //Copyright "+Chr(169)+" "+GAME15_COPYRIGHT
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
     aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC("Copyright "+Chr(169)+" "+COPYRIGHT,40)
+    aShapes[nID][SHAPE_TOOLTIP]:=PadC("Copyright "+Chr(169)+" "+GAME15_COPYRIGHT,40)
     aShapes[nID][SHAPE_TOP]:=50
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
@@ -744,12 +744,12 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //AUTHOR
+    //GAME15_AUTHOR
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
     aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(AUTHOR,40)
+    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_AUTHOR,40)
     aShapes[nID][SHAPE_TOP]:=80
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
@@ -773,7 +773,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //URL_BTDNGAME15
+    //GAME15_URL_BTDNGAME15
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
@@ -803,12 +803,12 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //URL_COPYRIGHT
+    //GAME15_URL_COPYRIGHT
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
     aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(URL_COPYRIGHT,40)
+    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_URL_COPYRIGHT,40)
     aShapes[nID][SHAPE_TOP]:=140
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
@@ -833,12 +833,12 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //This program is Freeware!
+    //This GAME15_PROGRAM is Freeware!
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
     aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC("This program is Freeware!",40)
+    aShapes[nID][SHAPE_TOOLTIP]:=PadC("This GAME15_PROGRAM is Freeware!",40)
     aShapes[nID][SHAPE_TOP]:=170
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
@@ -963,12 +963,12 @@ static procedure LoadTopTable(jGame15Data as json)
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    //PROGRAM+" "+VERSION
+    //GAME15_PROGRAM+" "+GAME15_VERSION
     aAdd(aShapes,Array(SHAPE_ELEM))
     nID:=Len(aShapes)
 
     aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(PROGRAM+" "+VERSION,35)
+    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
     aShapes[nID][SHAPE_TOP]:=10
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=300
@@ -1389,14 +1389,26 @@ static function InitGame15() as json
     jGame15Data["Game15_Shapes"]:=JSONObject():New()
     jGame15Data["Game15_Shapes"]["aShapes"]:=Array(0)
     jGame15Data["Game15_Shapes"]["nShapeAtu"]:=0
+    jGame15Data["Game15_Shapes"]["bUpdateView"]:={;
+            |;
+                 nIDPress as numeric;
+                ,nLeftPress as numeric;
+                ,nTopPress as numeric;
+                ,nIDFree as numeric;
+                ,nLeftFree as numeric;
+                ,nTopFree as numeric;
+            |;
+    }
 
     jGame15Data["Game15_About"]:=JSONObject():New()
     jGame15Data["Game15_About"]["aShapes"]:=Array(0)
     jGame15Data["Game15_About"]["nShapeAtu"]:=0
+    jGame15Data["Game15_About"]["bUpdateView"]:={||}
 
     jGame15Data["Game15_TopTable"]:=JSONObject():New()
     jGame15Data["Game15_TopTable"]["aShapes"]:=Array(0)
     jGame15Data["Game15_TopTable"]["nShapeAtu"]:=0
+    jGame15Data["Game15_TopTable"]["bUpdateView"]:={||}
 
     jGame15Data["Game15_Player"]:=JSONObject():New()
     jGame15Data["Game15_Player"]["cGame15Player"]:="NONAME"

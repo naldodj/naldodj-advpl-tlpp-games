@@ -9,6 +9,7 @@
 */
 #include "totvs.ch"
 #include "game15.th"
+#include "parmtype.ch"
 #include "tlpp-core.th"
 
 namespace game15
@@ -18,6 +19,7 @@ class Game15Controller
 
     private data lExecute as logical
     private data lActive as logical
+    private data lSetDeleted as logical
 
     private data oView as object
     private data oModel as object
@@ -28,13 +30,41 @@ class Game15Controller
     public method CanExecute() as logical
     public method IsActive() as logical
 
+    //Model Interface
+    private data jGame15Data as json
+
+    public method Reload() as logical
+
+    public method SwapButtons() as logical
+
+    public method SaveTopTable() as logical
+    public method ClearTopTable() as logical
+
+    public method SetGame15Player(cPlayer as character) as character
+
+    public method SaveGame(cG15File as character) as logical
+    public method RestoreGame(cG15File as character,bUpdateView as codeblock) as logical
+
+    public method StartTime() as logical
+    public method Time2NextDay(cTime as character,dDate as date) as array
+
+    //View Interface
+    public method BuildLBoxArray(aListBox as array) as logical
+    public method GetPlayerNameSize() as numeric
+    public method SetGame15Data(cSection as character,cKey as character,xValue as variant) as logical
+    public method GetGame15Data(cSection as character,cKey as character,xDefault as variant) as variant
+    public method ShapeGetSize(cSection as character) as numeric
+    public method ShapeGetIDAT(cSection as character,nShape as numeric) as numeric
+    public method ShapeGetATValue(cSection as character,nShapeAT as numeric,nKeyAT as numeric) as variant
+    public method ViewSetListBoxLine(oTWBrowse as object,aListBox as array) as variant
+
 endclass
 
 method New() class Game15Controller
     self:lActive:=.F.
     if (self:CanExecute())
         self:oModel:=Game15Model():New()
-        self:oView:=Game15View():New(self:oModel)
+        self:oView:=Game15View():New(self)
     endif
 return(self)
 
@@ -46,6 +76,8 @@ method Activate() class Game15Controller
         FWMsgRun(nil,{||lActive:=oModel:Activate()},"Wait..","Start of new game")
         self:lActive:=lActive
         if (self:lActive)
+            self:jGame15Data:=oModel:jGame15Data
+            self:lSetDeleted:=Set(_SET_DELETED,.T.)
             oView:Activate()
         endif
     endif
@@ -53,6 +85,9 @@ return(self:lActive)
 
 method DeActivate() class Game15Controller
     if (self:lActive)
+        if (valType(self:lSetDeleted)=="L")
+            Set(_SET_DELETED,self:lSetDeleted)
+        endif
         if (valType(self:oView)=="O")
             self:oView:DeActivate()
             FreeObj(@self:oView)
@@ -71,3 +106,273 @@ return(self:lExecute)
 
 method IsActive() class Game15Controller
 return(self:lActive)
+
+//Model Interface
+method Reload() class Game15Controller
+    local lReload as logical
+    lReload:=self:IsActive()
+    if (lReload)
+        lReload:=self:oModel:Reload()
+    endif
+return(lReload)
+
+method SwapButtons() class Game15Controller
+    local lSwapButtons as logical
+    lSwapButtons:=self:IsActive()
+    if (lSwapButtons)
+        lSwapButtons:=self:oModel:SwapButtons()
+    endif
+return(lSwapButtons)
+
+method SaveTopTable() class Game15Controller
+    local lSaveTopTable as logical
+    lSaveTopTable:=self:IsActive()
+    if (lSaveTopTable)
+        lSaveTopTable:=self:oModel:SaveTopTable()
+    endif
+return(lSaveTopTable)
+
+method ClearTopTable() class Game15Controller
+    local lClearTopTable as logical
+    lClearTopTable:=self:IsActive()
+    if (lClearTopTable)
+        lClearTopTable:=self:oModel:ClearTopTable()
+    endif
+return(lClearTopTable)
+
+method SetGame15Player(cPlayer) class Game15Controller
+    local cNewPlayer as character
+    local lSetGame15Player as logical
+    paramtype 1 var cPlayer as character
+    lSetGame15Player:=self:IsActive()
+    if (lSetGame15Player)
+        cNewPlayer:=self:oModel:SetGame15Player(@cPlayer)
+    endif
+return(cNewPlayer)
+
+method SaveGame(cG15File) class Game15Controller
+    local lSaveGame as logical
+    paramtype 1 var cG15File as character
+    lSaveGame:=self:IsActive()
+    if (lSaveGame)
+        lSaveGame:=self:oModel:SaveGame(@cG15File)
+    endif
+return(lSaveGame)
+
+method RestoreGame(cG15File,bUpdateView) class Game15Controller
+    local lRestoreGame as logical
+    paramtype 1 var cG15File as character
+    paramtype 2 var bUpdateView as block
+    lRestoreGame:=self:IsActive()
+    if (lRestoreGame)
+        lRestoreGame:=self:oModel:RestoreGame(@cG15File,@bUpdateView)
+    endif
+return(lRestoreGame)
+
+method StartTime() class Game15Controller
+    local lStartTime as logical
+    lStartTime:=self:IsActive()
+    if (lStartTime)
+        lStartTime:=self:oModel:StartTime()
+    endif
+return(lStartTime)
+
+method Time2NextDay(cTime,dDate) class Game15Controller
+    local aTime2NextDay as array
+    local lTime2NextDay as logical
+    paramtype 1 var cTime as character
+    paramtype 2 var dDate as date
+    lTime2NextDay:=self:IsActive()
+    if (lTime2NextDay)
+        aTime2NextDay:=self:oModel:Time2NextDay(@cTime,@dDate)
+    endif
+return(aTime2NextDay)
+
+//View Interface
+method BuildLBoxArray(aListBox) class Game15Controller
+    local cG15Alias as character
+    local lBuildLBoxArray as logical
+    paramtype 1 var aListBox as array
+    lBuildLBoxArray:=self:IsActive()
+    if (lBuildLBoxArray)
+        cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
+        lBuildLBoxArray:=BuildLBoxArray(@cG15Alias,@aListBox)
+    endif
+return(lBuildLBoxArray)
+
+method GetPlayerNameSize() class Game15Controller
+    local cG15Alias as character
+    local nPlayerNameSize as numeric
+    local lGetPlayerNameSize as logical
+    lGetPlayerNameSize:=self:IsActive()
+    if (lGetPlayerNameSize)
+        cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
+        if (Select(cG15Alias)>0)
+            nPlayerNameSize:=Len((cG15Alias)->G15_NAME)
+        endif
+    endif
+return(nPlayerNameSize)
+
+method SetGame15Data(cSection,cKey,xValue) class Game15Controller
+    local lSetGame15Data as logical
+    paramtype 1 var cSection as character
+    paramtype 2 var cKey as character
+    lSetGame15Data:=((self:IsActive()).and.(self:jGame15Data:HasProperty(cSection)))
+    lSetGame15Data:=((lSetGame15Data).and.(self:jGame15Data[cSection]:HasProperty(cKey)))
+    if (lSetGame15Data)
+        self:jGame15Data[cSection][cKey]:=xValue
+    endif
+return(lSetGame15Data)
+
+method GetGame15Data(cSection,cKey,xDefault) class Game15Controller
+    local lGetGame15Data as logical
+    local xValue as variant
+    paramtype 1 var cSection as character
+    paramtype 2 var cKey as character optional default ""
+    lGetGame15Data:=((self:IsActive()).and.(self:jGame15Data:HasProperty(cSection)))
+    if (lGetGame15Data)
+        xValue:=self:jGame15Data[cSection]
+        if (!Empty(cKey).and.(ValType(xValue)=="J"))
+            lGetGame15Data:=xValue:HasProperty(cKey)
+            if (lGetGame15Data)
+                xValue:=xValue[cKey]
+            else
+                xValue:=xDefault
+            endif
+        endif
+    else
+        xValue:=xDefault
+    endif
+return(xValue)
+
+method ShapeGetSize(cSection) class Game15Controller
+
+    local aShapes as array
+    local nShapeSize as numeric
+
+    local lShapeGetSize as logical
+
+    paramtype 1 var cSection as character
+
+    lShapeGetSize:=self:IsActive()
+    if (lShapeGetSize)
+        aShapes:=self:GetGame15Data(cSection,"aShapes")
+        nShapeSize:=Len(aShapes)
+    endif
+
+return(nShapeSize)
+
+method ShapeGetIDAT(cSection,nShape) class Game15Controller
+
+    local aShapes as array
+
+    local lShapeGetIDAT as logical
+
+    local nShapeAT as numeric
+
+    paramtype 1 var cSection as character
+    paramtype 2 var nShape as numeric
+
+    lShapeGetIDAT:=self:IsActive()
+    if (lShapeGetIDAT)
+        aShapes:=self:jGame15Data[cSection]["aShapes"]
+        nShapeAT:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)},nShape)
+        if (nShapeAT==0)
+            nShapeAT:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)})
+        endif
+    endif
+
+return(nShapeAT)
+
+method ShapeGetATValue(cSection,nShapeAT,nKeyAT) class Game15Controller
+
+    local aShapes as array
+
+    local lShapeGetATValue as logical
+
+    local xValue as variant
+
+    paramtype 1 var cSection as character
+    paramtype 2 var nShapeAT as numeric
+    paramtype 3 var nKeyAT as numeric
+
+    lShapeGetATValue:=self:IsActive()
+    if (lShapeGetATValue)
+        aShapes:=self:jGame15Data[cSection]["aShapes"]
+        if ((nShapeAT>0).and.(nShapeAT<=Len(aShapes)))
+            if ((nKeyAT>0).and.(nKeyAT<=Len(aShapes[nShapeAT])))
+                xValue:=aShapes[nShapeAT][nKeyAT]
+            endif
+        endif
+    endif
+
+return(xValue)
+
+method ViewSetListBoxLine(oTWBrowse,aListBox) class Game15Controller
+
+    local cG15Alias as character
+
+    local lViewSetListBoxLine as logical
+
+    paramtype 1 var oTWBrowse as object class TWBROWSE
+    paramtype 2 var aListBox as array
+
+    lViewSetListBoxLine:=self:IsActive()
+
+    if (lViewSetListBoxLine)
+        cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
+        oTWBrowse:bLine:={||(cG15Alias)->(MsGoto(aListBox[oTWBrowse:nAT][AT_R_E_C_N_O_])),;
+                                {;
+                                    aListBox[oTWBrowse:nAT][AT_G15_TIME],;
+                                    aListBox[oTWBrowse:nAT][AT_G15_RESULT],;
+                                    aListBox[oTWBrowse:nAT][AT_G15_NAME];
+                        };
+                    }
+    endif
+
+return
+
+static procedure BuildLBoxArray(cG15Alias as character,aListBox as array)
+
+    local cNickName:=(cG15Alias)->(IndexKey()) as character
+
+    local nListBox:=0 as numeric
+
+    local lBuildOk as logical
+
+    (cG15Alias)->(dbOrderNickName("G15_TIME"))
+
+    aSize(aListBox,0)
+
+    (cG15Alias)->(dbGoTop())
+
+    While (cG15Alias)->((!Eof()))
+
+        nListBox++
+        aAdd(aListBox,Array(AT_FIELDS))
+
+        aListBox[nListBox][AT_G15_TIME ]:=(cG15Alias)->G15_TIME
+        aListBox[nListBox][AT_G15_RESULT]:=(cG15Alias)->G15_RESULT
+        aListBox[nListBox][AT_G15_NAME ]:=(cG15Alias)->G15_NAME
+        aListBox[nListBox][AT_R_E_C_N_O_]:=(cG15Alias)->(Recno())
+
+        (cG15Alias)->(dbSkip())
+
+    End While
+
+    lBuildOk:=(nListBox>0)
+
+    if (!lBuildOk)
+
+        nListBox++
+        aAdd(aListBox,Array(AT_FIELDS))
+        aListBox[nListBox][AT_G15_TIME ]:=Space(Len((cG15Alias)->G15_TIME))
+        aListBox[nListBox][AT_G15_RESULT]:=Space(10)
+        aListBox[nListBox][AT_G15_NAME ]:=Space(Len((cG15Alias)->G15_NAME))
+        aListBox[nListBox][AT_R_E_C_N_O_]:=0
+
+    endif
+
+    (cG15Alias)->(dbOrderNickName(cNickName))
+
+return(lBuildOk)
