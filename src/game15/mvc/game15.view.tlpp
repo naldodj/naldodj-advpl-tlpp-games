@@ -201,7 +201,7 @@ return
 
 method ShowTopTable() class Game15View
 
-    local aListBox as array
+    local aTWBrowseItems as array
 
     local bInit as codeblock
     local bValid as codeblock
@@ -226,8 +226,8 @@ method ShowTopTable() class Game15View
 
         oTRect:=TRect():New(0,0,365,305)
 
-        aListBox:=Array(0)
-        oController:BuildLBoxArray(@aListBox)
+        aTWBrowseItems:=Array(0)
+        oController:BuildLBoxArray(@aTWBrowseItems)
 
         cIcon:=oController:GetGame15Data("Game15_Files_ico","ico")
         DEFINE MSDIALOG oDlg TITLE OemToAnsi("TOP Results") FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF oView:oDlg ICON cIcon PIXEL STYLE WS_POPUP
@@ -242,11 +242,11 @@ method ShowTopTable() class Game15View
             oTPaintPanel:Align:=CONTROL_ALIGN_ALLCLIENT
 
             @ oTRect:nTop+20,oTRect:nLeft+5 LISTBOX oTWBrowse FIELDS HEADER "Time","Result","Name" SIZE oTRect:nRight/2.05,oTRect:nBottom/2.35 OF oTPaintPanel PIXEL COLSIZES 15,25,50
-            oTWBrowse:SetArray(aListBox)
-            oController:ViewSetListBoxLine(@oTWBrowse,@aListBox)
+            oTWBrowse:SetArray(aTWBrowseItems)
+            oController:ViewSetTWBrowseItemsLine(@oTWBrowse,@aTWBrowseItems)
 
-            oTPaintPanel:bRClicked:={|x,y|rClickTopTable(@x,@y,@oView,@oTPaintPanel,@oTWBrowse,@aListBox)}
-            oTPaintPanel:blClicked:={|x,y|lClickTopTable(@x,@y,@oView,@oTPaintPanel,@oTWBrowse,@aListBox)}
+            oTPaintPanel:bRClicked:={|x,y|rClickTopTable(@x,@y,@oView,@oTPaintPanel,@oTWBrowse,@aTWBrowseItems)}
+            oTPaintPanel:blClicked:={|x,y|lClickTopTable(@x,@y,@oView,@oTPaintPanel,@oTWBrowse,@aTWBrowseItems)}
             oTPaintPanel:blDBLClick:=oTPaintPanel:blClicked
 
             FreeObj(@oTRect)
@@ -256,7 +256,7 @@ method ShowTopTable() class Game15View
 
         ACTIVATE DIALOG oDlg CENTERED ON INIT Eval(bInit) VALID Eval(bValid)
 
-        FWFreeArray(@aListBox)
+        FWFreeArray(@aTWBrowseItems)
 
         FreeObj(oTWBrowse)
         FreeObj(@oTPaintPanel)
@@ -388,7 +388,7 @@ static function lClickGame15(x as numeric,y as numeric,oView as object,oControll
         endif
 
         cShapeProperties:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_PROPERTIES)
-        lICanMove:=ICanMove(x,y,cShapeToolTip,cShapeProperties)
+        lICanMove:=oController:ViewCanMoveButton(cShapeToolTip,cShapeProperties)
         if (!lICanMove)
             break
         endif
@@ -414,24 +414,16 @@ static function lClickGame15(x as numeric,y as numeric,oView as object,oControll
 
 return(lAction)
 
-static function ICanMove(x as numeric,y as numeric,cShapeToolTip as character,cShapeProperties as character) as logical
-    local cToolTip:=Left(cShapeToolTip,3)
-    local lICanMove:=("can-move=1"$cShapeProperties) as logical
-    SYMBOL_UNUSED(x)
-    SYMBOL_UNUSED(y)
-    lICanMove:=((lICanMove).and.(cToolTip>="b01".and.cToolTip<="b15"))
-return(lICanMove)
-
-static function rClickTopTable(x as numeric,y as numeric,oView as object,oTPaintPanel as object,oTWBrowse as object,aListBox as array) as logical
+static function rClickTopTable(x as numeric,y as numeric,oView as object,oTPaintPanel as object,oTWBrowse as object,aTWBrowseItems as array) as logical
     SYMBOL_UNUSED(x)
     SYMBOL_UNUSED(y)
     SYMBOL_UNUSED(oView)
     SYMBOL_UNUSED(oTPaintPanel)
     SYMBOL_UNUSED(oTWBrowse)
-    SYMBOL_UNUSED(aListBox)
+    SYMBOL_UNUSED(aTWBrowseItems)
 return(.T.)
 
-static function lClickTopTable(x as numeric,y as numeric,oView as object,oTPaintPanel as object,oTWBrowse as object,aListBox as array) as logical
+static function lClickTopTable(x as numeric,y as numeric,oView as object,oTPaintPanel as object,oTWBrowse as object,aTWBrowseItems as array) as logical
 
     local aTopTableAction as array
 
@@ -462,7 +454,7 @@ static function lClickTopTable(x as numeric,y as numeric,oView as object,oTPaint
         aTopTableAction:=Array(0)
         aAdd(aTopTableAction,{"Close",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
         aAdd(aTopTableAction,{"OK",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
-        aAdd(aTopTableAction,{"Clear Top Table",{||oView:ClearTopTable(),oController:BuildLBoxArray(@aListBox),oTWBrowse:Refresh()}})
+        aAdd(aTopTableAction,{"Clear Top Table",{||oView:ClearTopTable(),oController:BuildLBoxArray(@aTWBrowseItems),oTWBrowse:Refresh()}})
 
         cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_TOOLTIP)
         nATTopTableAction:=aScan(aTopTableAction,{|e as array|e[1]==cShapeToolTip})

@@ -21,7 +21,7 @@
     #DEFINE AT_G15_NAME         3
 
     #DEFINE AT_FIELDS           4
-    #DEFINE AT_R_E_C_N_O_       AT_FIELDS    //Deixar AT_R_E_C_N_O_ sempre como ultimo campo do aListBox
+    #DEFINE AT_R_E_C_N_O_       AT_FIELDS    //Deixar AT_R_E_C_N_O_ sempre como ultimo campo do aTWBrowseItems
 
     #define GAME15_TITLE            "Jogo Game15::by Naldo DJ::v2"
     #define GAME15_PROGRAM          "Game 15"

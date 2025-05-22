@@ -49,14 +49,16 @@ class Game15Controller
     public method Time2NextDay(cTime as character,dDate as date) as array
 
     //View Interface
-    public method BuildLBoxArray(aListBox as array) as logical
+    public method BuildLBoxArray(aTWBrowseItems as array) as logical
     public method GetPlayerNameSize() as numeric
     public method SetGame15Data(cSection as character,cKey as character,xValue as variant) as logical
     public method GetGame15Data(cSection as character,cKey as character,xDefault as variant) as variant
     public method ShapeGetSize(cSection as character) as numeric
     public method ShapeGetIDAT(cSection as character,nShape as numeric) as numeric
     public method ShapeGetATValue(cSection as character,nShapeAT as numeric,nKeyAT as numeric) as variant
-    public method ViewSetListBoxLine(oTWBrowse as object,aListBox as array) as variant
+
+    public method ViewCanMoveButton(cShapeToolTip as character,cShapeProperties as character) as logical
+    public method ViewSetTWBrowseItemsLine(oTWBrowse as object,aTWBrowseItems as array) as variant
 
 endclass
 
@@ -189,14 +191,14 @@ method Time2NextDay(cTime,dDate) class Game15Controller
 return(aTime2NextDay)
 
 //View Interface
-method BuildLBoxArray(aListBox) class Game15Controller
+method BuildLBoxArray(aTWBrowseItems) class Game15Controller
     local cG15Alias as character
     local lBuildLBoxArray as logical
-    paramtype 1 var aListBox as array
+    paramtype 1 var aTWBrowseItems as array
     lBuildLBoxArray:=self:IsActive()
     if (lBuildLBoxArray)
         cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
-        lBuildLBoxArray:=BuildLBoxArray(@cG15Alias,@aListBox)
+        lBuildLBoxArray:=BuildLBoxArray(@cG15Alias,@aTWBrowseItems)
     endif
 return(lBuildLBoxArray)
 
@@ -308,68 +310,86 @@ method ShapeGetATValue(cSection,nShapeAT,nKeyAT) class Game15Controller
 
 return(xValue)
 
-method ViewSetListBoxLine(oTWBrowse,aListBox) class Game15Controller
+method ViewCanMoveButton(cShapeToolTip,cShapeProperties) class Game15Controller
+
+    local cToolTip as character
+
+    local lButtonCanMove as logical
+
+    paramtype 1 var cShapeToolTip as character
+    paramtype 2 var cShapeProperties as character
+
+    lButtonCanMove:=self:IsActive()
+    if (lButtonCanMove)
+        cToolTip:=Left(cShapeToolTip,3)
+        lButtonCanMove:=("can-move=1"$cShapeProperties)
+        lButtonCanMove:=((lButtonCanMove).and.(cToolTip>="b01".and.cToolTip<="b15"))
+    endif
+
+return(lButtonCanMove)
+
+method ViewSetTWBrowseItemsLine(oTWBrowse,aTWBrowseItems) class Game15Controller
 
     local cG15Alias as character
 
-    local lViewSetListBoxLine as logical
+    local lViewSetTWBrowseItemsLine as logical
 
     paramtype 1 var oTWBrowse as object class TWBROWSE
-    paramtype 2 var aListBox as array
+    paramtype 2 var aTWBrowseItems as array
 
-    lViewSetListBoxLine:=self:IsActive()
+    lViewSetTWBrowseItemsLine:=self:IsActive()
 
-    if (lViewSetListBoxLine)
+    if (lViewSetTWBrowseItemsLine)
         cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
-        oTWBrowse:bLine:={||(cG15Alias)->(MsGoto(aListBox[oTWBrowse:nAT][AT_R_E_C_N_O_])),;
+        oTWBrowse:bLine:={||(cG15Alias)->(MsGoto(aTWBrowseItems[oTWBrowse:nAT][AT_R_E_C_N_O_])),;
                                 {;
-                                    aListBox[oTWBrowse:nAT][AT_G15_TIME],;
-                                    aListBox[oTWBrowse:nAT][AT_G15_RESULT],;
-                                    aListBox[oTWBrowse:nAT][AT_G15_NAME];
+                                    aTWBrowseItems[oTWBrowse:nAT][AT_G15_TIME],;
+                                    aTWBrowseItems[oTWBrowse:nAT][AT_G15_RESULT],;
+                                    aTWBrowseItems[oTWBrowse:nAT][AT_G15_NAME];
                         };
                     }
     endif
 
 return
 
-static procedure BuildLBoxArray(cG15Alias as character,aListBox as array)
+static procedure BuildLBoxArray(cG15Alias as character,aTWBrowseItems as array)
 
     local cNickName:=(cG15Alias)->(IndexKey()) as character
 
-    local nListBox:=0 as numeric
+    local nTWBrowseItems:=0 as numeric
 
     local lBuildOk as logical
 
     (cG15Alias)->(dbOrderNickName("G15_TIME"))
 
-    aSize(aListBox,0)
+    aSize(aTWBrowseItems,0)
 
     (cG15Alias)->(dbGoTop())
 
     While (cG15Alias)->((!Eof()))
 
-        nListBox++
-        aAdd(aListBox,Array(AT_FIELDS))
+        nTWBrowseItems++
+        aAdd(aTWBrowseItems,Array(AT_FIELDS))
 
-        aListBox[nListBox][AT_G15_TIME ]:=(cG15Alias)->G15_TIME
-        aListBox[nListBox][AT_G15_RESULT]:=(cG15Alias)->G15_RESULT
-        aListBox[nListBox][AT_G15_NAME ]:=(cG15Alias)->G15_NAME
-        aListBox[nListBox][AT_R_E_C_N_O_]:=(cG15Alias)->(Recno())
+        aTWBrowseItems[nTWBrowseItems][AT_G15_TIME ]:=(cG15Alias)->G15_TIME
+        aTWBrowseItems[nTWBrowseItems][AT_G15_RESULT]:=(cG15Alias)->G15_RESULT
+        aTWBrowseItems[nTWBrowseItems][AT_G15_NAME ]:=(cG15Alias)->G15_NAME
+        aTWBrowseItems[nTWBrowseItems][AT_R_E_C_N_O_]:=(cG15Alias)->(Recno())
 
         (cG15Alias)->(dbSkip())
 
     End While
 
-    lBuildOk:=(nListBox>0)
+    lBuildOk:=(nTWBrowseItems>0)
 
     if (!lBuildOk)
 
-        nListBox++
-        aAdd(aListBox,Array(AT_FIELDS))
-        aListBox[nListBox][AT_G15_TIME ]:=Space(Len((cG15Alias)->G15_TIME))
-        aListBox[nListBox][AT_G15_RESULT]:=Space(10)
-        aListBox[nListBox][AT_G15_NAME ]:=Space(Len((cG15Alias)->G15_NAME))
-        aListBox[nListBox][AT_R_E_C_N_O_]:=0
+        nTWBrowseItems++
+        aAdd(aTWBrowseItems,Array(AT_FIELDS))
+        aTWBrowseItems[nTWBrowseItems][AT_G15_TIME ]:=Space(Len((cG15Alias)->G15_TIME))
+        aTWBrowseItems[nTWBrowseItems][AT_G15_RESULT]:=Space(10)
+        aTWBrowseItems[nTWBrowseItems][AT_G15_NAME ]:=Space(Len((cG15Alias)->G15_NAME))
+        aTWBrowseItems[nTWBrowseItems][AT_R_E_C_N_O_]:=0
 
     endif
 
