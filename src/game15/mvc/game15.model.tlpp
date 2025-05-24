@@ -20,17 +20,19 @@ static __nID as numeric
 
 class Game15Model
 
+    private data jGame15Data as json
+
     private data lActive as logical
     private data lExecute as logical
-
-    public data jGame15Data as json
 
     public method New() as object
 
     public method Activate() as logical
     public method DeActivate() as logical
 
-    public method Reload() as logical
+    public method Game15Data() as json
+
+    public method ReloadBoard() as logical
 
     public method CanExecute() as logical
     public method IsActive() as logical
@@ -66,23 +68,12 @@ method Activate() class Game15Model
         self:lActive:=self:lActive.and.(self:jGame15Data["Game15_Table"]:HasProperty("G15_Alias"))
         self:lActive:=self:lActive.and.(Select(self:jGame15Data["Game15_Table"]["G15_Alias"])>0)
         self:lActive:=self:lActive.and.Activate(self:jGame15Data)
-        if (self:lActive)
-            self:StartTime()
-        endif
     endif
 return(self:lActive)
 
 method DeActivate() class Game15Model
 
-    local aNames as array
-
-    local cType  as character
-    local cName as character
     local cAlias as character
-    local cItemType as character
-
-    local nName as numeric
-    local nNames as numeric
 
     if ((self:lActive).and.valType(self:jGame15Data)=="J")
 
@@ -109,24 +100,7 @@ method DeActivate() class Game15Model
             RemoveFiles(@self:jGame15Data,"Game15_Files_bmps_play")
         endif
 
-        aNames:=self:jGame15Data:GetNames()
-        nNames:=Len(aNames)
-        for nName:=1 to nNames
-            cName:=aNames[nName]
-            cType:=valType(self:jGame15Data[cName])
-            if (cType=="A")
-                aEval(self:jGame15Data[cName],{|i|cItemType:=valType(i),if(cItemType$"J|O",FreeObj(@i),if(cItemType=="A",FWFreeArray(@i),nil))})
-                FWFreeArray(@self:jGame15Data[cName])
-            elseif (cType$"J|O")
-                if (cType=="J")
-                    aEval(self:jGame15Data[cName]:GetNames(),{|cItemName|cItemType:=valType(self:jGame15Data[cName][cItemName]),if(cItemType$"J|O",FreeObj(@self:jGame15Data[cName][cItemName]),if(cItemType=="A",FWFreeArray(@self:jGame15Data[cName][cItemName]),nil))})
-                endif
-                FreeObj(@self:jGame15Data[cName])
-            endif
-        next nName
-
-        FWFreeArray(@aNames)
-        FreeObj(@self:jGame15Data)
+        JSONObjectsFree(@self:jGame15Data)
 
         self:lActive:=.F.
 
@@ -136,7 +110,16 @@ method DeActivate() class Game15Model
 
 return(self:lActive)
 
-method Reload() class Game15Model
+method Game15Data() class Game15Model
+    local lGame15Data as logical
+    local jGame15Data as json
+    lGame15Data:=(self:CanExecute().and.self:IsActive())
+    if (lGame15Data)
+        jGame15Data:=self:jGame15Data
+    endif
+return(jGame15Data)
+
+method ReloadBoard() class Game15Model
     local lReload as logical
     lReload:=self:IsActive()
     if (lReload)
@@ -591,7 +574,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
     aShapes[nID][SHAPE_LEFT]:=206
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["Exit"]
+    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["exit"]
     aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
     aShapes[nID][SHAPE_BTNINDEX]:=0
     aShapes[nID][SHAPE_BTNNUMBER]:=0
@@ -1090,7 +1073,7 @@ return
     Data:16/04/2012
     Uso:Adicionar as propriedades os Shapes
 */
-static function AddProperty(cProperties,cProperty,uValue) as character
+static function AddProperty(cProperties as character,cProperty as character,uValue as variant) as character
     cProperties+=cProperty
     cProperties+=cValToChar(uValue)
     cProperties+=";"
@@ -1383,6 +1366,8 @@ static function InitGame15() as json
 
     local jGame15Data:=JSONObject():New() as json
 
+    local lThemeIsDark:=WebApp():ThemeIsDark()
+
     local nFile as numeric
     local nFiles as numeric
 
@@ -1429,23 +1414,23 @@ static function InitGame15() as json
     nFiles:=16
     for nFile:=1 to nFiles
         cFile:=StrZero(nFile,2)
-        jGame15Data["Game15_Files_bmps_play"]["b"+cFile]:="game15_b"+cFile+".png"
+        jGame15Data["Game15_Files_bmps_play"]["b"+cFile]:="game15_b"+cFile+if(lThemeIsDark,"_dark","")+".png"
     next nFile
 
     jGame15Data["Game15_Files_bmps_aux"]:=JSONObject():New()
-    jGame15Data["Game15_Files_bmps_aux"]["minbtn"]:="game15_minbtn.png"
-    jGame15Data["Game15_Files_bmps_aux"]["mainform"]:="game15_mainform.png"
-    jGame15Data["Game15_Files_bmps_aux"]["closebtn"]:="game15_closebtn.png"
+    jGame15Data["Game15_Files_bmps_aux"]["minbtn"]:="game15_minbtn"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_bmps_aux"]["mainform"]:="game15_mainform"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_bmps_aux"]["closebtn"]:="game15_closebtn"+if(lThemeIsDark,"_dark","")+".png"
 
     jGame15Data["Game15_Files_buttons"]:=JSONObject():New()
-    jGame15Data["Game15_Files_buttons"]["about"]:="game15_about.png"
-    jGame15Data["Game15_Files_buttons"]["clear"]:="game15_clear.png"
-    jGame15Data["Game15_Files_buttons"]["Exit"]:="game15_exit.png"
-    jGame15Data["Game15_Files_buttons"]["load"]:="game15_load.png"
-    jGame15Data["Game15_Files_buttons"]["ok"]:="game15_ok.png"
-    jGame15Data["Game15_Files_buttons"]["save"]:="game15_save.png"
-    jGame15Data["Game15_Files_buttons"]["start"]:="game15_start.png"
-    jGame15Data["Game15_Files_buttons"]["top10"]:="game15_top10.png"
+    jGame15Data["Game15_Files_buttons"]["about"]:="game15_about"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["clear"]:="game15_clear"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["exit"]:="game15_exit"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["load"]:="game15_load"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["ok"]:="game15_ok"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["save"]:="game15_save"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["start"]:="game15_start"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["top10"]:="game15_top10"+if(lThemeIsDark,"_dark","")+".png"
 
     ExtractFiles(@jGame15Data,"Game15_Files_buttons")
     ExtractFiles(@jGame15Data,"Game15_Files_bmps_aux")
@@ -1517,8 +1502,8 @@ static function Compare(x as array,y as array) as logical
     lIsEqual:=(jX:ToJSON()==jY:ToJSON())
     FWFreeArray(@jX["__JSONArray__"])
     FWFreeArray(@jY["__JSONArray__"])
-    FreeObj(@jX)
-    FreeObj(@jY)
+    JSONObjectsFree(@jX)
+    JSONObjectsFree(@jY)
 return(lIsEqual)
 
 /*
@@ -1533,7 +1518,7 @@ static function SaveArray(aArray as array,cFileName as character)
     jArray["__JSONArray__"]:=aClone(aArray)
     lSave:=MemoWrite(cFileName,jArray:ToJSON())
     FWFreeArray(@jArray["__JSONArray__"])
-    FreeObj(@jArray)
+    JSONObjectsFree(@jArray)
 return(lSave)
 
 /*
@@ -1542,13 +1527,13 @@ return(lSave)
     Data:18/04/2012
     Uso:Restaura Array do Disco
 */
-static function RestArray(cFileName)
+static function RestArray(cFileName as character)
     local aArray as array
     local jArray:=JSONObject():New() as json
     jArray:FromJSON(MemoRead(cFileName))
     aArray:=aClone(jArray["__JSONArray__"])
     FWFreeArray(@jArray["__JSONArray__"])
-    FreeObj(@jArray)
+    JSONObjectsFree(@jArray)
 return(aArray)
 
 /*
@@ -1710,7 +1695,7 @@ static function SwapButtons(jGame15Data as json) as logical
         aShapes[nFree][SHAPE_LEFT]:=jCoordinates["nLeft"]
         aShapes[nFree][SHAPE_BTNINDEX]:=nIndex
 
-        FreeObj(@jCoordinates)
+        JSONObjectsFree(@jCoordinates)
 
         bUpdateView:=jGame15Data["Game15_Shapes"]["bUpdateView"]
         Eval(;
@@ -1755,7 +1740,7 @@ return(lMatch)
     Data:15/01/2013
     Uso:Retorna a Posicao do Eixo y de Acordo com o Eixo x
 */
-static function GetFxy(x,y,nSub,nPlus)
+static function GetFxy(x as numeric,y as numeric,nSub as numeric,nPlus as numeric)
     DEFAULT nSub:=1
     DEFAULT nPlus:=1
 return(((x*(y-nSub))+nPlus))
@@ -2213,3 +2198,6 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
     FWFreeArray(@aRestG)
 
 return(lRestoreGame)
+
+static function JSONObjectsFree(jObjects as json) as variant
+return(MsObjects():JSONObjectsFree(@jObjects))

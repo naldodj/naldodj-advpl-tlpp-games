@@ -1,0 +1,77 @@
+/*----------------------------------------------------------------------
+               _    _  _
+  __ _  _   _ | |_ (_)| | ___
+ / _` || | | || __|| || |/ __|
+| (_| || |_| || |_ | || |\__ \
+ \__,_| \__,_| \__||_||_||___/
+
+    The source code `naldodj.games.autils.tlpp` is based on a more detailed and feature-rich
+    source code, `dna.tech.autils.tlpp`, and implements part of the functionalities
+    present in the latter.
+
+*/
+
+
+#include "totvs.ch"
+#include "parmtype.ch"
+
+#include "tlpp-core.th"
+
+namespace naldodj.games
+using namespace naldodj.games
+
+class autils
+
+    static method Split(aSource as array,nParts as numeric) as array
+    static method GetNSplit(nSize as numeric,nParts as numeric) as numeric
+
+end class
+
+static method Split(aSource,nParts) class aUtils
+
+    local aTarget as array
+
+    local nAT as numeric
+    local nSize as numeric
+    local nStep as numeric
+    local nElem as numeric
+    local nDiff as numeric
+
+    paramtype 1 var aSource as array
+    paramtype 2 var nParts as numeric
+
+    begin sequence
+
+        nSize:=len(aSource)
+        if (nSize<=nParts)
+            aTarget:=array(0)
+            aAdd(aTarget,aClone(aSource))
+            break
+        endif
+
+        nAT:=0
+        nStep:=1
+        nElem:=aUTils():GetNSplit(nSize,nParts)
+        aTarget:=array(0)
+
+        for nStep:=1 to nSize step nElem
+            nDiff:=((nSize-nStep)+1)
+            aAdd(aTarget,array(min(nElem,nDiff)))
+            nAT++
+            aCopy(aSource,@aTarget[nAT],nStep,len(aTarget[nAT]))
+        next nStep
+
+    end sequence
+
+return(aClone(aTarget))
+
+static method GetNSplit(nSize,nParts) class aUtils
+    local nSplit as numeric
+    paramtype 1 var nSize as numeric
+    paramtype 2 var nParts as numeric
+    if (nSize<=nParts)
+        nSplit:=nSize
+    else
+        nSplit:=(int(nSize/nParts)+Mod(nSize,2))
+    endif
+return(nSplit)

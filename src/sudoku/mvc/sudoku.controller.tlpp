@@ -1,0 +1,146 @@
+/*
+                 _         _                                   _                 _  _
+ ___  _   _   __| |  ___  | | __ _   _      ___   ___   _ __  | |_  _ __   ___  | || |  ___  _ __
+/ __|| | | | / _` | / _ \ | |/ /| | | |    / __| / _ \ | '_ \ | __|| '__| / _ \ | || | / _ \| '__|
+\__ \| |_| || (_| || (_) ||   < | |_| | _ | (__ | (_) || | | || |_ | |   | (_) || || ||  __/| |
+|___/ \__,_| \__,_| \___/ |_|\_\ \__,_|(_) \___| \___/ |_| |_| \__||_|    \___/ |_||_| \___||_|
+
+*/
+
+#include "totvs.ch"
+#include "sudoku.th"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace sudoku
+using namespace sudoku
+using namespace naldodj.games
+
+class SudokuController
+
+    private data jSudokuData as json
+
+    private data lExecute as logical
+    private data lActive as logical
+    private data lNoModify as logical
+    private data lSetDeleted as logical
+
+    private data oView as object
+    private data oModel as object
+
+    public method New() as object
+    public method Activate(lActivateView as logical) as logical
+    public method DeActivate() as logical
+    public method CanExecute() as logical
+    public method IsActive() as logical
+
+    public method SudokuData() as json
+    public method SudokuDataSet(cKey as character,xValue as variant) as logical
+    public method SudokuDataGet(cKey as character,xDefault as variant) as variant
+
+    public method SudokuLevel(lButtonParam as logical) as numeric
+
+    public method RunTest(lHTMLTable as logical) as character
+
+endclass
+
+method New() class SudokuController
+    self:lActive:=.F.
+    if (self:CanExecute())
+        self:oModel:=SudokuModel():New()
+        self:oView:=SudokuView():New(self)
+    endif
+return(self)
+
+method Activate(lActivateView) class SudokuController
+    local lActive as logical
+    local oView:=self:oView
+    local oModel:=self:oModel
+    if ((self:CanExecute()).and.(!self:lActive))
+        self:SudokuLevel()
+        FWMsgRun(nil,{||lActive:=oModel:Activate()},"Wait..","Start of new game")
+        self:lActive:=lActive
+        self:SudokuData()
+        paramtype 1 var lActivateView as logical optional default .T.
+        if ((self:lActive).and.(lActivateView))
+            self:jSudokuData["aSudokuBoard"]:=oModel:SudokuRemoveNumbers(self:jSudokuData["aSudoku"],self:jSudokuData["nSudokuLevel"])
+            oView:Activate()
+        endif
+    endif
+return(self:lActive)
+
+method DeActivate() class SudokuController
+    if (self:lActive)
+        if (valType(self:lSetDeleted)=="L")
+            Set(_SET_DELETED,self:lSetDeleted)
+        endif
+        if (valType(self:oView)=="O")
+            self:oView:DeActivate()
+            FreeObj(@self:oView)
+        endif
+        if (valType(self:oModel)=="O")
+            self:oModel:DeActivate()
+            FreeObj(@self:oModel)
+        endif
+        self:lActive:=.F.
+    endif
+return(self:lActive)
+
+method CanExecute() class SudokuController
+    self:lExecute:=(FWIsInCallStack("SUDOKU.U_SUDOKURUN").or.FWIsInCallStack("SUDOKU.U_SUDOKURUNTESTS"))
+return(self:lExecute)
+
+method IsActive() class SudokuController
+return(self:lActive)
+
+method SudokuData() class SudokuController
+    local lSudokuData as logical
+    lSudokuData:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuData)
+        self:jSudokuData:=self:oModel:SudokuData()
+    endif
+return(self:jSudokuData)
+
+method SudokuDataSet(cKey,xValue) class SudokuController
+    local lSudokuDataSet as logical
+    lSudokuDataSet:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuDataSet)
+        paramtype 1 var cKey as character
+        self:jSudokuData[cKey]:=xValue
+    endif
+return(lSudokuDataSet)
+
+method SudokuDataGet(cKey,xDefault) class SudokuController
+    local lSudokuDataGet as logical
+    local xValue as variant
+    lSudokuDataGet:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuDataGet)
+        paramtype 1 var cKey as character
+        if (self:jSudokuData:HasProperty(cKey))
+            xValue:=self:jSudokuData[cKey]
+        else
+            xValue:=xDefault
+        endif
+
+    endif
+return(xValue)
+
+method SudokuLevel(lButtonParam) class SudokuController
+    local aLevels as array
+    local nLevel as numeric
+    if (self:CanExecute())
+        nLevel:=self:oModel:SudokuLevel()
+        aLevels:=self:oModel:SudokuLevels()
+        aEval(@aLevels,{|cStr,nAT|aLevels[nAT]:=OemToAnsi(ctools():WebAccentuationToAscii(cStr))})
+        nLevel:=self:oView:SudokuLevel(aLevels,lButtonParam,@self:lNoModify,nLevel)
+        self:oModel:SudokuLevel(nLevel)
+    endif
+return(nLevel)
+
+method RunTest(lHTMLTable) class SudokuController
+    local cSudokuBoard as character
+    if (self:Activate(.F.))
+        paramtype 1 var lHTMLTable as logical optional default .T.
+        cSudokuBoard:=self:oModel:SudokuBuildSringBoard(self:jSudokuData["aSudoku"],lHTMLTable)
+    endif
+return(cSudokuBoard)

@@ -1,0 +1,531 @@
+/*
+                 _         _                      _
+ ___  _   _   __| |  ___  | | __ _   _    __   __(_)  ___ __      __
+/ __|| | | | / _` | / _ \ | |/ /| | | |   \ \ / /| | / _ \\ \ /\ / /
+\__ \| |_| || (_| || (_) ||   < | |_| | _  \ V / | ||  __/ \ V  V /
+|___/ \__,_| \__,_| \___/ |_|\_\ \__,_|(_)  \_/  |_| \___|  \_/\_/
+
+*/
+
+#include "totvs.ch"
+#include "sudoku.th"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace sudoku
+using namespace sudoku
+using namespace naldodj.games
+
+class SudokuView
+
+    private data jSudokuData as json
+
+    private data lActive as logical
+    private data lExecute as logical
+
+    public data oDlg as object
+    public data oController as object
+
+    public method New(oController as object) as object
+    public method Activate() as logical
+    public method DeActivate() as logical
+
+    public method IsActive() as logical
+    public method CanExecute() as logical
+
+    public method SudokuLevel(aLevels as array,lButtonParam as logical,lNoModify as logical,nLevel as numeric) as numeric
+
+    private method CreateBoard() as logical
+
+endclass
+
+method New(oController) class SudokuView
+    paramtype 1 var oController as object
+    self:lActive:=.F.
+    if (self:CanExecute().and.(GetClassName(oController)=="SUDOKU.SUDOKUCONTROLLER"))
+        self:jSudokuData:=JSONObject():New()
+        self:oController:=oController
+    endif
+return(self)
+
+method Activate() class SudokuView
+    if (;
+            ((ValType(self:oController)=="O").and.(GetClassName(self:oController)=="SUDOKU.SUDOKUCONTROLLER"));
+            .and.;
+            (self:oController:IsActive());
+            .and.;
+            (!self:lActive).and.(self:CanExecute());
+    )
+        self:lActive:=self:lActive:=self:CreateBoard()
+        if (self:lActive)
+            self:oDlg:Activate(nil,nil,nil,.T.,self:oDlg:bValid,nil,self:oDlg:bInit,nil,nil)
+        else
+            self:DeActivate()
+        endif
+        JSONObjectsFree(@self:jSudokuData)
+    endif
+return(self:lActive)
+
+method DeActivate() class SudokuView
+    if (self:lActive)
+        if (valType(self:oDlg)=="O")
+            self:oDlg:End()
+        endif
+        FreeObj(@self:oDlg)
+        DelClassIntf()
+        self:lActive:=.F.
+    endif
+return(self:lActive)
+
+method IsActive() class SudokuView
+return(self:lActive)
+
+method CanExecute() class SudokuView
+    self:lExecute:=FWIsInCallStack("SUDOKU.U_SUDOKURUN")
+    if (self:lExecute).and.(ValType(self:oController)=="O")
+        self:lExecute:=(GetClassName(self:oController)=="SUDOKU.SUDOKUCONTROLLER")
+    endif
+return(self:lExecute)
+
+method SudokuLevel(aLevels,lButtonParam,lNoModify,nLevel) class SudokuView
+
+    local cTitle as character
+
+    local jObjects as json
+    local jObjectsSudokuParametersBar as json
+
+    begin sequence
+
+        if (!self:CanExecute())
+            break
+        endif
+
+        paramtype aLevels as array
+        paramtype lButtonParam as logical optional default .F.
+        paramtype lNoModify as logical optional
+        paramtype nLevel as numeric optional
+
+        if (;
+                (!lButtonParam);
+                .and.;
+                (!Empty(lNoModify));
+        )
+            break
+        endif
+
+        jObjects:=JSONObject():New()
+
+        DEFAULT lNoModify:=.T.
+
+        cTitle:=SUDOKU_TITLE
+
+        DEFINE FONT jObjects["oFont"] NAME "Arial" SIZE 0,-11 BOLD
+        DEFINE MSDIALOG jObjects["oDlg"] FROM 094,001 to 300,350 TITLE Web2Ascii(cTitle) OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
+
+            @ 015,005 GROUP jObjects["oGroup"] to 075,172 LABEL Web2Ascii("Escolha o N&iacute;vel do Jogo") OF jObjects["oDlg"] PIXEL
+            jObjects["oGroup"]:oFont:=jObjects["oFont"]
+
+            @ 025,010 RADIO jObjects["oRadio"] VAR nLevel SIZE 115,010 OF jObjects["oDlg"] PIXEL
+            jObjects["oRadio"]:aItems:=aLevels
+
+            @ 085,010 CHECKBOX jObjects["oCheckBox"] VAR lNoModify PROMPT Web2Ascii("Utilizar a op&ccedil;ao acima at&eacute; o final do Jogo.") SIZE 160,010 OF jObjects["oDlg"] PIXEL
+
+            jObjects["oDlg"]:lEscClose:=.F.//Nao permite sair ao se pressionar a tecla ESC.
+
+        ACTIVATE MSDIALOG jObjects["oDlg"] CENTERED ON INIT (jObjectsSudokuParametersBar:=SudokuParametersBar(@jObjects["oDlg"],@lButtonParam))
+
+        JSONObjectsFree(@jObjectsSudokuParametersBar)
+        JSONObjectsFree(@jObjects)
+
+        DelClassIntf()
+
+    end sequence
+
+return(nLevel)
+
+method CreateBoard() class SudokuView
+
+    local cTitle as character
+
+    local lCreateBoard as logical
+
+    local jSudokuData as json
+
+    local oDlg as object
+    local oView as object
+    local oController as object
+
+    begin sequence
+
+        oView:=self
+        lCreateBoard:=oView:CanExecute()
+        if (!lCreateBoard)
+            break
+        endif
+
+        oController:=self:oController
+
+        jSudokuData:=oView:jSudokuData
+
+        cTitle:=SUDOKU_TITLE
+
+        DEFINE FONT jSudokuData["oFont"] NAME "Courier New" SIZE 0,-11 BOLD
+        DEFINE FONT jSudokuData["oFontNum"] NAME "Courier New" SIZE 18,30 BOLD
+
+        DEFINE MSDIALOG self:oDlg TITLE Web2Ascii(cTitle) From 0,0 to 610,610 OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
+        oDlg:=self:oDlg
+
+        oDlg:lEscClose:=.F.
+
+        jSudokuData["aSudokuGrps"]:=Array(9)
+
+        @ 015,005 GROUP jSudokuData["aSudokuGrps"][1] to 100,100 OF oDlg PIXEL
+        @ 015,102 GROUP jSudokuData["aSudokuGrps"][2] to 100,200 OF oDlg PIXEL
+        @ 015,202 GROUP jSudokuData["aSudokuGrps"][3] to 100,300 OF oDlg PIXEL
+
+        @ 100,005 GROUP jSudokuData["aSudokuGrps"][4] to 200,100 OF oDlg PIXEL
+        @ 100,102 GROUP jSudokuData["aSudokuGrps"][5] to 200,200 OF oDlg PIXEL
+        @ 100,202 GROUP jSudokuData["aSudokuGrps"][6] to 200,300 OF oDlg PIXEL
+
+        @ 200,005 GROUP jSudokuData["aSudokuGrps"][7] to 300,100 OF oDlg PIXEL
+        @ 200,102 GROUP jSudokuData["aSudokuGrps"][8] to 300,200 OF oDlg PIXEL
+        @ 200,202 GROUP jSudokuData["aSudokuGrps"][9] to 300,300 OF oDlg PIXEL
+
+        aEval(jSudokuData["aSudokuGrps"],{|,nElem|jSudokuData["aSudokuGrps"][nElem]:oFont:=jSudokuData["oFont"]})
+
+        jSudokuData["aSudokuBoard"]:=aClone(oController:SudokuData()["aSudokuBoard"])
+        jSudokuData["aSudokuSolved"]:=aClone(oController:SudokuData()["aSudoku"])
+
+        oDlg:bInit:={;
+            ||;
+                jSudokuData["aSudokuBoardView"]:=BuildSudoku(;
+                   oDlg;
+                  ,jSudokuData["oFontNum"];
+                  ,@jSudokuData["aSudokuBoard"];
+                );
+                ,jSudokuData["SudokuBoardBarObjects"]:=SudokuBoardBar(;
+                     oDlg;
+                    ,@oController;
+                    ,@jSudokuData["aSudokuBoardView"];
+                    ,@jSudokuData["aSudokuSolved"];
+                );
+        }
+
+        lCreateBoard:=.T.
+
+    end sequence
+
+return(lCreateBoard)
+
+static Function SudokuBoardBar(oDlg as object,oController as object,aSudokuBoard as array,aSudokuSolved as array) as json
+
+    local bButtonNewG as codeblock
+    local bButtonAllN as codeblock
+    local bButtonParM as codeblock
+    local bButtonChkG as codeblock
+    local bButtonEndG as codeblock
+
+    local bButtonHelp:={||SudokuHelp()} as codeblock
+
+    local cTime:=Time() as character
+    local cSpace:=Space(50) as character
+
+    local jObjects:=JSONObject():New() as json
+
+    local lSolveAllNums:=.F. as logical
+
+    bButtonNewG:={||if(MsgYesNo("Deseja Iniciar Novo Jogo?","New Game"),(oDlg:End(),oController:SudokuDataSet("lSudokuNewGame",.T.)),oController:SudokuDataSet("lSudokuNewGame",.F.))}
+    bButtonAllN:={||if((!(lSolveAllNums).and.(lSolveAllNums:=MsgNoYes("Deseja Desistir do Jogo?","Aviso!"))),(SudokuSolve(@oDlg,@aSudokuBoard,aSudokuSolved),Eval(bButtonChkG)),.F.)}
+    bButtonParM:={||if(oController:SudokuLevel(.T.),Eval(bButtonNewG),NIL)}
+    bButtonChkG:={||ChkSudoku(@oDlg,@aSudokuBoard,aSudokuSolved,lSolveAllNums)}
+    bButtonEndG:={||if(MsgNoYes("Deseja Sair do Jogo?","Sair"),oDlg:End(),.F.)}
+
+    DEFINE BUTTONBAR jObjects["oButtonBar"] SIZE 025,025 3D TOP OF oDlg //PIXEL
+
+    DEFINE BUTTON jObjects["oButtonNewG"] RESOURCE "PMSCOLOR" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonNewG) TOOLTIP Web2Ascii("Novo Jogo...<F2>")
+    jObjects["oButtonNewG"]:cTitle:=Web2Ascii("Novo")
+    SetKey(VK_F2,jObjects["oButtonNewG"]:bAction)
+
+    DEFINE BUTTON jObjects["oButtonAllN"] RESOURCE "DESTINOS" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonAllN) TOOLTIP Web2Ascii('Preencher n&uacute;meros...<F3>')
+    jObjects["oButtonAllN"]:cTitle:=Web2Ascii("n&uacute;meros")
+    SetKey(VK_F3,jObjects["oButtonAllN"]:bAction)
+
+    DEFINE BUTTON jObjects["oButtonParM"] RESOURCE "BMPPARAM" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonParM) TOOLTIP Web2Ascii('Par&acirc;metros...<F4>')
+    jObjects["oButtonParM"]:cTitle:=Web2Ascii("Config.")
+    SetKey(VK_F4,jObjects["oButtonParM"]:bAction)
+
+    DEFINE BUTTON jObjects["oButtonChkG"] RESOURCE "OK" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonChkG) TOOLTIP Web2Ascii('Ok...<Ctrl-O>')
+    jObjects["oButtonChkG"]:cTitle:=Web2Ascii("OK")
+    oDlg:bSet15:=jObjects["oButtonChkG"]:bAction
+    SetKey(15,oDlg:bSet15)
+
+    DEFINE BUTTON jObjects["oButtonEndG"] RESOURCE "FINAL" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonEndG) TOOLTIP Web2Ascii('Sair...<Ctrl-X>')
+    jObjects["oButtonEndG"]:cTitle:=Web2Ascii("Sair")
+    oDlg:bSet24:=jObjects["oButtonEndG"]:bAction
+    SetKey(24,oDlg:bSet24)
+
+    DEFINE BUTTON jObjects["oButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP Web2Ascii('Ajuda...<F1>')
+    jObjects["oButtonHelp"]:cTitle:=Web2Ascii("Ajuda")
+    SetKey(VK_F1,jObjects["oButtonHelp"]:bAction)
+
+    @ 000,080 MSGET jObjects["oElapTime"] VAR (cSpace+oController:SudokuData()["cSudokuTime"]) SIZE 200,010 OF jObjects["oButtonBar"] PIXEL WHEN .F. CENTERED
+
+    DEFINE TIMER jObjects["oTimer"] INTERVAL (1) ACTION (oController:SudokuData()["cSudokuTime"]:=ElapTime(cTime,Time()),jObjects["oElapTime"]:Refresh()) OF oDlg
+    ACTIVATE TIMER jObjects["oTimer"]
+
+    jObjects["oButtonBar"]:bRClicked:={||AllwaysTrue()}
+
+return(jObjects)
+
+static function BuildSudoku(oDlg,oFont,aSudokuBoard) as array
+
+    local aSudokuSolved:=aClone(aSudokuBoard) as array
+    local aSudokuBoardView:=Array(9) as array
+
+    local bGetSet:={||&("{|u|if(PCount()==0,aSudokuBoardView["+NToS(nLoop)+","+NToS(nItem)+","+NToS(SUDOKU_VAR)+"],aSudokuBoardView["+NToS(nLoop)+","+NToS(nItem)+","+NToS(SUDOKU_VAR)+"]:=u)}")} as codeblock
+    local bGetVar:={||"aSudokuBoardView["+NToS(nLoop)+","+NToS(nItem)+","+NToS(SUDOKU_VAR)+"]"} as codeblock
+
+    local cSudokuGetNum as character
+
+    local lChange as logical
+    local lThemeIsDark as logical
+
+    local nRow:=20 as numeric
+    local nCol as numeric
+
+    local nWidth:=CalcFieldSize("C",1,0,"9","W",oFont) as numeric
+    local nHeight:=CalcFieldSize("C",1,0,"9","W",oFont) as numeric
+
+    local nItem as numeric
+    local nItens as numeric
+    local nLoop as numeric
+    local nLoops as numeric
+    local nCntRow as numeric
+    local nCntCol as numeric
+    local nColIndex as numeric
+
+    aEval(aSudokuBoardView,{|,nAT as numeric|aSudokuBoardView[nAT]:=aClone(Array(9,SUDOKU_ELEM))})
+
+    lThemeIsDark:=WebApp():ThemeIsDark()
+
+    nLoops:=Len(aSudokuBoardView)
+    nCntRow:=0
+    for nLoop:=1 to nLoops
+        nItens:=Len(aSudokuBoardView[nLoop])
+        nCol:=15
+        nCntCol:=0
+        nColIndex:=0
+        for nItem:=1 to nItens
+            nSudokuGetNum:=aSudokuSolved[nLoop][++nColIndex]
+            lChange:=(nSudokuGetNum==0)
+            cSudokuGetNum:=NToS(nSudokuGetNum)
+            if (lChange)
+                cSudokuGetNum:=" "
+            endif
+            aSudokuBoardView[nLoop][nItem][SUDOKU_VAR]:=cSudokuGetNum
+            aSudokuBoardView[nLoop][nItem][SUDOKU_OBJ]:=TGet():New(;
+                                                                nRow,;//01:<nRow>
+                                                                nCol,;//02:<nCol>
+                                                                Eval(bGetSet),;//03:bSETGET(<uVar>)
+                                                                oDlg,;//04:[<oWnd>]
+                                                                nWidth,;//05:<nWidth>
+                                                                nHeight,;//06:<nHeight>
+                                                                "9",;//07:<cPict>
+                                                                NIL,;//08:<{ValidFunc}>
+                                                                if(lChange,NIL,if(lThemeIsDark,CLR_WHITE,CLR_WHITE)),;//09:<nClrFore>
+                                                                if(lChange,NIL,if(lThemeIsDark,CLR_BLUE,CLR_BLUE)),;//10:<nClrBack>
+                                                                oFont,;//11:<oFont>
+                                                                .T.,;//12:<.design.>
+                                                                NIL,;//13:<oCursor>
+                                                                .T.,;//14:<.pixel.>
+                                                                NIL,;//15:<cMsg>
+                                                                .F.,;//16:<.update.>
+                                                                &("{||"+AllToChar(lChange)+"}"),;//17:<{uWhen}>
+                                                                .T.,;//18:<.lCenter.>
+                                                                .F.,;//19:<.lRight.>
+                                                                NIL,;//20:[\{|nKey, nFlags, Self|<uChange>\}]
+                                                                (!lChange),;//21:<.readonly.>
+                                                                .F.,;//22:<.pass.>
+                                                                NIL,;//23:<cF3>
+                                                                Eval(bGetVar),;//24:<(uVar)>
+                                                                NIL,;//25:?
+                                                                NIL,;//26:[<.lNoBorder.>]
+                                                                NIL,;//27:[<nHelpId>]
+                                                                NIL;//28:[<.lHasButton.>]
+            )
+            ++nCntCol
+            if (;
+                    (nCntCol==3);
+                    .or.;
+                    (nCntCol==6);
+            )
+                if (nCntCol==3)
+                    nCol+=40
+                else
+                    nCol+=45
+                endif
+            else
+                nCol+=28
+            endif
+        next nItem
+        ++nCntRow
+        if (;
+                (nCntRow==3);
+                .or.;
+                (nCntRow==6);
+            )
+            if (nCntRow==3)
+                nRow+=40
+            else
+                nRow+=45
+            endif
+        else
+            nRow+=26
+        endif
+    next nLoop
+
+    FWFreeArray(@aSudokuSolved)
+
+return(aSudokuBoardView)
+
+static function SudokuSolve(oDlg,aSudokuBoardView,aSudokuSolved)
+
+    local cNumber as character
+
+    local lSolveAllNums:=!MsgNoYes(Web2Ascii("Preencher apenas os n&uacute;meros Faltantes?"),Web2Ascii("Preencher n&uacute;meros")) as logical
+
+    local nLoop as numeric
+    local nLoops as numeric
+    local nChkNum as numeric
+    local nNumChk as numeric
+
+    nLoops:=Len(aSudokuSolved)
+    for nLoop:=1 to nLoops
+        nNumChk:=Len(aSudokuSolved[nLoop])
+        for nChkNum:=1 to nNumChk
+            if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
+                cNumber:=NToS(aSudokuSolved[nLoop][nChkNum])
+                if (lSolveAllNums)
+                    if (aSudokuBoardView[nLoop][nChkNum][2]!=cNumber)
+                        aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
+                    endif
+                else
+                    if (Empty(aSudokuBoardView[nLoop][nChkNum][2]))
+                        aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
+                    endif
+                endif
+            endif
+        next nChkNum
+    next nLoop
+
+return(oDlg:Refresh())
+
+static Function ChkSudoku(oDlg,aSudokuBoardView,aSudokuSolved,lSolveAllNums)
+
+    local aChkOk:={} as array
+
+    local cCRLF:=CRLF as character
+    local cTitle as character
+    local cNumber as character
+    local cMsgInfo as character
+
+    local nLoop as numeric
+    local nLoops as numeric
+    local nChkNum as numeric
+    local nNumChk as numeric
+
+    nLoops:=Len(aSudokuSolved)
+    for nLoop:=1 to nLoops
+        nNumChk:=Len(aSudokuSolved[nLoop])
+        for nChkNum:=1 to nNumChk
+            if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
+                cNumber:=NToS(aSudokuSolved[nLoop][nChkNum])
+                if (aSudokuBoardView[nLoop][nChkNum][2]==cNumber)
+                    aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly:=.T.
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_GREEN
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
+                    aAdd(aChkOk,{.T.,nLoop,nChkNum})
+                else
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_RED
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
+                    aAdd(aChkOk,{.F.,nLoop,nChkNum})
+                endif
+            endif
+        next nChkNum
+    next nLoop
+
+    oDlg:Refresh()
+
+    begin sequence
+
+        if (!lSolveAllNums)
+
+            if ((nLoop:=aScan(aChkOk,{|aOk|!(aOk[1])}))>0)
+                cMsgInfo:="Existem Informa&ccedil;&otilde;es inconsistentes!"
+                cMsgInfo+=cCRLF
+                cMsgInfo+="Corrija os n&uacute;meros dos quadrados pintados de vermelho!"
+                cTitle:="Inconsist&ecirc;ncia"
+                Break
+            endif
+
+            cMsgInfo:="Parab&eacute;ns, voc&ecirc; conclui a partida com sucesso!"
+            cMsgInfo+=cCRLF
+            cMsgInfo+=cCRLF
+            cMsgInfo+="Tempo: "//+GetGlbValue("cSudokuTime")
+            cTitle:="OK"
+
+        else
+
+            cMsgInfo:="Que Pena. voce desistiu do Jogo!"
+            cMsgInfo+=cCRLF
+            cMsgInfo+=cCRLF
+            cMsgInfo+="Tempo: "//+GetGlbValue("cSudokuTime")
+            cTitle:="Desistente"
+
+        endif
+
+    end sequence
+
+    ApMsgInfo(Web2Ascii(cMsgInfo),Web2Ascii(cTitle))
+
+Return(oDlg:Refresh())
+
+static Function SudokuParametersBar(oDlg as object,lButtonParam as logical) as json
+
+    local bButtonChkG:={||oDlg:End()} as codeblock
+    local bButtonEndG:={||if(((lButtonParam).or.MsgNoYes("Deseja Sair do Jogo?","Sair")),oDlg:End(),NIL)} as codeblock
+    local bButtonHelp:={||SudokuHelp()} as codeblock
+
+    local jObjects:=JSONObject():New() as json
+
+    DEFINE BUTTONBAR jObjects["oButtonBar"] SIZE 025,025 3D TOP OF oDlg
+
+    DEFINE BUTTON jObjects["oButtonChkG"] RESOURCE "OK" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonChkG) TOOLTIP Web2Ascii('Ok...<Ctrl-O>')
+    jObjects["oButtonChkG"]:cTitle:=Web2Ascii("OK")
+    oDlg:bSet15:=jObjects["oButtonChkG"]:bAction
+    SetKey(15,oDlg:bSet15)
+
+    DEFINE BUTTON jObjects["oButtonEndG"] RESOURCE "FINAL" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonEndG) TOOLTIP Web2Ascii('Sair...<Ctrl-X>')
+    jObjects["oButtonEndG"]:cTitle:=Web2Ascii("Sair")
+    oDlg:bSet24:=jObjects["oButtonEndG"]:bAction
+    SetKey(24,oDlg:bSet24)
+
+    DEFINE BUTTON jObjects["oButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP Web2Ascii('Ajuda...<F1>')
+    jObjects["oButtonHelp"]:cTitle:=Web2Ascii("Ajuda")
+    SetKey(VK_F1,jObjects["oButtonHelp"]:bAction)
+
+    jObjects["oButtonBar"]:bRClicked:={||AllwaysTrue()}
+
+return(jObjects)
+
+static function SudokuHelp() as numeric
+return(ShellExecute("open","https://blacktdn.com.br/2008/11/sudoku-tutorial.html","","",1))
+
+static function JSONObjectsFree(jObjects as json) as variant
+return(MsObjects():JSONObjectsFree(@jObjects))
+
+static function NToS(nValue) as character
+return(cTools():NToS(nValue))
+
+static function Web2Ascii(cWebString)
+return(OemToAnsi(cTools():WebAccentuationToAscii(cWebString)))

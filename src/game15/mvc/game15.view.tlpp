@@ -17,9 +17,6 @@ using namespace game15
 
 class Game15View
 
-    private data bInit as codeblock
-    private data bValid as codeblock
-
     private data lActive as logical
     private data lExecute as logical
 
@@ -30,7 +27,7 @@ class Game15View
     public data oTPaintPanel as object
 
     public method New(oController as object) as object
-    public method Activate() as logical
+    public method Activate(bViewActivate as codeblock) as logical
     public method DeActivate() as logical
 
     public method IsActive() as logical
@@ -41,7 +38,7 @@ class Game15View
     public method ClearTopTable() as logical
     public method MsgAbout() as variant
 
-    private method Create() as variant
+    private method CreateBoard(bViewActivate as codeblock) as logical
 
 endclass
 
@@ -54,7 +51,7 @@ method New(oController) class Game15View
     endif
 return(self)
 
-method Activate() class Game15View
+method Activate(bViewActivate) class Game15View
     if (;
             ((ValType(self:oController)=="O").and.(GetClassName(self:oController)=="GAME15.GAME15CONTROLLER"));
             .and.;
@@ -62,9 +59,13 @@ method Activate() class Game15View
             .and.;
             (!self:lActive).and.(self:CanExecute());
     )
-        self:Create()
-        self:lActive:=.T.
-        self:oDlg:Activate(nil,nil,nil,.T.,self:bValid,nil,self:bInit,nil,nil)
+        paramtype 1 var bViewActivate as block optional default {||.T.}
+        self:lActive:=self:CreateBoard(bViewActivate)
+        if (self:lActive)
+            self:oDlg:Activate(nil,nil,nil,.T.,self:oDlg:bValid,nil,self:oDlg:bInit,nil,nil)
+        else
+            self:DeActivate()
+        endif
     endif
 return(self:lActive)
 
@@ -81,29 +82,39 @@ method DeActivate() class Game15View
     endif
 return(self:lActive)
 
-method Create() class Game15View
+method CreateBoard(bViewActivate) class Game15View
 
     local bRestoreGameUpdateView as codeblock
 
     local cIcon as character
-    local cTitle:=GAME15_TITLE as character
+    local cTitle as character
 
     local jCoordinates as json
 
-    local oView:=self as object
-    local oController:=self:oController as object
+    local lCreateBoard as logical
+
+    local oView as object
+    local oController as object
 
     begin sequence
 
-        if (!oView:CanExecute())
+        oView:=self
+        lCreateBoard:=oView:CanExecute()
+        if (!lCreateBoard)
             break
         endif
+
+        oController:=self:oController
+
+        paramtype 1 var bViewActivate as block optional default {||.T.}
+
+        cTitle:=GAME15_TITLE
 
         bRestoreGameUpdateView:={|nID as numeric,nLeft as numeric,nTop as numeric|oView:oTPaintPanel:SetPosition(nID,nLeft,nTop)}
 
         aAdd(oView:aNotPlayButtonsActions,{"Close",{||oView:oTPaintPanel:ClearAll(),oView:oTPaintPanel:oWnd:End()}})
         aAdd(oView:aNotPlayButtonsActions,{"Load Game",{||RestoreGame(@oController,@bRestoreGameUpdateView)}})
-        aAdd(oView:aNotPlayButtonsActions,{"Start of new game",{||FWMsgRun(nil,{||oView:oTPaintPanel:ClearAll(),oController:Reload(),LoadGame(nil,nil,@oController,@oView:oTPaintPanel)},"Wait..","Start of new game")}})
+        aAdd(oView:aNotPlayButtonsActions,{"Start of new game",{||FWMsgRun(nil,{||oView:oTPaintPanel:ClearAll(),oController:ReloadBoard(),LoadGame(nil,nil,@oController,@oView:oTPaintPanel)},"Wait..","Start of new game")}})
         aAdd(oView:aNotPlayButtonsActions,{"Save a game",{||SaveGame(@oController)}})
         aAdd(oView:aNotPlayButtonsActions,{"About",{||oView:MsgAbout()}})
         aAdd(oView:aNotPlayButtonsActions,{"Top Table",{||oView:ShowTopTable()}})
@@ -129,12 +140,14 @@ method Create() class Game15View
 
         FreeObj(@oTRect)
 
-        oView:bInit:={||LoadGame(nil,nil,@oController,@oView:oTPaintPanel)}
-        oView:bValid:={||.T.}
+        oView:oDlg:bInit:={||LoadGame(nil,nil,@oController,@oView:oTPaintPanel),Eval(bViewActivate)}
+        oView:oDlg:bValid:={||.T.}
+
+        lCreateBoard:=.T.
 
     end sequence
 
-return(nil)
+return(lCreateBoard)
 
 method IsActive() class Game15View
 return(self:lActive)

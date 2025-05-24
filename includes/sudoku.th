@@ -1,0 +1,16 @@
+#ifndef __SUDOKU_TH__
+
+    #define __SUDOKU_TH__
+
+    #define SUDOKU_ELEM 02
+
+    #define SUDOKU_OBJ  01
+    #define SUDOKU_VAR  02
+
+    #define SUDOKU_TITLE "NaldoDJ Games :: Sudoku"
+
+    #ifndef SYMBOL_UNUSED
+        #define SYMBOL_UNUSED(symbol) (symbol:=(symbol))
+    #endif
+
+#endif

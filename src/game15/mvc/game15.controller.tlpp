@@ -29,11 +29,12 @@ class Game15Controller
     public method DeActivate() as logical
     public method CanExecute() as logical
     public method IsActive() as logical
+    public method Game15Data() as json
 
     //Model Interface
     private data jGame15Data as json
 
-    public method Reload() as logical
+    public method ReloadBoard() as logical
 
     public method SwapButtons() as logical
 
@@ -72,15 +73,18 @@ return(self)
 
 method Activate() class Game15Controller
     local lActive as logical
+    local bViewActivate as codeblock
     local oView:=self:oView
     local oModel:=self:oModel
+    local oController:=self
     if ((self:CanExecute()).and.(!self:lActive))
         FWMsgRun(nil,{||lActive:=oModel:Activate()},"Wait..","Start of new game")
         self:lActive:=lActive
         if (self:lActive)
-            self:jGame15Data:=oModel:jGame15Data
+            self:jGame15Data:=oModel:Game15Data()
             self:lSetDeleted:=Set(_SET_DELETED,.T.)
-            oView:Activate()
+            bViewActivate:={||oController:StartTime()}
+            oView:Activate(bViewActivate)
         endif
     endif
 return(self:lActive)
@@ -109,12 +113,21 @@ return(self:lExecute)
 method IsActive() class Game15Controller
 return(self:lActive)
 
+method Game15Data() class Game15Controller
+    local lGame15Data as logical
+    local jGame15Data as json
+    lGame15Data:=(self:CanExecute().and.self:IsActive())
+    if (lGame15Data)
+        jGame15Data:=self:jGame15Data
+    endif
+return(jGame15Data)
+
 //Model Interface
-method Reload() class Game15Controller
+method ReloadBoard() class Game15Controller
     local lReload as logical
     lReload:=self:IsActive()
     if (lReload)
-        lReload:=self:oModel:Reload()
+        lReload:=self:oModel:ReloadBoard()
     endif
 return(lReload)
 

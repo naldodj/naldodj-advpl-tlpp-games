@@ -1,0 +1,111 @@
+/*----------------------------------------------------------------------
+                        _        _              _
+ _ __ ___   ___   ___  | |__    (_)  ___   ___ | |_  ___
+| '_ ` _ \ / __| / _ \ | '_ \   | | / _ \ / __|| __|/ __|
+| | | | | |\__ \| (_) || |_) |  | ||  __/| (__ | |_ \__ \
+|_| |_| |_||___/ \___/ |_.__/  _/ | \___| \___| \__||___/
+                              |__/
+
+ The source code `naldodj.games.msobjects.tlpp` is based on a more detailed and feature-rich
+source code, `dna.tech.msobjects.tlpp`, and implements part of the functionalities
+present in the latter.
+
+*/
+
+#include "totvs.ch"
+#include "parmtype.ch"
+
+#include "tlpp-core.th"
+
+#ifndef __CLS_NAME_THASH
+    #define __CLS_NAME_THASH
+    #define CLS_NAME_THASH "|DNA.TECH.JSONHASH|DNA.TECH.JSONARRAY|DNA.TECH.THASH|DNA.TECH.TFINI|DNA.TECH.THASH_TFINI|"
+#endif
+
+namespace naldodj.games
+using namespace naldodj.games
+
+class MsObjects
+
+    static method JSONObjectsFree(xObjects as variant) as variant
+
+end class
+
+static method JSONObjectsFree(xObjects) CLASS MsObjects
+
+    local aNames as array
+
+    local cName as character
+    local cType as character
+    local cClassName as character
+
+    local nName as numeric
+    local nNames as numeric
+
+    local nItem as numeric
+    local nItems as numeric
+
+    paramtype 1 var xObjects as array,json,object
+
+    cType:=ValType(xObjects)
+
+    if (cType=="J")
+        aNames:=xObjects:GetNames()
+        for nName:=1 to nNames
+            cName:=aNames[nName]
+            cType:=ValType(xObjects[cName])
+            if (cType=="O")
+                FreeObj(@xObjects[cName])
+            elseif (cType=="J")
+                MsObjects():JSONObjectsFree(xObjects[cName])
+                FreeObj(@xObjects[cName])
+            elseif (cType=="A")
+                nItems:=Len(xObjects[cName])
+                for nItem:=1 to nItems
+                    cType:=ValType(xObjects[cName][nItem])
+                    if (cType=="A")
+                        FWFreeArray(@xObjects[cName][nItem])
+                    elseif (cType=="J")
+                        MsObjects():JSONObjectsFree(xObjects[cName][nItem])
+                        FreeObj(xObjects[cName][nItem])
+                    elseif (cType=="O")
+                        FreeObj(@xObjects[cName][nItem])
+                    endif
+                next nItem
+                FWFreeArray(@xObjects[cName])
+            endif
+
+        next nName
+
+        FreeObj(@xObjects)
+
+    elseif (cType=="O")
+
+        cClassName:=GetClassName(xObjects)
+        if (cClassName$CLS_NAME_THASH)
+            xObjects:FreeObj()
+        elseif (cClassName=="THASHMAP")
+            xObjects:Clean()
+        endif
+
+        FreeObj(@xObjects)
+
+    elseif (cType=="A")
+
+        nItems:=Len(xObjects)
+        for nItem:=1 to nItems
+            cType:=ValType(xObjects[nItem])
+            if (cType=="A")
+                MsObjects():JSONObjectsFree(@xObjects[nItem])
+            elseif (cType=="J")
+                MsObjects():JSONObjectsFree(xObjects[nItem])
+            elseif (cType=="O")
+                MsObjects():JSONObjectsFree(xObjects[nItem])
+            endif
+        next nItem
+
+        FWFreeArray(@xObjects)
+
+    endif
+
+return(nil)

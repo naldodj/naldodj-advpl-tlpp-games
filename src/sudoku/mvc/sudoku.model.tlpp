@@ -1,0 +1,505 @@
+/*
+                 _         _                                     _        _
+ ___  _   _   __| |  ___  | | __ _   _     _ __ ___    ___    __| |  ___ | |
+/ __|| | | | / _` | / _ \ | |/ /| | | |   | '_ ` _ \  / _ \  / _` | / _ \| |
+\__ \| |_| || (_| || (_) ||   < | |_| | _ | | | | | || (_) || (_| ||  __/| |
+|___/ \__,_| \__,_| \___/ |_|\_\ \__,_|(_)|_| |_| |_| \___/  \__,_| \___||_|
+
+*/
+
+#include "totvs.ch"
+#include "sudoku.th"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace sudoku
+using namespace sudoku
+using namespace naldodj.games
+
+class SudokuModel
+
+    private data jSudokuData as json
+
+    private data lActive as logical
+    private data lExecute as logical
+
+    public method New() as object
+
+    public method Activate() as logical
+    public method DeActivate() as logical
+
+    public method CanExecute() as logical
+    public method IsActive() as logical
+
+    public method SudokuData() as json
+    public method SudokuLevel(nSudokuLevel as numeric) as numeric
+    public method SudokuLevels() as array
+
+    public method SudokuRemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
+    public method SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as character
+
+endclass
+
+method New() class SudokuModel
+    self:lActive:=.F.
+    if (self:CanExecute())
+        self:jSudokuData:=JSONObject():New()
+        self:jSudokuData["aSudoku"]:=Array(0)
+        self:jSudokuData["aSudokuBoard"]:=nil
+        self:jSudokuData["aSudokuLevels"]:=Array(0)
+        self:jSudokuData["cSudokuTime"]:="00:00:00"
+        self:jSudokuData["nSudokuLevel"]:=0
+    endif
+return(self)
+
+method Activate() class SudokuModel
+    self:lExecute:=self:CanExecute()
+    if (self:lExecute)
+        self:lActive:=Sudoku(@self:jSudokuData["aSudoku"])
+    else
+        self:lActive:=.F.
+    endif
+return(self:lActive)
+
+method DeActivate() class SudokuModel
+    if (self:lActive)
+        JSONObjectsFree(@self:jSudokuData)
+        self:lActive:=.F.
+    endif
+return(self:lActive)
+
+method CanExecute() class SudokuModel
+    self:lExecute:=(FWIsInCallStack("SUDOKU.U_SUDOKURUN").or.FWIsInCallStack("SUDOKU.U_SUDOKURUNTESTS"))
+return(self:lExecute)
+
+method IsActive() class SudokuModel
+return(self:lActive)
+
+method SudokuData() class SudokuModel
+    if (self:CanExecute())
+        return(self:jSudokuData)
+    endif
+return
+
+method SudokuLevel(nSudokuLevel) class SudokuModel
+    local nLevel as numeric
+    if (self:CanExecute())
+        paramtype nSudokuLevel as numeric optional default self:jSudokuData["nSudokuLevel"]
+        self:jSudokuData["nSudokuLevel"]:=nSudokuLevel
+        nLevel:=self:jSudokuData["nSudokuLevel"]
+    endif
+return(nLevel)
+
+method SudokuLevels() class SudokuModel
+    local aSudokuLevels as array
+    if (self:CanExecute())
+        if (Empty(self:jSudokuData["aSudokuLevels"]))
+            aAdd(self:jSudokuData["aSudokuLevels"],"Iniciante")
+            aAdd(self:jSudokuData["aSudokuLevels"],"M&eacute;dio")
+            aAdd(self:jSudokuData["aSudokuLevels"],"Intermedi&aacute;rio")
+            aAdd(self:jSudokuData["aSudokuLevels"],"Avan&ccedil;ado")
+            aAdd(self:jSudokuData["aSudokuLevels"],"Aleat&oacute;rio")
+        endif
+        aSudokuLevels:=aClone(self:jSudokuData["aSudokuLevels"])
+    endif
+return(aSudokuLevels)
+
+ method SudokuRemoveNumbers(aSudoku,nSudokuLevel) class SudokuModel
+    local aSudokuBoard as array
+    if (self:IsActive())
+        paramtype 1 var aSudoku as array optional default self:jSudokuData["aSudoku"]
+        paramtype 2 var nSudokuLevel as numeric optional default self:jSudokuData["nSudokuLevel"]
+        aSudokuBoard:=RemoveNumbers(aSudoku,nSudokuLevel)
+    endif
+return(aSudokuBoard)
+
+method SudokuBuildSringBoard(aSudoku,lHTMLTable) class SudokuModel
+    local cSudokuBoard as character
+    paramtype 1 var aSudoku as array
+    paramtype 2 var lHTMLTable as logical optional default .T.
+    if (!Empty(aSudoku))
+        cSudokuBoard:=SudokuBuildSringBoard(aSudoku,lHTMLTable)
+    endif
+return(cSudokuBoard)
+
+static function Random9()
+return((1+Randomize(0,8)))
+
+static function Random9x(nPlus,nMaxRand)
+return((Int((nPlus+Randomize(0,nMaxRand))/9)*9))
+
+static function Sudoku(/*@*/aSudoku as array) as logical
+
+    local aNumbers as array
+
+    local lGenerateSudoku as logical
+
+    local nRow as numeric
+
+    if (Empty(aSudoku))
+        if (valType(aSudoku)!="A")
+            aSudoku:=Array(9)
+        endif
+    endif
+
+    if (Len(aSudoku)!=9)
+        aSize(aSudoku,9)
+    endif
+
+    // Inicializa matriz
+    for nRow:=1 to 9
+        aSudoku[nRow]:=Array(9)
+        aFill(aSudoku[nRow],0)
+    next nRow
+
+    // Gera uma lista de numeros aleatorios de 1 a 9
+    aNumbers:=Shuffle({1,2,3,4,5,6,7,8,9})
+
+    lGenerateSudoku:=GenerateSudoku(@aSudoku,aNumbers)
+
+return(lGenerateSudoku)
+
+// Funcao recursiva para gerar a grade completa
+static function GenerateSudoku(aSudoku as array,aNumbers as array) as logical
+
+    local lGenerateSudoku:=.F. as logical
+
+    local nRow as numeric
+    local nCol as numeric
+    local nNum as numeric
+    local nIdx as numeric
+
+    begin sequence
+
+        // Encontra a proxima celula vazia
+        lGenerateSudoku:=(!FindEmptyCell(aSudoku,@nRow,@nCol))
+        if (lGenerateSudoku)
+            break // Sudoku completo
+        endif
+
+        for nIdx:=1 to 9
+            nNum:=aNumbers[nIdx]
+            if (IsSafe(aSudoku,nRow,nCol,nNum))
+                aSudoku[nRow][nCol]:=nNum
+                lGenerateSudoku:=GenerateSudoku(aSudoku,aNumbers)
+                if (lGenerateSudoku)
+                    break
+                endif
+                // Desfaz a jogada
+                aSudoku[nRow][nCol]:=0
+            endif
+        next nIdx
+
+    end sequence
+
+return(lGenerateSudoku)
+
+// Verifica se e seguro colocar nNum na posicao (nRow,nCol)
+static function IsSafe(aSudoku as array,nRow as numeric,nCol as numeric,nNum as numeric) as logical
+
+    local lIsSafe:=.T. as logical
+
+    local d as numeric
+    local j as numeric
+
+    local nRowIndex as numeric
+    local nColIndex as numeric
+
+    local nBoxStartRow as numeric
+    local nBoxStartCol as numeric
+
+    begin sequence
+
+        // Verifica linha e coluna
+        for d:=1 to 9
+            if (;
+                    (aSudoku[nRow][d]==nNum);
+                    .or.;
+                    (aSudoku[d][nCol]==nNum);
+            )
+                lIsSafe:=.F.
+                break
+            endif
+        next d
+
+        // Verifica a subgrade 3x3 com protecao de limites
+        nBoxStartRow:=((Int((nRow-1)/3)*3)+1)
+        nBoxStartCol:=((Int((nCol-1)/3)*3)+1)
+        for d:=0 to 2
+            nRowIndex:=Min(d+nBoxStartRow,9)
+            for j:=0 to 2
+                nColIndex:=Min(j+nBoxStartCol,9)
+                if (aSudoku[nRowIndex][nColIndex]==nNum)
+                    lIsSafe:=.F.
+                    break
+                endif
+            next j
+        next d
+
+    end sequence
+
+return(lIsSafe)
+
+// Encontra a proxima celula vazia (com valor 0)
+static function FindEmptyCell(aSudoku as array,nRow as numeric,nCol as numeric) as logical
+
+    local lFoundEmptyCell:=.F. as logical
+
+    begin sequence
+        for nRow:=1 to 9
+            for nCol:=1 to 9
+                lFoundEmptyCell:=(aSudoku[nRow][nCol]==0)
+                if (lFoundEmptyCell)
+                    break
+                endif
+            next nCol
+        next nRow
+    end sequence
+
+return(lFoundEmptyCell)
+
+// Embaralha um array
+static function Shuffle(aArray) as array
+
+    local d as numeric
+    local j as numeric
+    local tmp as numeric
+    local nLen:=Len(aArray) as numeric
+
+    for d:=nLen to 2 step (-2)
+        j:=Random9()
+        tmp:=aArray[d]
+        aArray[d]:=aArray[j]
+        aArray[j]:=tmp
+    next d
+
+return(aArray)
+
+// Exibe o Sudoku completo formatado
+static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as character
+
+    local cNum as character
+    local cCRLF:=CRLF as character
+    local cLine as character
+    local cSudoku as character
+
+    local nRow as numeric
+    local nCol as numeric
+    local nStepBlock as numeric
+
+    cSudoku:=""
+    if (lHTMLTable)
+        beginContent var cSudoku
+                <table>
+                    <caption>naldodj.games.Sudoku</caption>
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                    </colgroup>
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                    </colgroup>
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                    </colgroup>
+                    <tbody>
+        endContent
+    endif
+
+    for nRow:=1 to 9
+        if (lHTMLTable)
+            cLine:="                <tr>
+            cLine+=cCRLF
+        else
+            cLine:="|"
+        endif
+        for nCol:=1 to 9
+            cNum:=Str(aSudoku[nRow][nCol],if(lHTMLTable,1,2))
+            if (lHTMLTable)
+                cLine+="                    <td class='sudokuBlock"+cTools():NToS(SudokuGetBlock(nRow,nCol,@nStepBlock))+"'>"+cNum+"</td>"
+                cLine+=cCRLF
+            else
+                cLine+=cNum
+                if ((nCol%3==0).and.(nCol<9))
+                    cLine+=" |"
+                endif
+            endif
+        next nCol
+        if (lHTMLTable)
+            cLine+="                        </tr>
+            cLine+=cCRLF
+            if ((nRow%3==0).and.(nRow<9))
+                cLine+="            </tbody>
+                cLine+=cCRLF
+                cLine+="            <tbody>
+                cLine+=cCRLF
+                cLine+="                <tr>
+                cLine+=cCRLF
+            endif
+        else
+            cLine+=" |"
+            cLine+=cCRLF
+        endif
+        if ((!lHTMLTable).and.(nRow%3==0).and.(nRow<9))
+            cLine+=Replicate("-",24)
+            cLine+=cCRLF
+        endif
+        cSudoku+=cLine
+    next nRow
+
+    if (lHTMLTable)
+        cSudoku+="            </tbody>
+        cLine+=cCRLF
+        cSudoku+="                </table>"
+        cLine+=cCRLF
+    endif
+
+return(cSudoku)
+
+static function SudokuGetBlock(nRow as numeric,nCol as numeric,nStepBlock as numeric) as numeric
+    local nBlock as numeric
+    DEFAULT nStepBlock:=0
+    nBlock:=(INT((nRow-1)/3)*3)+(INT((nCol-1)/3)+1)
+    nBlock+=nStepBlock
+    if (nCol%9==0)
+        nStepBlock:=0
+    elseif (nCol%3==0)
+        nStepBlock++
+    endif
+return(nBlock)
+
+// Remove numeros da grade baseada no nivel de dificuldade
+static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
+
+    local aRandCol as array
+    local aSudokuBoard:=aClone(aSudoku) as array
+
+    local lPlus as logical
+    local lExit as logical
+
+    local nRow as numeric
+    local nCol as numeric
+    local nATCol as numeric
+    local nRDCol as numeric
+    local nColRD as numeric
+    local nToRemove as numeric
+
+    // Define quantidade de celulas para remover
+    do case
+        case (nSudokuLevel==1)//Iniciante
+            nToRemove:=Random9x(30,10)
+        case (nSudokuLevel==2)//Medio
+            nToRemove:=Random9x(41,9)
+        case (nSudokuLevel==3)//Intermediario
+            nToRemove:=Random9x(51,4)
+        case (nSudokuLevel==4)//Avancado
+            nToRemove:=Random9x(56,4)
+        case (nSudokuLevel==5)//Aleatorio
+            nToRemove:=Random9x(15,60)
+        otherwise //Deus
+            nToRemove:=Random9x(70,10)
+    endcase
+
+    aRandCol:=Array(nToRemove)
+    aEval(@aRandCol,{|,n as numeric|aRandCol[n]:=Random9()})
+    aRandCol:=aUtils():Split(aRandCol,9)
+
+    for nRow:=1 to Len(aRandCol)
+        for nCol:=1 to Min(Len(aRandCol[nRow]),9)
+            nColRD:=(nRDCol:=aRandCol[nRow][nCol])
+            lExit:=.F.
+            lPlus:=(Randomize(0,1)==1)
+            nATCol:=aScan(aRandCol[nRow],{|n as numeric|(n==nColRD)})
+            while (aScan(aRandCol[nRow],{|n as numeric|(n==nColRD)},nATCol+1)>0)
+                if (lPlus)
+                    if (++nColRD>9)
+                        if (!lExit)
+                            lExit:=.T.
+                        else
+                            exit
+                        endif
+                        lPlus:=.F.
+                        nColRD:=nRDCol
+                    endif
+                elseif (--nColRD<=0)
+                    if (!lExit)
+                        lExit:=.T.
+                    else
+                        exit
+                    endif
+                    lPlus:=.T.
+                    nColRD:=nRDCol
+                endif
+            end while
+            aRandCol[nRow][nCol]:=nColRD
+        end while
+        for nCol:=1 to Min(Len(aRandCol[nRow]),9)
+            aSudokuBoard[nRow][aRandCol[nRow][nCol]]:=0
+        next nCol
+    next nRow
+
+    FWFreeArray(@aRandCol)
+
+return(aSudokuBoard)
+
+static function Compare(x as array,y as array) as logical
+    local jX:=JSONObject():New() as json
+    local jY:=JSONObject():New() as json
+    local lIsEqual as logical
+    jX["__JSONArray__"]:=aClone(x)
+    jY["__JSONArray__"]:=aClone(y)
+    lIsEqual:=(jX:ToJSON()==jY:ToJSON())
+    FWFreeArray(@jX["__JSONArray__"])
+    FWFreeArray(@jY["__JSONArray__"])
+    JSONObjectsFree(@jX)
+    JSONObjectsFree(@jY)
+return(lIsEqual)
+
+static function JSONObjectsFree(jObjects as json) as variant
+
+    local aNames as array
+
+    local cName as character
+    local cType as character
+
+    local nName as numeric
+    local nNames as numeric
+
+    local nItem as numeric
+    local nItems as numeric
+
+    aNames:=jObjects:GetNames()
+    for nName:=1 to nNames
+        cName:=aNames[nName]
+        cType:=ValType(jObjects[cName])
+        if (cType=="O")
+            FreeObj(@jObjects[cName])
+        elseif (cType=="J")
+            JSONObjectsFree(jObjects[cName])
+            FreeObj(@jObjects[cName])
+        elseif (cType=="A")
+            nItems:=Len(jObjects[cName])
+            for nItem:=1 to nItems
+                cType:=ValType(jObjects[cName][nItem])
+                if (cType=="A")
+                    FWFreeArray(@jObjects[cName][nItem])
+                elseif (cType=="J")
+                    JSONObjectsFree(jObjects[cName][nItem])
+                    FreeObj(jObjects[cName][nItem])
+                elseif (cType=="O")
+                    FreeObj(@jObjects[cName][nItem])
+                endif
+            next nItem
+            FWFreeArray(@jObjects[cName])
+        endif
+
+    next nName
+
+    FreeObj(@jObjects)
+
+return(nil)

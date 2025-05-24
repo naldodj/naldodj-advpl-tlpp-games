@@ -3,6 +3,54 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-24 20:44 UTC naldodj
+  * game15 (Dark Theme and Others...)
+    + src/game15/resources/bmps_aux/game15_closebtn_dark.png
+    + src/game15/resources/bmps_aux/game15_mainform_dark.png
+    + src/game15/resources/bmps_aux/game15_minbtn_dark.png
+    + src/game15/resources/bmps_play/game15_b01_dark.png
+    + src/game15/resources/bmps_play/game15_b02_dark.png
+    + src/game15/resources/bmps_play/game15_b03_dark.png
+    + src/game15/resources/bmps_play/game15_b04_dark.png
+    + src/game15/resources/bmps_play/game15_b05_dark.png
+    + src/game15/resources/bmps_play/game15_b06_dark.png
+    + src/game15/resources/bmps_play/game15_b07_dark.png
+    + src/game15/resources/bmps_play/game15_b08_dark.png
+    + src/game15/resources/bmps_play/game15_b09_dark.png
+    + src/game15/resources/bmps_play/game15_b10_dark.png
+    + src/game15/resources/bmps_play/game15_b11_dark.png
+    + src/game15/resources/bmps_play/game15_b12_dark.png
+    + src/game15/resources/bmps_play/game15_b13_dark.png
+    + src/game15/resources/bmps_play/game15_b14_dark.png
+    + src/game15/resources/bmps_play/game15_b15_dark.png
+    + src/game15/resources/bmps_play/game15_b16_dark.png
+    + src/game15/resources/buttons/game15_about_dark.png
+    + src/game15/resources/buttons/game15_clear_dark.png
+    + src/game15/resources/buttons/game15_exit_dark.png
+    + src/game15/resources/buttons/game15_load_dark.png
+    + src/game15/resources/buttons/game15_ok_dark.png
+    + src/game15/resources/buttons/game15_save_dark.png
+    + src/game15/resources/buttons/game15_start_dark.png
+    + src/game15/resources/buttons/game15_top10_dark.png
+    * src/game15/mvc/game15.controller.tlpp
+    * src/game15/mvc/game15.model.tlpp
+    * src/game15/mvc/game15.view.tlpp
+  + Sudoku (New Game)
+    + src/sudoku/mvc/sudoku.controller.tlpp
+    + src/sudoku/mvc/sudoku.model.tlpp
+    + src/sudoku/mvc/sudoku.view.tlpp
+    + src/sudoku/README.md
+    + src/sudoku/sudoku.tlpp
+    + src/sudoku/TODO.md
+    + includes/sudoku.th
+  * tools (New Features)
+    + src/tools/naldodj.games.autils.tlpp
+    + src/tools/naldodj.games.ctools.tlpp
+    + src/tools/naldodj.games.default.tlpp
+    + src/tools/naldodj.games.msobjects.tlpp
+    + src/tools/naldodj.games.webapp.tools.tlpp
+    * src/tools/naldodj.games.timecalc.tlpp
+
 2025-05-22 12:43 UTC naldodj (TODO: Refatorar para MVC 100% aderente)
   * includes/game15.th
   * src/game15/mvc/game15.controller.tlpp

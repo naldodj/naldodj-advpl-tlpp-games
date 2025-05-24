@@ -1,0 +1,39 @@
+/*----------------------------------------------------------------------
+     _         __                _  _
+  __| |  ___  / _|  __ _  _   _ | || |_
+ / _` | / _ \| |_  / _` || | | || || __|
+| (_| ||  __/|  _|| (_| || |_| || || |_
+ \__,_| \___||_|   \__,_| \__,_||_| \__|
+
+ The source code `naldodj.games.default.tlpp` is based on a more detailed and feature-rich
+source code, `dna.tech.default.tlpp`, and implements part of the functionalities
+present in the latter.
+
+*/
+
+#include "totvs.ch"
+#include "tlpp-core.th"
+
+namespace naldodj.games
+using namespace naldodj.games
+
+class dfv
+    static method default(xVar as variant,xDefault as variant) as variant
+    static method defaultEmpty(xVar as variant,xDefault as variant) as variant
+end class
+
+method default(xVar,xDefault) class dfv
+    if (isnil():Isnil(@xVar,@xDefault))
+        if (xVar!=xDefault)
+            xVar:=xDefault
+        endif
+    endif
+return(xVar)
+
+method defaultEmpty(xVar,xDefault) class dfv
+    if (Empty(@xVar))
+        if (xVar!=xDefault)
+            xVar:=xDefault
+        endif
+    endif
+return(xVar)

@@ -1,0 +1,207 @@
+/*----------------------------------------------------------------------
+       _                  _
+  ___ | |_   ___    ___  | | ___
+ / __|| __| / _ \  / _ \ | |/ __|
+| (__ | |_ | (_) || (_) || |\__ \
+ \___| \__| \___/  \___/ |_||___/
+
+    The source code `naldodj.games.ctools.tlpp` is based on a more detailed and feature-rich
+    source code, `dna.tech.ctools.tlpp`, and implements part of the functionalities
+    present in the latter.
+
+*/
+
+#include "totvs.ch"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace naldodj.games
+using namespace naldodj.games
+
+static __aAccentuation as array
+static __nAccentuation as numeric
+
+class ctools
+
+    static method NToS(nVal as numeric) as character
+
+    static method Accentuation(cString as character,vAccentuation as variadic) as character
+    static method AsciiToWebAccentuation(cString as character) as character
+    static method WebAccentuationToAscii(cString as character) as character
+
+end class
+
+static method NToS(nVal,ltlpptoStr) class ctools
+    local cVal as character
+    paramtype nVal as numeric optional default 0
+    paramtype ltlpptoStr as logical optional default .T.
+    ltlpptoStr:=((ltlpptoStr).and.(FindFunction("tlpp.toStr")))
+    cVal:=LTrim((if(ltlpptoStr,tlpp.toStr(nVal),Str(nVal))))
+    return(cVal)
+
+static method AsciiToWebAccentuation(cString) class ctools
+
+    local ai18n as array
+
+    local cIdx as character
+    local cChar as character
+    local cAccent as character
+    local cWebAccent as character
+    local cWebString as character
+
+    local nIdx as numeric
+    local nATPos as numeric
+    local nAccent as numeric
+    local nAccentLen as numeric
+
+    paramtype 1 var cString as character
+    cWebString:=cString
+
+    getAccentuation()
+    dfv():DefaultEmpty(@__nAccentuation,len(__aAccentuation))
+
+    ai18n:=array(0)
+
+    nIdx:=0
+    for nAccent:=1 to __nAccentuation
+        cAccent:=__aAccentuation[nAccent][1]
+        nAccentLen:=Len(cAccent)
+        while ((nATPos:=AT(cAccent,cWebString))>0)
+            cChar:=SubStr(cWebString,nATPos,nAccentLen)
+            if (cChar==cAccent)
+                cIdx:=("#"+ctools():NToS(++nIdx))
+                cWebString:=Stuff(cWebString,nATPos,nAccentLen,cIdx)
+                cWebAccent:=("&"+__aAccentuation[nAccent][3]+";")
+                aAdd(ai18n,cWebAccent)
+            endif
+        end while
+    next nAccent
+
+    cWebString:=i18n(cWebString,ai18n)
+
+    FWFreeArray(@ai18n)
+
+return(cWebString)
+
+static method WebAccentuationToAscii(cWebString) class ctools
+
+    local ai18n as array
+
+    local cIdx as character
+    local cChar as character
+    local cAccent as character
+    local cWebAccent as character
+
+    local nIdx as numeric
+    local nATPos as numeric
+    local nAccent as numeric
+    local nWebAccentLen as numeric
+
+    paramtype 1 var cWebString as character
+    cString:=cWebString
+
+    getAccentuation()
+    dfv():DefaultEmpty(@__nAccentuation,len(__aAccentuation))
+
+    ai18n:=array(0)
+
+    nIdx:=0
+    for nAccent:=1 to __nAccentuation
+        cWebAccent:=("&"+__aAccentuation[nAccent][3]+";")
+        nWebAccentLen:=Len(cWebAccent)
+        while ((nATPos:=AT(cWebAccent,cString))>0)
+            cChar:=SubStr(cString,nATPos,nWebAccentLen)
+            if (cChar==cWebAccent)
+                cIdx:=("#"+ctools():NToS(++nIdx))
+                cString:=Stuff(cString,nATPos,nWebAccentLen,cIdx)
+                cAccent:=__aAccentuation[nAccent][1]
+                aAdd(ai18n,cAccent)
+            endif
+        end while
+    next nAccent
+
+    cString:=i18n(cString,ai18n)
+
+    FWFreeArray(@ai18n)
+
+return(cString)
+
+static function getAccentuation() as array
+
+    if (empty(__aAccentuation))
+        __aAccentuation:={;
+            {chr(009),"","HT"},;
+            {chr(010),"","LF"},;
+            {chr(013),"","CR"},;
+            {chr(129),"","129"},;
+            {chr(141),"",""},;
+            {chr(143),"","143"},;
+            {chr(144),"","144"},;
+            {chr(157),"","157"},;
+            {chr(185),"1","sup1"},;
+            {chr(186),"o","ordm"},;
+            {chr(188),"1/4","frac14"},;
+            {chr(189),"1/2","frac12"},;
+            {chr(190),"3/4","frac34"},;
+            {chr(191),"?","iquest"},;
+            {chr(192),"A","Agrave"},;
+            {chr(195),"A","Atilde"},;
+            {chr(196),"A","Auml"},;
+            {chr(197),"A","Aring"},;
+            {chr(198),"AE","AElig"},;
+            {chr(224),"a","agrave"},;
+            {chr(225),"a","aacute"},;
+            {chr(226),"a","acirc"},;
+            {chr(227),"a","atilde"},;
+            {chr(228),"a","auml"},;
+            {chr(229),"a","aring"},;
+            {chr(230),"ae","aelig"},;
+            {chr(200),"E","Egrave"},;
+            {chr(201),"E","Eacute"},;
+            {chr(202),"E","Ecirc"},;
+            {chr(203),"E","Euml"},;
+            {chr(232),"e","egrave"},;
+            {chr(233),"e","eacute"},;
+            {chr(234),"e","ecirc"},;
+            {chr(235),"e","euml"},;
+            {chr(204),"I","Igrave"},;
+            {chr(205),"I","Iacute"},;
+            {chr(206),"I","Icirc"},;
+            {chr(207),"I","Iuml"},;
+            {chr(236),"i","igrave"},;
+            {chr(237),"i","iacute"},;
+            {chr(238),"i","icirc"},;
+            {chr(239),"i","iuml"},;
+            {chr(210),"O","Ograve"},;
+            {chr(211),"O","Oacute"},;
+            {chr(212),"O","Ocirc"},;
+            {chr(213),"O","Otilde"},;
+            {chr(214),"O","Ouml"},;
+            {chr(242),"o","ograve"},;
+            {chr(243),"o","oacute"},;
+            {chr(244),"o","ocirc"},;
+            {chr(245),"o","otilde"},;
+            {chr(246),"o","ouml"},;
+            {chr(216),"O","Oslash"},;
+            {chr(217),"U","Ugrave"},;
+            {chr(218),"U","Uacute"},;
+            {chr(219),"U","Ucirc"},;
+            {chr(220),"U","Uuml"},;
+            {chr(221),"Y","Yacute"},;
+            {chr(376),"Y","#376"},;
+            {chr(255),"y","&yuml"},;
+            {chr(253),"y","yacute"},;
+            {chr(249),"u","ugrave"},;
+            {chr(250),"u","uacute"},;
+            {chr(251),"u","ucirc"},;
+            {chr(252),"u","uuml"},;
+            {chr(209),"N","Ntilde"},;
+            {chr(241),"n","ntilde"},;
+            {chr(199),"C","Ccedil"},;
+            {chr(231),"c","ccedil"};
+        }
+    endif
+
+    __nAccentuation:=len(__aAccentuation)
+
+return(__aAccentuation)
