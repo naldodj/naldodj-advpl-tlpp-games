@@ -128,6 +128,9 @@ method ReloadBoard() class Game15Controller
     lReload:=self:IsActive()
     if (lReload)
         lReload:=self:oModel:ReloadBoard()
+        if (lReload)
+            self:jGame15Data:=self:oModel:Game15Data()
+        endif
     endif
 return(lReload)
 
