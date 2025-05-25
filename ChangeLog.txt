@@ -3,6 +3,18 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-25 06:04 UTC naldodj (New Features)
+  + src/game15/resources/bmps_aux/game15_mainform_dark_black.png
+  + src/game15/resources/buttons/game15_about_dark_red.png
+  * src/game15/mvc/game15.model.tlpp
+  * src/game15/mvc/game15.view.tlpp
+  * src/game15/resources/bmps_play/game15_b01_dark.png
+  * src/game15/resources/bmps_play/game15_b09_dark.png
+  * src/game15/resources/bmps_play/game15_b13_dark.png
+  * src/game15/resources/buttons/game15_clear_dark.png
+  * src/game15/resources/buttons/game15_save_dark.png
+  * src/sudoku/mvc/sudoku.view.tlpp
+
 2025-05-25 04:15 UTC naldodj (Fix Error on Reload Game: Third parameter must be greater than zero on ascan on GAME15.SWAPBUTTONS(GAME15.MODEL.TLPP) 25/05/2025 02:08:20 line : 1579)
   * src/game15/mvc/game15.controller.tlpp
 

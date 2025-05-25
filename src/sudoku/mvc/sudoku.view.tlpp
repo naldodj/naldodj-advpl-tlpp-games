@@ -119,7 +119,7 @@ method SudokuLevel(aLevels,lButtonParam,lNoModify,nLevel) class SudokuView
 
         cTitle:=SUDOKU_TITLE
 
-        DEFINE FONT jObjects["oFont"] NAME "Arial" SIZE 0,-11 BOLD
+        DEFINE FONT jObjects["oFont"] NAME "Roboto" SIZE 0,-11 BOLD
         DEFINE MSDIALOG jObjects["oDlg"] FROM 094,001 to 300,350 TITLE __Web2Ascii(cTitle) OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
 
             @ 015,005 GROUP jObjects["oGroup"] to 075,172 LABEL __Web2Ascii("Escolha o N&iacute;vel do Jogo") OF jObjects["oDlg"] PIXEL

@@ -264,7 +264,7 @@ static function Activate(jGame15Data as json) as logical
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][SHAPE_TOP]:=10
+    aShapes[nID][SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=300
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -280,9 +280,9 @@ static function Activate(jGame15Data as json) as logical
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,12,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
@@ -327,8 +327,8 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Close"
-    aShapes[nID][SHAPE_TOP]:=12
-    aShapes[nID][SHAPE_LEFT]:=317-26
+    aShapes[nID][SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
+    aShapes[nID][SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
     aShapes[nID][SHAPE_WIDTH]:=14
     aShapes[nID][SHAPE_HEIGHT]:=14
     aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
@@ -596,12 +596,12 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
 
-    LoadMsgAbout(@jGame15Data)
-    LoadTopTable(@jGame15Data)
+    LoadMsgAbout(@jGame15Data,lThemeIsDark)
+    LoadTopTable(@jGame15Data,lThemeIsDark)
 
 return(.T.)
 
-static procedure LoadMsgAbout(jGame15Data as json)
+static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
 
     local aShapes:=jGame15Data["Game15_About"]["aShapes"] as array
 
@@ -621,7 +621,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=394
     aShapes[nID][SHAPE_HEIGHT]:=317
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform"]
+    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform_about"]
     aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
     aShapes[nID][SHAPE_BTNINDEX]:=0
     aShapes[nID][SHAPE_BTNNUMBER]:=0
@@ -647,7 +647,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][SHAPE_TOP]:=10
+    aShapes[nID][SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=300
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -663,9 +663,9 @@ static procedure LoadMsgAbout(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,12,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
@@ -676,8 +676,8 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Close"
-    aShapes[nID][SHAPE_TOP]:=12
-    aShapes[nID][SHAPE_LEFT]:=317-26
+    aShapes[nID][SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
+    aShapes[nID][SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
     aShapes[nID][SHAPE_WIDTH]:=14
     aShapes[nID][SHAPE_HEIGHT]:=14
     aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
@@ -706,7 +706,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC("Copyright "+Chr(169)+" "+GAME15_COPYRIGHT,40)
-    aShapes[nID][SHAPE_TOP]:=50
+    aShapes[nID][SHAPE_TOP]:=50+if(lThemeIsDark,(50),50)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -722,9 +722,9 @@ static procedure LoadMsgAbout(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,10,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
@@ -735,7 +735,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_AUTHOR,40)
-    aShapes[nID][SHAPE_TOP]:=80
+    aShapes[nID][SHAPE_TOP]:=80+if(lThemeIsDark,(50),50)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -751,9 +751,9 @@ static procedure LoadMsgAbout(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,10,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
@@ -764,7 +764,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC("BlackTDN::ADVPL Games ~ GAME 15",40)
-    aShapes[nID][SHAPE_TOP]:=110
+    aShapes[nID][SHAPE_TOP]:=110+if(lThemeIsDark,(50),50)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -780,9 +780,9 @@ static procedure LoadMsgAbout(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,10,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-mark=",1)
 
@@ -794,7 +794,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_URL_COPYRIGHT,40)
-    aShapes[nID][SHAPE_TOP]:=140
+    aShapes[nID][SHAPE_TOP]:=140+if(lThemeIsDark,(50),50)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -810,9 +810,9 @@ static procedure LoadMsgAbout(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,10,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-mark=",1)
 
@@ -824,7 +824,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC("This GAME15_PROGRAM is Freeware!",40)
-    aShapes[nID][SHAPE_TOP]:=170
+    aShapes[nID][SHAPE_TOP]:=170+if(lThemeIsDark,(50),50)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -840,9 +840,9 @@ static procedure LoadMsgAbout(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,10,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
@@ -853,7 +853,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=Padc("Copying is allowed!",40)
-    aShapes[nID][SHAPE_TOP]:=200
+    aShapes[nID][SHAPE_TOP]:=200+if(lThemeIsDark,(50),50)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=317
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -869,9 +869,9 @@ static procedure LoadMsgAbout(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,10,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
@@ -882,7 +882,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="OK"
-    aShapes[nID][SHAPE_TOP]:=(394-32)
+    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
     aShapes[nID][SHAPE_LEFT]:=110
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -908,7 +908,7 @@ static procedure LoadMsgAbout(jGame15Data as json)
 
 return
 
-static procedure LoadTopTable(jGame15Data as json)
+static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
 
     local aShapes:=jGame15Data["Game15_TopTable"]["aShapes"] as array
 
@@ -954,7 +954,7 @@ static procedure LoadTopTable(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][SHAPE_TOP]:=10
+    aShapes[nID][SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
     aShapes[nID][SHAPE_LEFT]:=0
     aShapes[nID][SHAPE_WIDTH]:=300
     aShapes[nID][SHAPE_HEIGHT]:=29
@@ -970,9 +970,9 @@ static procedure LoadTopTable(jGame15Data as json)
     AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
-    AddProperty(@cProperties,"font=","Arial,12,1,0,3")
+    AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
 
     aShapes[nID][SHAPE_PROPERTIES]:=cProperties
@@ -983,8 +983,8 @@ static procedure LoadTopTable(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Close"
-    aShapes[nID][SHAPE_TOP]:=12
-    aShapes[nID][SHAPE_LEFT]:=317-26
+    aShapes[nID][SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
+    aShapes[nID][SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
     aShapes[nID][SHAPE_WIDTH]:=14
     aShapes[nID][SHAPE_HEIGHT]:=14
     aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
@@ -1013,7 +1013,7 @@ static procedure LoadTopTable(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="OK"
-    aShapes[nID][SHAPE_TOP]:=(394-032)
+    aShapes[nID][SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
     aShapes[nID][SHAPE_LEFT]:=14
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -1043,7 +1043,7 @@ static procedure LoadTopTable(jGame15Data as json)
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Clear Top Table"
-    aShapes[nID][SHAPE_TOP]:=(394-032)
+    aShapes[nID][SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
     aShapes[nID][SHAPE_LEFT]:=(317-110)
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -1422,6 +1422,7 @@ static function InitGame15() as json
     jGame15Data["Game15_Files_bmps_aux"]:=JSONObject():New()
     jGame15Data["Game15_Files_bmps_aux"]["minbtn"]:="game15_minbtn"+if(lThemeIsDark,"_dark","")+".png"
     jGame15Data["Game15_Files_bmps_aux"]["mainform"]:="game15_mainform"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_bmps_aux"]["mainform_about"]:="game15_mainform"+if(lThemeIsDark,"_dark_black","")+".png"
     jGame15Data["Game15_Files_bmps_aux"]["closebtn"]:="game15_closebtn"+if(lThemeIsDark,"_dark","")+".png"
 
     jGame15Data["Game15_Files_buttons"]:=JSONObject():New()

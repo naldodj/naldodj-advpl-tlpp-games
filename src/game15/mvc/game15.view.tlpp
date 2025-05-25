@@ -188,7 +188,7 @@ method SaveTopTable() class Game15View
 
         cG15Name:=Space(oController:GetPlayerNameSize())
 
-        DEFINE FONT oFont NAME "Arial" SIZE 0,-15 BOLD
+        DEFINE FONT oFont NAME "Roboto" SIZE 0,-15 BOLD
         DEFINE MSDIALOG oDlg TITLE OemToAnsi("You Win! Elapsed Time:"+cElapTime+". Enter your name.") FROM 0,0 TO 040,405 OF oView:oDlg PIXEL
             @ 05,02 GET oGet VAR cG15Name PICTURE "@!" OF oDlg SIZE 170,10 PIXEL FONT oFont
             DEFINE SBUTTON oBtn FROM 05,175 TYPE 1 ACTION oDlg:End() OF oDlg ENABLE
@@ -297,7 +297,7 @@ method ClearTopTable() class Game15View
 
         cG15Name:=Space(oController:GetPlayerNameSize())
 
-        DEFINE FONT oFont NAME "Arial" SIZE 0,-15 BOLD
+        DEFINE FONT oFont NAME "Roboto" SIZE 0,-15 BOLD
         DEFINE MSDIALOG oDlg TITLE OemToAnsi("Enter your name.") FROM 0,0 TO 040,405 OF oView:oDlg PIXEL
             @ 05,02 GET oGet VAR cG15Name PICTURE "@!" OF oDlg SIZE 170,10 PIXEL FONT oFont
             DEFINE SBUTTON oBtn FROM 05,175 TYPE 1 ACTION oDlg:End() OF oDlg ENABLE
