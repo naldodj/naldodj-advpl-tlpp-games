@@ -36,7 +36,7 @@ class SudokuModel
     public method SudokuLevels() as array
 
     public method SudokuRemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
-    public method SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as character
+    public method SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical,lThemeIsDark as logical) as character
 
 endclass
 
@@ -63,7 +63,7 @@ return(self:lActive)
 
 method DeActivate() class SudokuModel
     if (self:lActive)
-        MsObjects():JSONObjectsFree(@self:jSudokuData)
+        MsObjects():FreeObjects(@self:jSudokuData)
         self:lActive:=.F.
     endif
 return(self:lActive)
@@ -113,12 +113,13 @@ return(aSudokuLevels)
     endif
 return(aSudokuBoard)
 
-method SudokuBuildSringBoard(aSudoku,lHTMLTable) class SudokuModel
+method SudokuBuildSringBoard(aSudoku,lHTMLTable,lThemeIsDark) class SudokuModel
     local cSudokuBoard as character
     paramtype 1 var aSudoku as array
     paramtype 2 var lHTMLTable as logical optional default .T.
+    paramtype 3 var lThemeIsDark as logical optional default .F.
     if (!Empty(aSudoku))
-        cSudokuBoard:=SudokuBuildSringBoard(aSudoku,lHTMLTable)
+        cSudokuBoard:=SudokuBuildSringBoard(aSudoku,lHTMLTable,lThemeIsDark)
     endif
 return(cSudokuBoard)
 
@@ -264,9 +265,22 @@ static function Shuffle(aArray) as array
     local d as numeric
     local j as numeric
     local tmp as numeric
-    local nLen:=Len(aArray) as numeric
 
-    for d:=nLen to 2 step (-2)
+    local nTo as numeric
+    local nLen:=Len(aArray) as numeric
+    local nStep:=(-2)
+
+    if (Randomize(0,1)==1)
+        d:=1
+        nTo:=nLen
+        nStep:=-2
+    else
+        d:=nLen
+        nTo:=2
+        nStep:=-2
+    endif
+
+    for d:=2 to nTo step nStep
         j:=Random9()
         tmp:=aArray[d]
         aArray[d]:=aArray[j]
@@ -276,20 +290,22 @@ static function Shuffle(aArray) as array
 return(aArray)
 
 // Exibe o Sudoku completo formatado
-static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as character
+static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical,lThemeIsDark as logical) as character
 
     local cNum as character
     local cLine as character
     local cCRLF:=CRLF as character
-    local cSudoku as character
+    local cSudokuHTML as character
+    local cSudokuBoard as character
+    local cSudokuBlockColor as character
 
     local nRow as numeric
     local nCol as numeric
     local nStepBlock as numeric
 
-    cSudoku:=""
+    cSudokuBoard:=""
     if (lHTMLTable)
-        beginContent var cSudoku
+        beginContent var cSudokuBoard
                 <table>
                     <caption>naldodj.games.Sudoku</caption>
                     <colgroup>
@@ -349,17 +365,131 @@ static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as
             cLine+=Replicate("-",24)
             cLine+=cCRLF
         endif
-        cSudoku+=cLine
+        cSudokuBoard+=cLine
     next nRow
 
     if (lHTMLTable)
-        cSudoku+="            </tbody>"
+        cSudokuBoard+="            </tbody>"
         cLine+=cCRLF
-        cSudoku+="                </table>"
+        cSudokuBoard+="                </table>"
         cLine+=cCRLF
     endif
 
-return(cSudoku)
+    if (lThemeIsDark)
+        beginContent var cSudokuBlockColor
+        .sudokuBlock1 { background-color: #2E3B4E; color: white; }
+        .sudokuBlock2 { background-color: #3B4D3E; color: white; }
+        .sudokuBlock3 { background-color: #4A3F35; color: white; }
+        .sudokuBlock4 { background-color: #4C3E54; color: white; }
+        .sudokuBlock5 { background-color: #3B4B5A; color: white; }
+        .sudokuBlock6 { background-color: #2F4F4F; color: white; }
+        .sudokuBlock7 { background-color: #4F3C44; color: white; }
+        .sudokuBlock8 { background-color: #505050; color: white; }
+        .sudokuBlock9 { background-color: #383838; color: white; }
+        endContent
+    else
+        beginContent var cSudokuBlockColor
+        .sudokuBlock1 { background-color: #f8d7da; }
+        .sudokuBlock2 { background-color: #d1ecf1; }
+        .sudokuBlock3 { background-color: #d4edda; }
+        .sudokuBlock4 { background-color: #fff3cd; }
+        .sudokuBlock5 { background-color: #e2e3e5; }
+        .sudokuBlock6 { background-color: #f5c6cb; }
+        .sudokuBlock7 { background-color: #c3e6cb; }
+        .sudokuBlock8 { background-color: #bee5eb; }
+        .sudokuBlock9 { background-color: #fefefe; }
+        endContent
+    endif
+
+    beginContent var cSudokuHTML
+<!DOCTYPE html>
+<html lang="pt-br" __THEME__>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        /* Define um estilo para o cabecalho da tabela na impressao */
+        @media print {
+            .thead-print {
+                display: table-header-group;
+            }
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+
+        table {
+            border-collapse: collapse;
+            font-family: Calibri, sans-serif;
+        }
+
+        colgroup,
+        tbody {
+            border: solid medium;
+        }
+
+        td {
+            border: solid thin;
+            height: 2em;
+            width: 2em;
+            text-align: center;
+            padding: 0;
+            font-size: 1.2em;
+        }
+
+        caption {
+            caption-side: top;
+            text-align: center;
+            font-size: 1.5em;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        cSudokuBlockColor
+
+    </style>
+    <title>Tabuleiro de Sudoku</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <pre>
+cSudokuBoard
+                </pre>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+    endContent
+
+    cSudokuHTML:=strTran(cSudokuHTML,"cSudokuBoard",cSudokuBoard)
+    cSudokuHTML:=strTran(cSudokuHTML,"cSudokuBlockColor",cSudokuBlockColor)
+
+    if (lThemeIsDark)
+        cSudokuHTML:=strTran(cSudokuHTML,"background-color: #f8f9fa;","")
+    endif
+    cSudokuHTML:=strTran(cSudokuHTML,"__THEME__",if(lThemeIsDark,"data-bs-theme='dark'",""))
+
+    if (lHTMLTable)
+        cSudokuHTML:=strTran(cSudokuHTML,"<pre>","")
+        cSudokuHTML:=strTran(cSudokuHTML,"<pre>","")
+        cSudokuHTML:=strTran(cSudokuHTML,"</pre>","")
+    endif
+
+return(cSudokuHTML)
 
 static function SudokuGetBlock(nRow as numeric,nCol as numeric,nStepBlock as numeric) as numeric
     local nBlock as numeric
@@ -389,6 +519,14 @@ static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
     local nColRD as numeric
     local nToRemove as numeric
 
+    local nRowTo as numeric
+    local nRowStart as numeric
+    local nRowStep as numeric
+
+    local nColTo as numeric
+    local nColStart as numeric
+    local nColStep as numeric
+
     // Define quantidade de celulas para remover
     do case
         case (nSudokuLevel==1)//Iniciante
@@ -409,8 +547,27 @@ static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
     aEval(@aRandCol,{|,n as numeric|aRandCol[n]:=Random9()})
     aRandCol:=aUtils():Split(aRandCol,9)
 
-    for nRow:=1 to Len(aRandCol)
-        for nCol:=1 to Min(Len(aRandCol[nRow]),9)
+    if (Randomize(0,1)==1)
+        nRowTo:=Len(aRandCol)
+        nRowStep:=1
+        nRowStart:=1
+    else
+        nRowTo:=1
+        nRowStep:=(-1)
+        nRowStart:=Len(aRandCol)
+    endif
+
+    for nRow:=nRowStart to nRowTo step nRowStep
+        if (Randomize(0,1)==1)
+            nColTo:=Min(Len(aRandCol[nRow]),9)
+            nColStep:=1
+            nColStart:=1
+        else
+            nColTo:=1
+            nColStep:=(-1)
+            nColStart:=Min(Len(aRandCol[nRow]),9)
+        endif
+        for nCol:=nColStart to nColTo step nColStep
             nColRD:=(nRDCol:=aRandCol[nRow][nCol])
             lExit:=.F.
             lPlus:=(Randomize(0,1)==1)
@@ -438,11 +595,11 @@ static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
             end while
             aRandCol[nRow][nCol]:=nColRD
         end while
-        for nCol:=1 to Min(Len(aRandCol[nRow]),9)
+        for nCol:=nColStart to nColTo step nColStep
             aSudokuBoard[nRow][aRandCol[nRow][nCol]]:=0
         next nCol
     next nRow
 
-    FWFreeArray(@aRandCol)
+    MsObjects():FreeObjects(@aRandCol)
 
 return(aSudokuBoard)

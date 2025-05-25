@@ -96,11 +96,11 @@ method DeActivate() class Game15Controller
         endif
         if (valType(self:oView)=="O")
             self:oView:DeActivate()
-            FreeObj(@self:oView)
+            MsObjects():FreeObjects(@self:oView)
         endif
         if (valType(self:oModel)=="O")
             self:oModel:DeActivate()
-            FreeObj(@self:oModel)
+            MsObjects():FreeObjects(@self:oModel)
         endif
         self:lActive:=.F.
     endif

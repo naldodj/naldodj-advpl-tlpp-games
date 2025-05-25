@@ -100,7 +100,7 @@ method DeActivate() class Game15Model
             RemoveFiles(@self:jGame15Data,"Game15_Files_bmps_play")
         endif
 
-        MsObjects():JSONObjectsFree(@self:jGame15Data)
+        MsObjects():FreeObjects(@self:jGame15Data)
 
         self:lActive:=.F.
 
@@ -504,7 +504,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     next nRow
 
-    FWFreeArray(@aIndex)
+    MsObjects():FreeObjects(@aIndex)
 
     //"About"
     aAdd(aShapes,Array(SHAPE_ELEM))
@@ -1487,7 +1487,7 @@ return
 static procedure RemoveFiles(jGame15Data,cName)
     local aNames:=jGame15Data[cName]:GetNames() as array
     aEval(aNames,{|cItemName|if(File(jGame15Data[cName][cItemName]),fErase(jGame15Data[cName][cItemName]),NIL)})
-    FWFreeArray(@aNames)
+    MsObjects():FreeObjects(@aNames)
 return
 
 /*
@@ -1605,7 +1605,7 @@ static function SwapButtons(jGame15Data as json) as logical
         aShapes[nFree][SHAPE_LEFT]:=jCoordinates["nLeft"]
         aShapes[nFree][SHAPE_BTNINDEX]:=nIndex
 
-        MsObjects():JSONObjectsFree(@jCoordinates)
+        MsObjects():FreeObjects(@jCoordinates)
 
         bUpdateView:=jGame15Data["Game15_Shapes"]["bUpdateView"]
         Eval(;
@@ -1640,7 +1640,7 @@ static function SwapButtons(jGame15Data as json) as logical
 
     end sequence
 
-    FWFreeArray(@aMatch)
+    MsObjects():FreeObjects(@aMatch)
 
 return(lMatch)
 
@@ -1690,8 +1690,8 @@ static function HL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchL)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchL)
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchL)
 
 return(lMatch)
 
@@ -1730,8 +1730,8 @@ static function HR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchR)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchR)
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchR)
 
 return(lMatch)
 
@@ -1770,8 +1770,8 @@ static function HL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchL)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchL)
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchL)
 
 return(lMatch)
 
@@ -1810,11 +1810,8 @@ static function HR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchR)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchR)
-
-    aMatchG:=NIL
-    aMatchR:=NIL
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchR)
 
 return(lMatch)
 
@@ -1849,8 +1846,8 @@ static function VL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchV)
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchV)
 
 return(lMatch)
 
@@ -1885,8 +1882,8 @@ static function VR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchV)
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchV)
 
 return(lMatch)
 
@@ -1926,8 +1923,8 @@ static function VL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchV)
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchV)
 
 return(lMatch)
 
@@ -1967,8 +1964,8 @@ static function VR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
-    FWFreeArray(@aMatchG)
-    FWFreeArray(@aMatchV)
+    MsObjects():FreeObjects(@aMatchG)
+    MsObjects():FreeObjects(@aMatchV)
 
 return(lMatch)
 
@@ -2021,7 +2018,7 @@ static procedure SaveGame(aShapes as array,cG15File as character)
 
     end sequence
 
-    FWFreeArray(@aSaveG)
+    MsObjects():FreeObjects(@aSaveG)
 
 return(lSaveGame)
 
@@ -2105,6 +2102,6 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
 
     end sequence
 
-    FWFreeArray(@aRestG)
+    MsObjects():FreeObjects(@aRestG)
 
 return(lRestoreGame)

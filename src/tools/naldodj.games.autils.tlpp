@@ -93,8 +93,8 @@ static method Compare(x,y) class aUtils
     lIsEqual:=(jX:ToJSON()==jY:ToJSON())
     FWFreeArray(@jX["__JSONArray__"])
     FWFreeArray(@jY["__JSONArray__"])
-    MsObjects():JSONObjectsFree(@jX)
-    MsObjects():JSONObjectsFree(@jY)
+    MsObjects():FreeObjects(@jX)
+    MsObjects():FreeObjects(@jY)
 return(lIsEqual)
 
 static method SaveArray(aArray,cFileName) class aUtils
@@ -105,7 +105,7 @@ static method SaveArray(aArray,cFileName) class aUtils
     jArray["__JSONArray__"]:=aClone(aArray)
     lSave:=MemoWrite(cFileName,jArray:ToJSON())
     FWFreeArray(@jArray["__JSONArray__"])
-    MsObjects():JSONObjectsFree(@jArray)
+    MsObjects():FreeObjects(@jArray)
 return(lSave)
 
 static method RestArray(cFileName) class aUtils
@@ -115,7 +115,7 @@ static method RestArray(cFileName) class aUtils
     jArray:FromJSON(MemoRead(cFileName))
     aArray:=aClone(jArray["__JSONArray__"])
     FWFreeArray(@jArray["__JSONArray__"])
-    MsObjects():JSONObjectsFree(@jArray)
+    MsObjects():FreeObjects(@jArray)
 return(aArray)
 
 static method DesvPad(aValores,lPolarizado) class aUtils

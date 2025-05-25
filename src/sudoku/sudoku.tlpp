@@ -25,154 +25,34 @@ using namespace naldodj.games
 function u_SudokuRun()
 return(sudoku.Sudoku():Run())
 
-procedure u_SudokuRunTests(nTests as numeric,lHTMLTable as logical)
+procedure u_SudokuRunTests(nTests as numeric,lHTMLTable as logical,lThemeIsDark as logical)
 
-    local cCRF:=CRLF as character
     local cSudokuHTML as character
     local cSudokuPath as character
     local cSudokuFile as character
-    local cSudokuBoard as character
-    local cSudokuBlockColor as character
-
-    local lThemeIsDark:=WebApp():ThemeIsDark() as logical
 
     local nTest as numeric
 
     DEFAULT nTests:=1
     DEFAULT lHTMLTable:=.T.
-
-    cSudokuBoard:=""
-    for nTest:=1 to nTests
-        cSudokuBoard+=sudoku.Sudoku():RunTest(lHTMLTable)
-        cSudokuBoard+=cCRF
-    next nTest
+    DEFAULT lThemeIsDark:=WebApp():ThemeIsDark()
 
     cSudokuPath:=GetTempPath()
-    cSudokuFile:="naldodj.games.sudoku."+DToS(Date())+"."+StrTran(Time(),":","-")+"."+StrZero(Randomize(0,9999),4)+".html"
 
-    if (lThemeIsDark)
-        beginContent var cSudokuBlockColor
-        .sudokuBlock1 { background-color: #2E3B4E; color: white; }
-        .sudokuBlock2 { background-color: #3B4D3E; color: white; }
-        .sudokuBlock3 { background-color: #4A3F35; color: white; }
-        .sudokuBlock4 { background-color: #4C3E54; color: white; }
-        .sudokuBlock5 { background-color: #3B4B5A; color: white; }
-        .sudokuBlock6 { background-color: #2F4F4F; color: white; }
-        .sudokuBlock7 { background-color: #4F3C44; color: white; }
-        .sudokuBlock8 { background-color: #505050; color: white; }
-        .sudokuBlock9 { background-color: #383838; color: white; }
-        endContent
-    else
-        beginContent var cSudokuBlockColor
-        .sudokuBlock1 { background-color: #f8d7da; }
-        .sudokuBlock2 { background-color: #d1ecf1; }
-        .sudokuBlock3 { background-color: #d4edda; }
-        .sudokuBlock4 { background-color: #fff3cd; }
-        .sudokuBlock5 { background-color: #e2e3e5; }
-        .sudokuBlock6 { background-color: #f5c6cb; }
-        .sudokuBlock7 { background-color: #c3e6cb; }
-        .sudokuBlock8 { background-color: #bee5eb; }
-        .sudokuBlock9 { background-color: #fefefe; }
-        endContent
-    endif
-
-    beginContent var cSudokuHTML
-<!DOCTYPE html>
-<html lang="pt-br" __THEME__>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
-    <style>
-        /* Define um estilo para o cabecalho da tabela na impressao */
-        @media print {
-            .thead-print {
-                display: table-header-group;
-            }
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f8f9fa;
-        }
-
-        table {
-            border-collapse: collapse;
-            font-family: Calibri, sans-serif;
-        }
-
-        colgroup,
-        tbody {
-            border: solid medium;
-        }
-
-        td {
-            border: solid thin;
-            height: 2em;
-            width: 2em;
-            text-align: center;
-            padding: 0;
-            font-size: 1.2em;
-        }
-
-        caption {
-            caption-side: top;
-            text-align: center;
-            font-size: 1.5em;
-            padding: 10px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        cSudokuBlockColor
-
-    </style>
-    <title>Tabuleiro(s) de Sudoku</title>
-</head>
-
-<body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-auto">
-                <pre>
-cSudokuBoard
-                </pre>
-            </div>
-        </div>
-    </div>
-</body>
-
-</html>
-    endContent
-
-    cSudokuHTML:=strTran(cSudokuHTML,"cSudokuBoard",cSudokuBoard)
-    cSudokuHTML:=strTran(cSudokuHTML,"cSudokuBlockColor",cSudokuBlockColor)
-
-    if (lThemeIsDark)
-        cSudokuHTML:=strTran(cSudokuHTML,"background-color: #f8f9fa;","")
-    endif
-    cSudokuHTML:=strTran(cSudokuHTML,"__THEME__",if(lThemeIsDark,"data-bs-theme='dark'",""))
-
-    if (lHTMLTable)
-        cSudokuHTML:=strTran(cSudokuHTML,"<pre>","")
-        cSudokuHTML:=strTran(cSudokuHTML,"<pre>","")
-        cSudokuHTML:=strTran(cSudokuHTML,"</pre>","")
-    endif
-
-    if (MemoWrite(cSudokuPath+cSudokuFile,cSudokuHTML))
-        ShellExecute("open",cSudokuPath+cSudokuFile,"","",1)
-    endif
+    cSudokuHTML:=""
+    for nTest:=1 to nTests
+        cSudokuHTML:=sudoku.Sudoku():RunTest(lHTMLTable,lThemeIsDark)
+        cSudokuFile:="naldodj.games.sudoku."+DToS(Date())+"."+StrTran(Time(),":","-")+"."+StrZero(Randomize(0,9999),4)+".html"
+        if (MemoWrite(cSudokuPath+cSudokuFile,cSudokuHTML))
+            ShellExecute("open",cSudokuPath+cSudokuFile,"","",1)
+        endif
+    next nTest
 
 return
 
 class Sudoku
    static method Run() as logical
-   static method RunTest(lHTMLTable as logical) as character
+   static method RunTest(lHTMLTable as logical,lThemeIsDark as logical) as character
 end class
 
 static method Run() class Sudoku
@@ -192,17 +72,17 @@ static method Run() class Sudoku
             lSudokuNewGame:=oController:SudokuDataGet("lSudokuNewGame",.F.)
             oController:DeActivate()
             if (lSudokuNewGame)
-                FreeObj(@oController)
+                MsObjects():FreeObjects(@oController)
                 lRun:=u_SudokuRun()
             endif
         endif
     endif
 
-    FreeObj(@oController)
+    MsObjects():FreeObjects(@oController)
 
 return(lRun)
 
-static method RunTest(lHTMLTable) class Sudoku
+static method RunTest(lHTMLTable,lThemeIsDark) class Sudoku
 
     local cSudokuBoard as character
 
@@ -211,15 +91,16 @@ static method RunTest(lHTMLTable) class Sudoku
     local oController as object
 
     paramtype 1 var lHTMLTable as logical optional default .T.
+    paramtype 2 var lThemeIsDark as logical optional default WebApp():ThemeIsDark()
 
     oController:=SudokuController():New()
 
     lRun:=oController:CanExecute()
 
     if (lRun)
-        cSudokuBoard:=oController:RunTest(lHTMLTable)
+        cSudokuBoard:=oController:RunTest(lHTMLTable,lThemeIsDark)
     endif
 
-    FreeObj(@oController)
+    MsObjects():FreeObjects(@oController)
 
 return(cSudokuBoard)

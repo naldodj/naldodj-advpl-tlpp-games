@@ -3,6 +3,20 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-25 15:15 UTC naldodj (New Features and TODO Item)
+  * game15 (New Features)
+    * src/game15/mvc/game15.controller.tlpp
+    * src/game15/mvc/game15.model.tlpp
+    * src/game15/mvc/game15.view.tlpp
+  * sudoky (TODO Item)
+    * src/sudoku/mvc/sudoku.controller.tlpp
+    * src/sudoku/mvc/sudoku.model.tlpp
+    * src/sudoku/mvc/sudoku.view.tlpp
+    * src/sudoku/sudoku.tlpp
+  * tools (New Features)
+    * src/tools/naldodj.games.autils.tlpp
+    * src/tools/naldodj.games.msobjects.tlpp
+
 2025-05-25 06:04 UTC naldodj (New Features)
   + src/game15/resources/bmps_aux/game15_mainform_dark_black.png
   + src/game15/resources/buttons/game15_about_dark_red.png

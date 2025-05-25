@@ -74,9 +74,9 @@ method DeActivate() class Game15View
         if (valType(self:oDlg)=="O")
             self:oDlg:End()
         endif
-        FreeObj(@self:oTPaintPanel)
-        FreeObj(@self:oDlg)
-        FWFreeArray(@self:aNotPlayButtonsActions)
+        MsObjects():FreeObjects(@self:oTPaintPanel)
+        MsObjects():FreeObjects(@self:oDlg)
+        MsObjects():FreeObjects(@self:aNotPlayButtonsActions)
         DelClassIntf()
         self:lActive:=.F.
     endif
@@ -138,7 +138,7 @@ method CreateBoard(bViewActivate) class Game15View
         oView:oTPaintPanel:blClicked:={|x,y|lClickGame15(@x,@y,@oView,@oController)}
         oView:oTPaintPanel:blDBLClick:=oView:oTPaintPanel:blClicked
 
-        FreeObj(@oTRect)
+        MsObjects():FreeObjects(@oTRect)
 
         oView:oDlg:bInit:={||LoadGame(nil,nil,@oController,@oView:oTPaintPanel),Eval(bViewActivate)}
         oView:oDlg:bValid:={||.T.}
@@ -194,10 +194,10 @@ method SaveTopTable() class Game15View
             DEFINE SBUTTON oBtn FROM 05,175 TYPE 1 ACTION oDlg:End() OF oDlg ENABLE
         ACTIVATE DIALOG oDlg CENTERED
 
-        FreeObj(@oGet)
-        FreeObj(@oBtn)
-        FreeObj(@oDlg)
-        FreeObj(@oFont)
+        MsObjects():FreeObjects(@oGet)
+        MsObjects():FreeObjects(@oBtn)
+        MsObjects():FreeObjects(@oDlg)
+        MsObjects():FreeObjects(@oFont)
 
         DelClassIntf()
 
@@ -262,18 +262,18 @@ method ShowTopTable() class Game15View
             oTPaintPanel:blClicked:={|x,y|lClickTopTable(@x,@y,@oView,@oTPaintPanel,@oTWBrowse,@aTWBrowseItems)}
             oTPaintPanel:blDBLClick:=oTPaintPanel:blClicked
 
-            FreeObj(@oTRect)
+            MsObjects():FreeObjects(@oTRect)
 
             bInit:={||LoadTopTable(@oTPaintPanel,@oController)}
             bValid:={||.T.}
 
         ACTIVATE DIALOG oDlg CENTERED ON INIT Eval(bInit) VALID Eval(bValid)
 
-        FWFreeArray(@aTWBrowseItems)
+        MsObjects():FreeObjects(@aTWBrowseItems)
 
-        FreeObj(oTWBrowse)
-        FreeObj(@oTPaintPanel)
-        FreeObj(@oDlg)
+        MsObjects():FreeObjects(oTWBrowse)
+        MsObjects():FreeObjects(@oTPaintPanel)
+        MsObjects():FreeObjects(@oDlg)
         DelClassIntf()
 
     end sequence
@@ -303,10 +303,10 @@ method ClearTopTable() class Game15View
             DEFINE SBUTTON oBtn FROM 05,175 TYPE 1 ACTION oDlg:End() OF oDlg ENABLE
         ACTIVATE DIALOG oDlg CENTERED
 
-        FreeObj(@oGet)
-        FreeObj(@oBtn)
-        FreeObj(@oDlg)
-        FreeObj(@oFont)
+        MsObjects():FreeObjects(@oGet)
+        MsObjects():FreeObjects(@oBtn)
+        MsObjects():FreeObjects(@oDlg)
+        MsObjects():FreeObjects(@oFont)
 
         DelClassIntf()
 
@@ -475,7 +475,7 @@ static function lClickTopTable(x as numeric,y as numeric,oView as object,oTPaint
             Eval(aTopTableAction[nATTopTableAction][2])
         endif
 
-        FWFreeArray(@aTopTableAction)
+        MsObjects():FreeObjects(@aTopTableAction)
 
     end sequence
 
@@ -548,15 +548,15 @@ method MsgAbout() class Game15View
             oTPaintPanel:blClicked:={|x,y|lClickMsgAbout(@x,@y,@oTPaintPanel,@oController)}
             oTPaintPanel:blDBLClick:=oTPaintPanel:blClicked
 
-            FreeObj(@oTRect)
+            MsObjects():FreeObjects(@oTRect)
 
             bInit:={||.T.}
             bValid:={||.T.}
 
         ACTIVATE DIALOG oDlg CENTERED ON INIT Eval(bInit) VALID Eval(bValid)
 
-        FreeObj(@oTPaintPanel)
-        FreeObj(@oDlg)
+        MsObjects():FreeObjects(@oTPaintPanel)
+        MsObjects():FreeObjects(@oDlg)
         DelClassIntf()
 
     end sequence
@@ -633,7 +633,7 @@ static function lClickMsgAbout(x as numeric,y as numeric,oTPaintPanel as object,
             Eval(aMsgAboutAction[nATMsgAboutAction][2])
         endif
 
-        FWFreeArray(@aMsgAboutAction)
+        MsObjects():FreeObjects(@aMsgAboutAction)
 
     end sequence
 

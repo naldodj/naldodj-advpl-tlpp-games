@@ -62,7 +62,7 @@ method Activate() class SudokuView
         else
             self:DeActivate()
         endif
-        MsObjects():JSONObjectsFree(@self:jSudokuData)
+        MsObjects():FreeObjects(@self:jSudokuData)
     endif
 return(self:lActive)
 
@@ -134,8 +134,8 @@ method SudokuLevel(aLevels,lButtonParam,lNoModify,nLevel) class SudokuView
 
         ACTIVATE MSDIALOG jObjects["oDlg"] CENTERED ON INIT (jObjectsSudokuParametersBar:=SudokuParametersBar(@jObjects["oDlg"],@lButtonParam))
 
-        MsObjects():JSONObjectsFree(@jObjectsSudokuParametersBar)
-        MsObjects():JSONObjectsFree(@jObjects)
+        MsObjects():FreeObjects(@jObjectsSudokuParametersBar)
+        MsObjects():FreeObjects(@jObjects)
 
         DelClassIntf()
 
@@ -235,9 +235,9 @@ static Function SudokuBoardBar(oDlg as object,oController as object,aSudokuBoard
     local lSolveAllNums:=.F. as logical
 
     bButtonNewG:={||if(MsgYesNo("Deseja Iniciar Novo Jogo?","New Game"),(oDlg:End(),oController:SudokuDataSet("lSudokuNewGame",.T.)),oController:SudokuDataSet("lSudokuNewGame",.F.))}
-    bButtonAllN:={||if((!(lSolveAllNums).and.(lSolveAllNums:=MsgNoYes("Deseja Desistir do Jogo?","Aviso!"))),(oController:SudokuSolve(@oDlg,@aSudokuBoard,aSudokuSolved),Eval(bButtonChkG)),.F.)}
+    bButtonAllN:={||if((!(lSolveAllNums).and.(lSolveAllNums:=MsgNoYes("Deseja Desistir do Jogo?","Aviso!"))),(oController:SudokuSolveBoard(@oDlg,@aSudokuBoard,aSudokuSolved),Eval(bButtonChkG)),.F.)}
     bButtonParM:={||if(oController:SudokuLevel(.T.),Eval(bButtonNewG),NIL)}
-    bButtonChkG:={||oController:ChkSudoku(@oDlg,@aSudokuBoard,aSudokuSolved,lSolveAllNums)}
+    bButtonChkG:={||oController:SudokuCheckBoard(@oDlg,@aSudokuBoard,aSudokuSolved,lSolveAllNums)}
     bButtonEndG:={||if(MsgNoYes("Deseja Sair do Jogo?","Sair"),oDlg:End(),.F.)}
 
     DEFINE BUTTONBAR jObjects["oButtonBar"] SIZE 025,025 3D TOP OF oDlg //PIXEL

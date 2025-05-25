@@ -40,12 +40,15 @@ class SudokuController
 
     public method SudokuLevel(lButtonParam as logical) as numeric
 
-    public method RunTest(lHTMLTable as logical) as character
+    public method RunTest(lHTMLTable as logical,lThemeIsDark as logical) as character
+
+    //Model Interface
+    public method SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical,lThemeIsDark as logical) as character
 
     //View Interface
     public method BuildSudokuBoard(oDlg as object,oFont as object,aSudokuBoard as array) as array
-    public method SudokuSolve(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array) as variant
-    public method ChkSudoku(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array,lSolveAllNums as logical) as variant
+    public method SudokuSolveBoard(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array) as variant
+    public method SudokuCheckBoard(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array,lSolveAllNums as logical) as variant
 
 endclass
 
@@ -81,11 +84,11 @@ method DeActivate() class SudokuController
         endif
         if (valType(self:oView)=="O")
             self:oView:DeActivate()
-            FreeObj(@self:oView)
+            MsObjects():FreeObjects(@self:oView)
         endif
         if (valType(self:oModel)=="O")
             self:oModel:DeActivate()
-            FreeObj(@self:oModel)
+            MsObjects():FreeObjects(@self:oModel)
         endif
         self:lActive:=.F.
     endif
@@ -142,11 +145,24 @@ method SudokuLevel(lButtonParam) class SudokuController
     endif
 return(nLevel)
 
-method RunTest(lHTMLTable) class SudokuController
+method RunTest(lHTMLTable,lThemeIsDark) class SudokuController
     local cSudokuBoard as character
     if (self:Activate(.F.))
         paramtype 1 var lHTMLTable as logical optional default .T.
-        cSudokuBoard:=self:oModel:SudokuBuildSringBoard(self:jSudokuData["aSudoku"],lHTMLTable)
+        paramtype 2 var lThemeIsDark as logical optional default .F.
+        cSudokuBoard:=self:SudokuBuildSringBoard(self:jSudokuData["aSudoku"],lHTMLTable,lThemeIsDark)
+    endif
+return(cSudokuBoard)
+
+method SudokuBuildSringBoard(aSudoku,lHTMLTable,lThemeIsDark) class SudokuController
+    local cSudokuBoard as character
+    if (self:IsActive())
+        paramtype 1 var aSudoku as array
+        paramtype 2 var lHTMLTable as logical optional default .T.
+        paramtype 3 var lThemeIsDark as logical optional default .F.
+        if (!Empty(aSudoku))
+            cSudokuBoard:=self:oModel:SudokuBuildSringBoard(self:jSudokuData["aSudoku"],lHTMLTable,lThemeIsDark)
+        endif
     endif
 return(cSudokuBoard)
 
@@ -272,11 +288,11 @@ method BuildSudokuBoard(oDlg,oFont,aSudokuBoard) class SudokuController
         endif
     next nLoop
 
-    FWFreeArray(@aSudokuSolved)
+    MsObjects():FreeObjects(@aSudokuSolved)
 
 return(aSudokuBoardView)
 
-method SudokuSolve(oDlg,aSudokuBoardView,aSudokuSolved) class SudokuController
+method SudokuSolveBoard(oDlg,aSudokuBoardView,aSudokuSolved) class SudokuController
 
     local cNumber as character
 
@@ -312,7 +328,7 @@ method SudokuSolve(oDlg,aSudokuBoardView,aSudokuSolved) class SudokuController
 
 return(oDlg:Refresh())
 
-method ChkSudoku(oDlg,aSudokuBoardView,aSudokuSolved,lSolveAllNums) class SudokuController
+method SudokuCheckBoard(oDlg,aSudokuBoardView,aSudokuSolved,lSolveAllNums) class SudokuController
 
     local aChkOk:={} as array
 
