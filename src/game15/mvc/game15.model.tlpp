@@ -100,7 +100,7 @@ method DeActivate() class Game15Model
             RemoveFiles(@self:jGame15Data,"Game15_Files_bmps_play")
         endif
 
-        JSONObjectsFree(@self:jGame15Data)
+        MsObjects():JSONObjectsFree(@self:jGame15Data)
 
         self:lActive:=.F.
 
@@ -209,6 +209,8 @@ static function Activate(jGame15Data as json) as logical
     local cProperties as character
 
     local jCoordinates as json
+
+    local lThemeIsDark:=WebApp():ThemeIsDark() as logical
 
     local nCol as numeric
     local nRow as numeric
@@ -355,7 +357,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Load Game"
-    aShapes[nID][SHAPE_TOP]:=36
+    aShapes[nID][SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
     aShapes[nID][SHAPE_LEFT]:=14
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -385,7 +387,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Start of new game"
-    aShapes[nID][SHAPE_TOP]:=36
+    aShapes[nID][SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
     aShapes[nID][SHAPE_LEFT]:=110
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -415,7 +417,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Save a game"
-    aShapes[nID][SHAPE_TOP]:=36
+    aShapes[nID][SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
     aShapes[nID][SHAPE_LEFT]:=206
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -510,7 +512,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="About"
-    aShapes[nID][SHAPE_TOP]:=(394-32)
+    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
     aShapes[nID][SHAPE_LEFT]:=14
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -540,7 +542,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Top Table"
-    aShapes[nID][SHAPE_TOP]:=(394-32)
+    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
     aShapes[nID][SHAPE_LEFT]:=110
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -570,7 +572,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][SHAPE_ID]:=++__nID
     aShapes[nID][SHAPE_TOOLTIP]:="Exit"
-    aShapes[nID][SHAPE_TOP]:=(394-32)
+    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
     aShapes[nID][SHAPE_LEFT]:=206
     aShapes[nID][SHAPE_WIDTH]:=96
     aShapes[nID][SHAPE_HEIGHT]:=24
@@ -1366,7 +1368,7 @@ static function InitGame15() as json
 
     local jGame15Data:=JSONObject():New() as json
 
-    local lThemeIsDark:=WebApp():ThemeIsDark()
+    local lThemeIsDark:=WebApp():ThemeIsDark() as logical
 
     local nFile as numeric
     local nFiles as numeric
@@ -1488,99 +1490,6 @@ static procedure RemoveFiles(jGame15Data,cName)
 return
 
 /*
-    Funcao:Compare
-    Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
-    Data:19/05/2025
-    Uso:Compara o Conteudo de 2 Variaveis .T. se iguais,.F. se diferente
-*/
-static function Compare(x as array,y as array) as logical
-    local jX:=JSONObject():New() as json
-    local jY:=JSONObject():New() as json
-    local lIsEqual as logical
-    jX["__JSONArray__"]:=aClone(x)
-    jY["__JSONArray__"]:=aClone(y)
-    lIsEqual:=(jX:ToJSON()==jY:ToJSON())
-    FWFreeArray(@jX["__JSONArray__"])
-    FWFreeArray(@jY["__JSONArray__"])
-    JSONObjectsFree(@jX)
-    JSONObjectsFree(@jY)
-return(lIsEqual)
-
-/*
-    Funcao:SaveArray
-    Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
-    Data:18/04/2012
-    Uso:Salva Array em Disco
-*/
-static function SaveArray(aArray as array,cFileName as character)
-    local jArray:=JSONObject():New() as json
-    local lSave as logical
-    jArray["__JSONArray__"]:=aClone(aArray)
-    lSave:=MemoWrite(cFileName,jArray:ToJSON())
-    FWFreeArray(@jArray["__JSONArray__"])
-    JSONObjectsFree(@jArray)
-return(lSave)
-
-/*
-    Funcao:RestArray
-    Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
-    Data:18/04/2012
-    Uso:Restaura Array do Disco
-*/
-static function RestArray(cFileName as character)
-    local aArray as array
-    local jArray:=JSONObject():New() as json
-    jArray:FromJSON(MemoRead(cFileName))
-    aArray:=aClone(jArray["__JSONArray__"])
-    FWFreeArray(@jArray["__JSONArray__"])
-    JSONObjectsFree(@jArray)
-return(aArray)
-
-/*
-    Funcao:DesvPad
-    Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
-    Data:20/04/2012
-    Uso:Calcula o Desvio Padrao em um Intervalo de Valores
-*/
-static function DesvPad(aValores as array,lPolarizado as logical)
-
-    local nSoma:=0 as numeric
-    local nMedia:=0 as numeric
-
-    local nLoop as numeric
-    local nLoops as numeric
-
-    nLoops:=Len(aValores)
-    for nLoop:=1 to nLoops
-        cType:=ValType(aValores[nLoop])
-        if (cType=="L")
-            aValores[nLoop]:=if(aValores[nLoop],1,0)
-        elseif (cType=="D")
-            aValores[nLoop]:=Val(DToS(aValores[nLoop]))
-        elseif (cType=="C")
-            aValores[nLoop]:=Val(aValores[nLoop])
-        elseif (cType<>"N")
-            aValores[nLoop]:=0
-        endif
-        nSoma+=aValores[nLoop]
-    next nLoop
-
-    nMedia:=(nSoma/nLoops)
-    nSoma:=0
-
-    for nLoop:=1 to nLoops
-        aValores[nLoop]:=Abs(aValores[nLoop]-nMedia)
-        aValores[nLoop]*=aValores[nLoop]
-        nSoma+=aValores[nLoop]
-    next nLoop
-
-    DEFAULT lPolarizado:=.F.
-    nMedia:=(nSoma/(nLoops-if(lPolarizado,0,1)))
-    nDesvPad:=SQRT(nMedia)
-
-return(nDesvPad)
-
-/*
     Funcao:G15TimeCalc
     Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
     Data:16/04/2012
@@ -1589,7 +1498,7 @@ return(nDesvPad)
 static function G15TimeCalc(cTime1 as character,cTime2 as character)
     local aValores:={TimeToSecs(@cTime1),TimeToSecs(@cTime2)} as array
     local lPolarizado:=.F. as logical
-    local nDesvPad:=DesvPad(@aValores,@lPolarizado) as numeric
+    local nDesvPad:=aUtils():DesvPad(@aValores,@lPolarizado) as numeric
 return(SecsToTime(Round(nDesvPad,0)))
 
 /*
@@ -1695,7 +1604,7 @@ static function SwapButtons(jGame15Data as json) as logical
         aShapes[nFree][SHAPE_LEFT]:=jCoordinates["nLeft"]
         aShapes[nFree][SHAPE_BTNINDEX]:=nIndex
 
-        JSONObjectsFree(@jCoordinates)
+        MsObjects():JSONObjectsFree(@jCoordinates)
 
         bUpdateView:=jGame15Data["Game15_Shapes"]["bUpdateView"]
         Eval(;
@@ -1778,7 +1687,7 @@ static function HL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         next nRow
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchL)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchL)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchL)
@@ -1818,7 +1727,7 @@ static function HR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         next nRow
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchR)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchR)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchR)
@@ -1858,7 +1767,7 @@ static function HL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         next nRow
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchL)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchL)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchL)
@@ -1898,7 +1807,7 @@ static function HR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         next nRow
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchR)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchR)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchR)
@@ -1937,7 +1846,7 @@ static function VL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         endif
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchV)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchV)
@@ -1973,7 +1882,7 @@ static function VR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         endif
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchV)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchV)
@@ -2014,7 +1923,7 @@ static function VL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         next nRow
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchV)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchV)
@@ -2055,7 +1964,7 @@ static function VR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         next nRow
     next nCol
 
-    lMatch:=Compare(@aMatchG,@aMatchV)
+    lMatch:=aUtils():Compare(@aMatchG,@aMatchV)
 
     FWFreeArray(@aMatchG)
     FWFreeArray(@aMatchV)
@@ -2107,7 +2016,7 @@ static procedure SaveGame(aShapes as array,cG15File as character)
 
         aEval(aShapes,{|aShape|aAdd(aSaveG,aClone(aShape))},nD,nJ)
 
-        lSaveGame:=SaveArray(@aSaveG,@cG15File)
+        lSaveGame:=aUtils():SaveArray(@aSaveG,@cG15File)
 
     end sequence
 
@@ -2140,7 +2049,7 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
             break
         endif
 
-        aRestG:=RestArray(@cG15File)
+        aRestG:=aUtils():RestArray(@cG15File)
         lRestoreGame:=(!Empty(aRestG))
         if (!lRestoreGame)
             break
@@ -2198,6 +2107,3 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
     FWFreeArray(@aRestG)
 
 return(lRestoreGame)
-
-static function JSONObjectsFree(jObjects as json) as variant
-return(MsObjects():JSONObjectsFree(@jObjects))

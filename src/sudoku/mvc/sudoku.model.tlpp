@@ -63,7 +63,7 @@ return(self:lActive)
 
 method DeActivate() class SudokuModel
     if (self:lActive)
-        JSONObjectsFree(@self:jSudokuData)
+        MsObjects():JSONObjectsFree(@self:jSudokuData)
         self:lActive:=.F.
     endif
 return(self:lActive)
@@ -321,7 +321,7 @@ static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as
         for nCol:=1 to 9
             cNum:=Str(aSudoku[nRow][nCol],if(lHTMLTable,1,2))
             if (lHTMLTable)
-                cLine+="                    <td class='sudokuBlock"+cTools():NToS(SudokuGetBlock(nRow,nCol,@nStepBlock))+"'>"+cNum+"</td>"
+                cLine+="                    <td class='sudokuBlock"+__NToS(SudokuGetBlock(nRow,nCol,@nStepBlock))+"'>"+cNum+"</td>"
                 cLine+=cCRLF
             else
                 cLine+=cNum
@@ -446,60 +446,3 @@ static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
     FWFreeArray(@aRandCol)
 
 return(aSudokuBoard)
-
-static function Compare(x as array,y as array) as logical
-    local jX:=JSONObject():New() as json
-    local jY:=JSONObject():New() as json
-    local lIsEqual as logical
-    jX["__JSONArray__"]:=aClone(x)
-    jY["__JSONArray__"]:=aClone(y)
-    lIsEqual:=(jX:ToJSON()==jY:ToJSON())
-    FWFreeArray(@jX["__JSONArray__"])
-    FWFreeArray(@jY["__JSONArray__"])
-    JSONObjectsFree(@jX)
-    JSONObjectsFree(@jY)
-return(lIsEqual)
-
-static function JSONObjectsFree(jObjects as json) as variant
-
-    local aNames as array
-
-    local cName as character
-    local cType as character
-
-    local nName as numeric
-    local nNames as numeric
-
-    local nItem as numeric
-    local nItems as numeric
-
-    aNames:=jObjects:GetNames()
-    for nName:=1 to nNames
-        cName:=aNames[nName]
-        cType:=ValType(jObjects[cName])
-        if (cType=="O")
-            FreeObj(@jObjects[cName])
-        elseif (cType=="J")
-            JSONObjectsFree(jObjects[cName])
-            FreeObj(@jObjects[cName])
-        elseif (cType=="A")
-            nItems:=Len(jObjects[cName])
-            for nItem:=1 to nItems
-                cType:=ValType(jObjects[cName][nItem])
-                if (cType=="A")
-                    FWFreeArray(@jObjects[cName][nItem])
-                elseif (cType=="J")
-                    JSONObjectsFree(jObjects[cName][nItem])
-                    FreeObj(jObjects[cName][nItem])
-                elseif (cType=="O")
-                    FreeObj(@jObjects[cName][nItem])
-                endif
-            next nItem
-            FWFreeArray(@jObjects[cName])
-        endif
-
-    next nName
-
-    FreeObj(@jObjects)
-
-return(nil)

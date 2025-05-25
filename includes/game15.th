@@ -31,9 +31,6 @@
     #define GAME15_URL_COPYRIGHT    "http://www.blacktdn.com.br"
     #define GAME15_URL_BTDNGAME15   "https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/src/game15/README.md"
 
-
-    #ifndef SYMBOL_UNUSED
-        #define SYMBOL_UNUSED(symbol) (symbol:=(symbol))
-    #endif
+    #include "game.tool.th"
 
 #endif

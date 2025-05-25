@@ -1,0 +1,12 @@
+#ifndef __GAME_TOOL_TH__
+
+    #define __GAME_TOOL_TH__
+
+    #ifndef SYMBOL_UNUSED
+        #define SYMBOL_UNUSED(symbol) (symbol:=(symbol))
+    #endif
+
+    #xtranslate __NToS(<n>) => cTools():NToS(<n>)
+    #xtranslate __Web2Ascii(<cStr>) => OemToAnsi(cTools():WebAccentuationToAscii(<cStr>))
+
+#endif

@@ -3,6 +3,29 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-25 03:24 UTC naldodj
+  * game15 (Resize Dark Theme Pictures)
+    * src/game15/mvc/game15.model.tlpp
+    * src/game15/resources/bmps_aux/game15_mainform_dark.png
+    * src/game15/resources/bmps_play/game15_b03_dark.png
+    * src/game15/resources/bmps_play/game15_b04_dark.png
+    * src/game15/resources/bmps_play/game15_b06_dark.png
+    * src/game15/resources/bmps_play/game15_b07_dark.png
+    * src/game15/resources/bmps_play/game15_b08_dark.png
+    * src/game15/resources/bmps_play/game15_b10_dark.png
+    * src/game15/resources/bmps_play/game15_b12_dark.png
+    * src/game15/resources/bmps_play/game15_b15_dark.png
+  * includes (New Features)
+    + includes/game.tool.th
+    * includes/game15.th
+    * includes/sudoku.th
+  * sudoku (TODO)
+    * src/sudoku/mvc/sudoku.controller.tlpp
+    * src/sudoku/mvc/sudoku.model.tlpp
+    * src/sudoku/mvc/sudoku.view.tlpp
+  * tools (New Features)
+    * src/tools/naldodj.games.autils.tlpp
+
 2025-05-24 20:44 UTC naldodj
   * game15 (Dark Theme and Others...)
     + src/game15/resources/bmps_aux/game15_closebtn_dark.png

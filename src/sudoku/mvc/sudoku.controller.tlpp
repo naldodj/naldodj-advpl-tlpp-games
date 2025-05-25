@@ -42,6 +42,11 @@ class SudokuController
 
     public method RunTest(lHTMLTable as logical) as character
 
+    //View Interface
+    public method BuildSudokuBoard(oDlg as object,oFont as object,aSudokuBoard as array) as array
+    public method SudokuSolve(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array) as variant
+    public method ChkSudoku(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array,lSolveAllNums as logical) as variant
+
 endclass
 
 method New() class SudokuController
@@ -144,3 +149,240 @@ method RunTest(lHTMLTable) class SudokuController
         cSudokuBoard:=self:oModel:SudokuBuildSringBoard(self:jSudokuData["aSudoku"],lHTMLTable)
     endif
 return(cSudokuBoard)
+
+method BuildSudokuBoard(oDlg,oFont,aSudokuBoard) class SudokuController
+
+    local aSudokuSolved as array
+    local aSudokuBoardView as array
+
+    local bGetVar as codeblock
+    local bGetSet as codeblock
+
+    local cSudokuGetNum as character
+
+    local lChange as logical
+    local lThemeIsDark as logical
+
+    local nRow as numeric
+    local nCol as numeric
+
+    local nWidth as numeric
+    local nHeight as numeric
+
+    local nItem as numeric
+    local nItens as numeric
+    local nLoop as numeric
+    local nLoops as numeric
+    local nCntRow as numeric
+    local nCntCol as numeric
+    local nColIndex as numeric
+
+    paramtype 1 var oDlg as object class MSDIALOG
+    paramtype 2 var oFont as object /*class TFONT*/
+    paramtype 3 var aSudokuBoard as array
+
+    nRow:=20
+
+    nWidth:=CalcFieldSize("C",1,0,"9","9",oFont)
+    nHeight:=nWidth
+
+    bGetSet:={||&("{|u|if(PCount()==0,aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"],aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"]:=u)}")}
+    bGetVar:={||"aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"]"}
+
+    lThemeIsDark:=WebApp():ThemeIsDark()
+
+    aSudokuSolved:=aClone(aSudokuBoard)
+
+    aSudokuBoardView:=Array(9)
+    aEval(aSudokuBoardView,{|,nAT as numeric|aSudokuBoardView[nAT]:=aClone(Array(9,SUDOKU_ELEM))})
+
+    nLoops:=Len(aSudokuBoardView)
+    nCntRow:=0
+    for nLoop:=1 to nLoops
+        nItens:=Len(aSudokuBoardView[nLoop])
+        nCol:=15
+        nCntCol:=0
+        nColIndex:=0
+        for nItem:=1 to nItens
+            nSudokuGetNum:=aSudokuSolved[nLoop][++nColIndex]
+            lChange:=(nSudokuGetNum==0)
+            cSudokuGetNum:=__NToS(nSudokuGetNum)
+            if (lChange)
+                cSudokuGetNum:=" "
+            endif
+            aSudokuBoardView[nLoop][nItem][SUDOKU_VAR]:=cSudokuGetNum
+            aSudokuBoardView[nLoop][nItem][SUDOKU_OBJ]:=TGet():New(;
+                                                                nRow,;//01:<nRow>
+                                                                nCol,;//02:<nCol>
+                                                                Eval(bGetSet),;//03:bSETGET(<uVar>)
+                                                                oDlg,;//04:[<oWnd>]
+                                                                nWidth,;//05:<nWidth>
+                                                                nHeight,;//06:<nHeight>
+                                                                "9",;//07:<cPict>
+                                                                NIL,;//08:<{ValidFunc}>
+                                                                if(lChange,NIL,if(lThemeIsDark,CLR_WHITE,CLR_WHITE)),;//09:<nClrFore>
+                                                                if(lChange,NIL,if(lThemeIsDark,CLR_BLUE,CLR_BLUE)),;//10:<nClrBack>
+                                                                oFont,;//11:<oFont>
+                                                                .T.,;//12:<.design.>
+                                                                NIL,;//13:<oCursor>
+                                                                .T.,;//14:<.pixel.>
+                                                                NIL,;//15:<cMsg>
+                                                                .F.,;//16:<.update.>
+                                                                &("{||"+AllToChar(lChange)+"}"),;//17:<{uWhen}>
+                                                                .T.,;//18:<.lCenter.>
+                                                                .F.,;//19:<.lRight.>
+                                                                NIL,;//20:[\{|nKey, nFlags, Self|<uChange>\}]
+                                                                (!lChange),;//21:<.readonly.>
+                                                                .F.,;//22:<.pass.>
+                                                                NIL,;//23:<cF3>
+                                                                Eval(bGetVar),;//24:<(uVar)>
+                                                                NIL,;//25:?
+                                                                NIL,;//26:[<.lNoBorder.>]
+                                                                NIL,;//27:[<nHelpId>]
+                                                                NIL;//28:[<.lHasButton.>]
+            )
+            ++nCntCol
+            if (;
+                    (nCntCol==3);
+                    .or.;
+                    (nCntCol==6);
+            )
+                if (nCntCol==3)
+                    nCol+=40
+                else
+                    nCol+=45
+                endif
+            else
+                nCol+=28
+            endif
+        next nItem
+        ++nCntRow
+        if (;
+                (nCntRow==3);
+                .or.;
+                (nCntRow==6);
+            )
+            if (nCntRow==3)
+                nRow+=40
+            else
+                nRow+=45
+            endif
+        else
+            nRow+=26
+        endif
+    next nLoop
+
+    FWFreeArray(@aSudokuSolved)
+
+return(aSudokuBoardView)
+
+method SudokuSolve(oDlg,aSudokuBoardView,aSudokuSolved) class SudokuController
+
+    local cNumber as character
+
+    local lSolveAllNums:=!MsgNoYes(__Web2Ascii("Preencher apenas os n&uacute;meros Faltantes?"),__Web2Ascii("Preencher n&uacute;meros")) as logical
+
+    local nLoop as numeric
+    local nLoops as numeric
+    local nChkNum as numeric
+    local nNumChk as numeric
+
+    paramtype 1 var oDlg as object class MSDIALOG
+    paramtype 2 var aSudokuBoardView as array
+    paramtype 3 var aSudokuSolved as array
+
+    nLoops:=Len(aSudokuSolved)
+    for nLoop:=1 to nLoops
+        nNumChk:=Len(aSudokuSolved[nLoop])
+        for nChkNum:=1 to nNumChk
+            if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
+                cNumber:=__NToS(aSudokuSolved[nLoop][nChkNum])
+                if (lSolveAllNums)
+                    if (aSudokuBoardView[nLoop][nChkNum][2]!=cNumber)
+                        aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
+                    endif
+                else
+                    if (Empty(aSudokuBoardView[nLoop][nChkNum][2]))
+                        aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
+                    endif
+                endif
+            endif
+        next nChkNum
+    next nLoop
+
+return(oDlg:Refresh())
+
+method ChkSudoku(oDlg,aSudokuBoardView,aSudokuSolved,lSolveAllNums) class SudokuController
+
+    local aChkOk:={} as array
+
+    local cCRLF:=CRLF as character
+    local cTitle as character
+    local cNumber as character
+    local cMsgInfo as character
+
+    local nLoop as numeric
+    local nLoops as numeric
+    local nChkNum as numeric
+    local nNumChk as numeric
+
+    paramtype 1 var oDlg as object class MSDIALOG
+    paramtype 2 var aSudokuBoardView as array
+    paramtype 3 var aSudokuSolved as array
+    paramtype 4 var lSolveAllNums as logical
+
+    nLoops:=Len(aSudokuSolved)
+    for nLoop:=1 to nLoops
+        nNumChk:=Len(aSudokuSolved[nLoop])
+        for nChkNum:=1 to nNumChk
+            if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
+                cNumber:=__NToS(aSudokuSolved[nLoop][nChkNum])
+                if (aSudokuBoardView[nLoop][nChkNum][2]==cNumber)
+                    aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly:=.T.
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_GREEN
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
+                    aAdd(aChkOk,{.T.,nLoop,nChkNum})
+                else
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_RED
+                    aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
+                    aAdd(aChkOk,{.F.,nLoop,nChkNum})
+                endif
+            endif
+        next nChkNum
+    next nLoop
+
+    oDlg:Refresh()
+
+    begin sequence
+
+        if (!lSolveAllNums)
+
+            if ((nLoop:=aScan(aChkOk,{|aOk|!(aOk[1])}))>0)
+                cMsgInfo:="Existem Informa&ccedil;&otilde;es inconsistentes!"
+                cMsgInfo+=cCRLF
+                cMsgInfo+="Corrija os n&uacute;meros dos quadrados pintados de vermelho!"
+                cTitle:="Inconsist&ecirc;ncia"
+                Break
+            endif
+
+            cMsgInfo:="Parab&eacute;ns, voc&ecirc; conclui a partida com sucesso!"
+            cMsgInfo+=cCRLF
+            cMsgInfo+=cCRLF
+            cMsgInfo+="Tempo: "//+GetGlbValue("cSudokuTime")
+            cTitle:="OK"
+
+        else
+
+            cMsgInfo:="Que Pena. voce desistiu do Jogo!"
+            cMsgInfo+=cCRLF
+            cMsgInfo+=cCRLF
+            cMsgInfo+="Tempo: "//+GetGlbValue("cSudokuTime")
+            cTitle:="Desistente"
+
+        endif
+
+    end sequence
+
+    ApMsgInfo(__Web2Ascii(cMsgInfo),__Web2Ascii(cTitle))
+
+return(oDlg:Refresh())

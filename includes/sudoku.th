@@ -9,8 +9,6 @@
 
     #define SUDOKU_TITLE "NaldoDJ Games :: Sudoku"
 
-    #ifndef SYMBOL_UNUSED
-        #define SYMBOL_UNUSED(symbol) (symbol:=(symbol))
-    #endif
+    #include "game.tool.th"
 
 #endif

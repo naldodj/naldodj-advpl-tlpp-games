@@ -24,6 +24,12 @@ class autils
 
     static method Split(aSource as array,nParts as numeric) as array
     static method GetNSplit(nSize as numeric,nParts as numeric) as numeric
+    static method Compare(x as array,y as array) as logical
+
+    static method SaveArray(aArray as array,cFileName as character) as logical
+    static method RestArray(cFileName as character) as array
+
+    static method DesvPad(aValores as array,lPolarizado as logical) as numeric
 
 end class
 
@@ -75,3 +81,80 @@ static method GetNSplit(nSize,nParts) class aUtils
         nSplit:=(int(nSize/nParts)+Mod(nSize,2))
     endif
 return(nSplit)
+
+static method Compare(x,y) class aUtils
+    local jX:=JSONObject():New() as json
+    local jY:=JSONObject():New() as json
+    local lIsEqual as logical
+    paramtype 1 var x as array
+    paramtype 2 var y as array
+    jX["__JSONArray__"]:=aClone(x)
+    jY["__JSONArray__"]:=aClone(y)
+    lIsEqual:=(jX:ToJSON()==jY:ToJSON())
+    FWFreeArray(@jX["__JSONArray__"])
+    FWFreeArray(@jY["__JSONArray__"])
+    MsObjects():JSONObjectsFree(@jX)
+    MsObjects():JSONObjectsFree(@jY)
+return(lIsEqual)
+
+static method SaveArray(aArray,cFileName) class aUtils
+    local jArray:=JSONObject():New() as json
+    local lSave as logical
+    paramtype 1 var aArray as array
+    paramtype 2 var cFileName as character
+    jArray["__JSONArray__"]:=aClone(aArray)
+    lSave:=MemoWrite(cFileName,jArray:ToJSON())
+    FWFreeArray(@jArray["__JSONArray__"])
+    MsObjects():JSONObjectsFree(@jArray)
+return(lSave)
+
+static method RestArray(cFileName) class aUtils
+    local aArray as array
+    local jArray:=JSONObject():New() as json
+    paramtype 1 var cFileName as character
+    jArray:FromJSON(MemoRead(cFileName))
+    aArray:=aClone(jArray["__JSONArray__"])
+    FWFreeArray(@jArray["__JSONArray__"])
+    MsObjects():JSONObjectsFree(@jArray)
+return(aArray)
+
+static method DesvPad(aValores,lPolarizado) class aUtils
+
+    local nSoma:=0 as numeric
+    local nMedia:=0 as numeric
+
+    local nLoop as numeric
+    local nLoops as numeric
+
+    paramtype 1 var aValores as array
+    paramtype 2 var lPolarizado as logical
+
+    nLoops:=Len(aValores)
+    for nLoop:=1 to nLoops
+        cType:=ValType(aValores[nLoop])
+        if (cType=="L")
+            aValores[nLoop]:=if(aValores[nLoop],1,0)
+        elseif (cType=="D")
+            aValores[nLoop]:=Val(DToS(aValores[nLoop]))
+        elseif (cType=="C")
+            aValores[nLoop]:=Val(aValores[nLoop])
+        elseif (cType<>"N")
+            aValores[nLoop]:=0
+        endif
+        nSoma+=aValores[nLoop]
+    next nLoop
+
+    nMedia:=(nSoma/nLoops)
+    nSoma:=0
+
+    for nLoop:=1 to nLoops
+        aValores[nLoop]:=Abs(aValores[nLoop]-nMedia)
+        aValores[nLoop]*=aValores[nLoop]
+        nSoma+=aValores[nLoop]
+    next nLoop
+
+    DEFAULT lPolarizado:=.F.
+    nMedia:=(nSoma/(nLoops-if(lPolarizado,0,1)))
+    nDesvPad:=SQRT(nMedia)
+
+return(nDesvPad)
