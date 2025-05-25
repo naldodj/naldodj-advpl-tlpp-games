@@ -3,6 +3,9 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-25 03:36 UTC naldodj (Fix closing quotes)
+  * src/sudoku/mvc/sudoku.model.tlpp
+
 2025-05-25 03:24 UTC naldodj
   * game15 (Resize Dark Theme Pictures)
     * src/game15/mvc/game15.model.tlpp

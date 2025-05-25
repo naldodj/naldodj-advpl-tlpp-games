@@ -279,8 +279,8 @@ return(aArray)
 static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as character
 
     local cNum as character
-    local cCRLF:=CRLF as character
     local cLine as character
+    local cCRLF:=CRLF as character
     local cSudoku as character
 
     local nRow as numeric
@@ -313,7 +313,7 @@ static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as
 
     for nRow:=1 to 9
         if (lHTMLTable)
-            cLine:="                <tr>
+            cLine:="                <tr>"
             cLine+=cCRLF
         else
             cLine:="|"
@@ -331,14 +331,14 @@ static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as
             endif
         next nCol
         if (lHTMLTable)
-            cLine+="                        </tr>
+            cLine+="                        </tr>"
             cLine+=cCRLF
             if ((nRow%3==0).and.(nRow<9))
-                cLine+="            </tbody>
+                cLine+="            </tbody>"
                 cLine+=cCRLF
-                cLine+="            <tbody>
+                cLine+="            <tbody>"
                 cLine+=cCRLF
-                cLine+="                <tr>
+                cLine+="                <tr>"
                 cLine+=cCRLF
             endif
         else
@@ -353,7 +353,7 @@ static function SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical) as
     next nRow
 
     if (lHTMLTable)
-        cSudoku+="            </tbody>
+        cSudoku+="            </tbody>"
         cLine+=cCRLF
         cSudoku+="                </table>"
         cLine+=cCRLF
