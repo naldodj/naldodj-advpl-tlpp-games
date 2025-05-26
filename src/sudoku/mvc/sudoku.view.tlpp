@@ -33,7 +33,7 @@ class SudokuView
     public method IsActive() as logical
     public method CanExecute() as logical
 
-    public method SudokuLevel(aLevels as array,lButtonParam as logical,lNoModify as logical,nLevel as numeric) as numeric
+    public method SudokuLevel(aLevels as array,lAskSudokuLevel as logical,lSudokuKeepLevelOption as logical,nLevel as numeric) as numeric
 
     private method CreateBoard() as logical
 
@@ -87,7 +87,7 @@ method CanExecute() class SudokuView
     endif
 return(self:lExecute)
 
-method SudokuLevel(aLevels,lButtonParam,lNoModify,nLevel) class SudokuView
+method SudokuLevel(aLevels,lAskSudokuLevel,lSudokuKeepLevelOption,nLevel) class SudokuView
 
     local cTitle as character
 
@@ -101,21 +101,21 @@ method SudokuLevel(aLevels,lButtonParam,lNoModify,nLevel) class SudokuView
         endif
 
         paramtype aLevels as array
-        paramtype lButtonParam as logical optional default .F.
-        paramtype lNoModify as logical optional
+        paramtype lAskSudokuLevel as logical optional default .F.
+        paramtype lSudokuKeepLevelOption as logical optional
         paramtype nLevel as numeric optional
 
         if (;
-                (!lButtonParam);
+                (!lAskSudokuLevel);
                 .and.;
-                (!Empty(lNoModify));
+                (!Empty(lSudokuKeepLevelOption));
         )
             break
         endif
 
         jObjects:=JSONObject():New()
 
-        DEFAULT lNoModify:=.T.
+        DEFAULT lSudokuKeepLevelOption:=.T.
 
         cTitle:=SUDOKU_TITLE
 
@@ -125,14 +125,13 @@ method SudokuLevel(aLevels,lButtonParam,lNoModify,nLevel) class SudokuView
             @ 015,005 GROUP jObjects["oGroup"] to 075,172 LABEL __Web2Ascii("Escolha o N&iacute;vel do Jogo") OF jObjects["oDlg"] PIXEL
             jObjects["oGroup"]:oFont:=jObjects["oFont"]
 
-            @ 025,010 RADIO jObjects["oRadio"] VAR nLevel SIZE 115,010 OF jObjects["oDlg"] PIXEL
-            jObjects["oRadio"]:aItems:=aLevels
+            jObjects["oRadio"]:=TRadMenu():New(025,010,aLevels,BSetGet(nLevel),jObjects["oDlg"],nil,nil,nil,nil,,nil,nil,115,010,nil,nil,nil,.T.)
 
-            @ 085,010 CHECKBOX jObjects["oCheckBox"] VAR lNoModify PROMPT __Web2Ascii("Utilizar a op&ccedil;ao acima at&eacute; o final do Jogo.") SIZE 160,010 OF jObjects["oDlg"] PIXEL
+            @ 085,010 CHECKBOX jObjects["oCheckBox"] VAR lSudokuKeepLevelOption PROMPT __Web2Ascii("Utilizar a op&ccedil;ao acima at&eacute; o final do Jogo.") SIZE 160,010 OF jObjects["oDlg"] PIXEL
 
             jObjects["oDlg"]:lEscClose:=.F.//Nao permite sair ao se pressionar a tecla ESC.
 
-        ACTIVATE MSDIALOG jObjects["oDlg"] CENTERED ON INIT (jObjectsSudokuParametersBar:=SudokuParametersBar(@jObjects["oDlg"],@lButtonParam))
+        ACTIVATE MSDIALOG jObjects["oDlg"] CENTERED ON INIT (jObjectsSudokuParametersBar:=SudokuParametersBar(@jObjects["oDlg"],@lAskSudokuLevel))
 
         MsObjects():FreeObjects(@jObjectsSudokuParametersBar)
         MsObjects():FreeObjects(@jObjects)
@@ -193,21 +192,13 @@ method CreateBoard() class SudokuView
 
         aEval(jSudokuData["aSudokuGrps"],{|,nElem|jSudokuData["aSudokuGrps"][nElem]:oFont:=jSudokuData["oFont"]})
 
-        jSudokuData["aSudokuBoard"]:=aClone(oController:SudokuData()["aSudokuBoard"])
-        jSudokuData["aSudokuSolved"]:=aClone(oController:SudokuData()["aSudoku"])
-
         oDlg:bInit:={;
             ||;
-                jSudokuData["aSudokuBoardView"]:=oController:BuildSudokuBoard(;
-                   oDlg;
-                  ,jSudokuData["oFontNum"];
-                  ,@jSudokuData["aSudokuBoard"];
-                );
+                 jSudokuData["aSudokuBoardView"]:=oController:BuildSudokuBoard(jSudokuData["oFontNum"]);
                 ,jSudokuData["SudokuBoardBarObjects"]:=SudokuBoardBar(;
                      oDlg;
                     ,@oController;
                     ,@jSudokuData["aSudokuBoardView"];
-                    ,@jSudokuData["aSudokuSolved"];
                 );
         }
 
@@ -217,7 +208,7 @@ method CreateBoard() class SudokuView
 
 return(lCreateBoard)
 
-static Function SudokuBoardBar(oDlg as object,oController as object,aSudokuBoard as array,aSudokuSolved as array) as json
+static Function SudokuBoardBar(oDlg as object,oController as object,aSudokuBoardView as array) as json
 
     local bButtonNewG as codeblock
     local bButtonAllN as codeblock
@@ -229,15 +220,57 @@ static Function SudokuBoardBar(oDlg as object,oController as object,aSudokuBoard
 
     local cTime:=Time() as character
     local cSpace:=Space(50) as character
+    local cMsgTitle as character
+    local cMsgDetail as character
 
     local jObjects:=JSONObject():New() as json
 
     local lSolveAllNums:=.F. as logical
 
-    bButtonNewG:={||if(MsgYesNo("Deseja Iniciar Novo Jogo?","New Game"),(oDlg:End(),oController:SudokuDataSet("lSudokuNewGame",.T.)),oController:SudokuDataSet("lSudokuNewGame",.F.))}
-    bButtonAllN:={||if((!(lSolveAllNums).and.(lSolveAllNums:=MsgNoYes("Deseja Desistir do Jogo?","Aviso!"))),(oController:SudokuSolveBoard(@oDlg,@aSudokuBoard,aSudokuSolved),Eval(bButtonChkG)),.F.)}
+    bButtonNewG:={;
+        ||;
+            if(;
+                    MsgYesNo("Deseja Iniciar Novo Jogo?","New Game");
+                   ,(;
+                        oDlg:End();
+                       ,oController:SudokuDataSet("lSudokuNewGame",.T.);
+                    );
+                    ,oController:SudokuDataSet("lSudokuNewGame",.F.);
+                );
+    }
+
+    bButtonAllN:={;
+        ||;
+            if(;
+                    (;
+                        (!lSolveAllNums);
+                        .and.;
+                        (lSolveAllNums:=MsgNoYes("Deseja Desistir do Jogo?","Aviso!"));
+                    );
+                    ,(oController:SudokuSolveBoard(@aSudokuBoardView,lSolveAllNums),Eval(bButtonChkG));
+                    ,.F.;
+                );
+    }
+
     bButtonParM:={||if(oController:SudokuLevel(.T.),Eval(bButtonNewG),NIL)}
-    bButtonChkG:={||oController:SudokuCheckBoard(@oDlg,@aSudokuBoard,aSudokuSolved,lSolveAllNums)}
+
+    bButtonChkG:={;
+        ||;
+            (;
+                (!lSolveAllNums);
+                .and.;
+                (;
+                    lSolveAllNums:=!MsgNoYes(;
+                         __Web2Ascii("Preencher apenas os n&uacute;meros Faltantes?");
+                        ,__Web2Ascii("Preencher n&uacute;meros");
+                    );
+                );
+            );
+            ,oController:SudokuCheckBoard(@aSudokuBoardView,lSolveAllNums,@cMsgTitle,@cMsgDetail);
+            ,oDlg:Refresh();
+            ,ApMsgInfo(__Web2Ascii(cMsgDetail),__Web2Ascii(cMsgTitle));
+    }
+
     bButtonEndG:={||if(MsgNoYes("Deseja Sair do Jogo?","Sair"),oDlg:End(),.F.)}
 
     DEFINE BUTTONBAR jObjects["oButtonBar"] SIZE 025,025 3D TOP OF oDlg //PIXEL
@@ -277,10 +310,10 @@ static Function SudokuBoardBar(oDlg as object,oController as object,aSudokuBoard
 
 return(jObjects)
 
-static Function SudokuParametersBar(oDlg as object,lButtonParam as logical) as json
+static Function SudokuParametersBar(oDlg as object,lAskSudokuLevel as logical) as json
 
     local bButtonChkG:={||oDlg:End()} as codeblock
-    local bButtonEndG:={||if(((lButtonParam).or.MsgNoYes("Deseja Sair do Jogo?","Sair")),oDlg:End(),NIL)} as codeblock
+    local bButtonEndG:={||if(((lAskSudokuLevel).or.MsgNoYes("Deseja Sair do Jogo?","Sair")),oDlg:End(),NIL)} as codeblock
     local bButtonHelp:={||SudokuHelp()} as codeblock
 
     local jObjects:=JSONObject():New() as json

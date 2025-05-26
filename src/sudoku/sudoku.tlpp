@@ -51,29 +51,41 @@ procedure u_SudokuRunTests(nTests as numeric,lHTMLTable as logical,lThemeIsDark 
 return
 
 class Sudoku
-   static method Run() as logical
+   static method Run(lSudokuKeepLevelOption as logical,nSudokuLastLevel as numeric) as logical
    static method RunTest(lHTMLTable as logical,lThemeIsDark as logical) as character
 end class
 
-static method Run() class Sudoku
+static method Run(lSudokuKeepLevelOption,nSudokuLastLevel) class Sudoku
 
     local lRun as logical
     local lSudokuNewGame as logical
 
     local oController as object
 
+    paramtype 1 var lSudokuKeepLevelOption as logical optional default .F.
+    paramtype 2 var nSudokuLastLevel as numeric optional default 0
+
     oController:=SudokuController():New()
 
     lRun:=oController:CanExecute()
 
     if (lRun)
-        lRun:=oController:Activate(.T.)
+        if (lSudokuKeepLevelOption)
+            oController:SudokuKeepLevelOption(lSudokuKeepLevelOption)
+            oController:SudokuLastLevel(nSudokuLastLevel)
+        endif
+        lRun:=oController:Activate((!lSudokuKeepLevelOption),.T.)
         if (lRun)
             lSudokuNewGame:=oController:SudokuDataGet("lSudokuNewGame",.F.)
+            lSudokuKeepLevelOption:=oController:SudokuKeepLevelOption()
+            oController:SudokuKeepLevelOption(lSudokuKeepLevelOption)
+            if (lSudokuKeepLevelOption)
+                nSudokuLastLevel:=oController:SudokuLastLevel()
+            endif
             oController:DeActivate()
             if (lSudokuNewGame)
                 MsObjects():FreeObjects(@oController)
-                lRun:=u_SudokuRun()
+                lRun:=sudoku.Sudoku():Run(lSudokuKeepLevelOption,nSudokuLastLevel)
             endif
         endif
     endif

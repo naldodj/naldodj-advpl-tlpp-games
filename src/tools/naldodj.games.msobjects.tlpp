@@ -45,7 +45,7 @@ static method FreeObjects(xObjects) CLASS MsObjects
     local nItem as numeric
     local nItems as numeric
 
-    paramtype 1 var xObjects as array,json,object
+    paramtype 1 var xObjects as array,json,object optional default {}
 
     cType:=ValType(xObjects)
 

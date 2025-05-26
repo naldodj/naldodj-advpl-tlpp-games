@@ -3,6 +3,18 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-25 21:40 UTC naldodj (New Features, Fix and TODO Item)
+  *  game15 (using namespace naldodj.games.msobjects.tlpp)
+    * src/game15/mvc/game15.controller.tlpp
+    * src/game15/mvc/game15.view.tlpp
+  * sudoku (TODO List)
+    * src/sudoku/mvc/sudoku.controller.tlpp
+    * src/sudoku/mvc/sudoku.model.tlpp
+    * src/sudoku/mvc/sudoku.view.tlpp
+    * src/sudoku/sudoku.tlpp
+  * tools (Fix default value at Formal Parameter)
+    * src/tools/naldodj.games.msobjects.tlpp
+
 2025-05-25 15:15 UTC naldodj (New Features and TODO Item)
   * game15 (New Features)
     * src/game15/mvc/game15.controller.tlpp

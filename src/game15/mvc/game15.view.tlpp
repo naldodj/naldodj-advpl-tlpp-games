@@ -14,6 +14,7 @@
 
 namespace game15
 using namespace game15
+using namespace naldodj.games
 
 class Game15View
 

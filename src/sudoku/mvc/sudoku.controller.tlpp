@@ -22,14 +22,16 @@ class SudokuController
 
     private data lExecute as logical
     private data lActive as logical
-    private data lNoModify as logical
     private data lSetDeleted as logical
+    private data lSudokuKeepLevelOption as logical
+
+    private data nSudokuLastLevel as numeric
 
     private data oView as object
     private data oModel as object
 
     public method New() as object
-    public method Activate(lActivateView as logical) as logical
+    public method Activate(lAskSudokuLevel as logical,lActivateView as logical) as logical
     public method DeActivate() as logical
     public method CanExecute() as logical
     public method IsActive() as logical
@@ -38,7 +40,9 @@ class SudokuController
     public method SudokuDataSet(cKey as character,xValue as variant) as logical
     public method SudokuDataGet(cKey as character,xDefault as variant) as variant
 
-    public method SudokuLevel(lButtonParam as logical) as numeric
+    public method SudokuLevel(lAskSudokuLevel as logical) as numeric
+    public method SudokuLastLevel(nSudokuLastLevel as numeric) as numeric
+    public method SudokuKeepLevelOption(lSudokuKeepLevelOption as logical) as logical
 
     public method RunTest(lHTMLTable as logical,lThemeIsDark as logical) as character
 
@@ -46,9 +50,9 @@ class SudokuController
     public method SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical,lThemeIsDark as logical) as character
 
     //View Interface
-    public method BuildSudokuBoard(oDlg as object,oFont as object,aSudokuBoard as array) as array
-    public method SudokuSolveBoard(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array) as variant
-    public method SudokuCheckBoard(oDlg as object,aSudokuBoardView as array,aSudokuSolved as array,lSolveAllNums as logical) as variant
+    public method BuildSudokuBoard(oFont as object) as array
+    public method SudokuSolveBoard(aSudokuBoardView as array,lSolveAllNums as logical) as logical
+    public method SudokuCheckBoard(aSudokuBoardView as array,lSolveAllNums as logical) as logical
 
 endclass
 
@@ -60,16 +64,17 @@ method New() class SudokuController
     endif
 return(self)
 
-method Activate(lActivateView) class SudokuController
+method Activate(lAskSudokuLevel,lActivateView) class SudokuController
     local lActive as logical
     local oView:=self:oView
     local oModel:=self:oModel
     if ((self:CanExecute()).and.(!self:lActive))
-        self:SudokuLevel()
+        paramtype 1 var lAskSudokuLevel as logical optional default .T.
+        self:SudokuLevel(lAskSudokuLevel)
         FWMsgRun(nil,{||lActive:=oModel:Activate()},"Wait..","Start of new game")
         self:lActive:=lActive
         self:SudokuData()
-        paramtype 1 var lActivateView as logical optional default .T.
+        paramtype 2 var lActivateView as logical optional default .T.
         if ((self:lActive).and.(lActivateView))
             self:jSudokuData["aSudokuBoard"]:=oModel:SudokuRemoveNumbers(self:jSudokuData["aSudoku"],self:jSudokuData["nSudokuLevel"])
             oView:Activate()
@@ -115,6 +120,7 @@ method SudokuDataSet(cKey,xValue) class SudokuController
     if (lSudokuDataSet)
         paramtype 1 var cKey as character
         self:jSudokuData[cKey]:=xValue
+        self:oModel:SudokuDataSet(cKey,xValue)
     endif
 return(lSudokuDataSet)
 
@@ -133,21 +139,53 @@ method SudokuDataGet(cKey,xDefault) class SudokuController
     endif
 return(xValue)
 
-method SudokuLevel(lButtonParam) class SudokuController
+method SudokuLevel(lAskSudokuLevel) class SudokuController
+
     local aLevels as array
     local nLevel as numeric
+
+    local lSudokuKeepLevelOption  as logical
+
     if (self:CanExecute())
-        nLevel:=self:oModel:SudokuLevel()
-        aLevels:=self:oModel:SudokuLevels()
-        aEval(@aLevels,{|cStr,nAT|aLevels[nAT]:=OemToAnsi(ctools():WebAccentuationToAscii(cStr))})
-        nLevel:=self:oView:SudokuLevel(aLevels,lButtonParam,@self:lNoModify,nLevel)
-        self:oModel:SudokuLevel(nLevel)
+        lSudokuKeepLevelOption:=self:SudokuKeepLevelOption()
+        paramtype 1 var lAskSudokuLevel as logical optional default lSudokuKeepLevelOption
+        if (lAskSudokuLevel)
+            nLevel:=self:oModel:SudokuLevel()
+            aLevels:=self:oModel:SudokuLevels()
+            aEval(@aLevels,{|cStr,nAT|aLevels[nAT]:=OemToAnsi(ctools():WebAccentuationToAscii(cStr))})
+            nLevel:=self:oView:SudokuLevel(aLevels,lAskSudokuLevel,@lSudokuKeepLevelOption,self:SudokuLastLevel())
+            self:SudokuKeepLevelOption(lSudokuKeepLevelOption)
+            if (lSudokuKeepLevelOption)
+                self:SudokuLastLevel(nLevel)
+            endif
+            self:oModel:SudokuLevel(nLevel)
+        else
+            nLevel:=self:SudokuLastLevel()
+            self:oModel:SudokuLevel(nLevel)
+        endif
     endif
+
 return(nLevel)
+
+method SudokuLastLevel(nSudokuLastLevel) class SudokuController
+    if (self:CanExecute())
+        paramtype 1 var nSudokuLastLevel as numeric optional default self:SudokuDataGet("nSudokuLastLevel",self:nSudokuLastLevel)
+        self:nSudokuLastLevel:=nSudokuLastLevel
+        self:SudokuDataSet("nSudokuLastLevel",nSudokuLastLevel)
+    endif
+return(nSudokuLastLevel)
+
+method SudokuKeepLevelOption(lSudokuKeepLevelOption) class SudokuController
+    if (self:CanExecute())
+        paramtype 1 var lSudokuKeepLevelOption as logical optional default self:SudokuDataGet("lSudokuKeepLevelOption",self:lSudokuKeepLevelOption)
+        self:lSudokuKeepLevelOption:=lSudokuKeepLevelOption
+        self:SudokuDataSet("lSudokuKeepLevelOption",lSudokuKeepLevelOption)
+    endif
+return(lSudokuKeepLevelOption)
 
 method RunTest(lHTMLTable,lThemeIsDark) class SudokuController
     local cSudokuBoard as character
-    if (self:Activate(.F.))
+    if (self:Activate(.T.,.F.))
         paramtype 1 var lHTMLTable as logical optional default .T.
         paramtype 2 var lThemeIsDark as logical optional default .F.
         cSudokuBoard:=self:SudokuBuildSringBoard(self:jSudokuData["aSudoku"],lHTMLTable,lThemeIsDark)
@@ -166,7 +204,7 @@ method SudokuBuildSringBoard(aSudoku,lHTMLTable,lThemeIsDark) class SudokuContro
     endif
 return(cSudokuBoard)
 
-method BuildSudokuBoard(oDlg,oFont,aSudokuBoard) class SudokuController
+method BuildSudokuBoard(oFont) class SudokuController
 
     local aSudokuSolved as array
     local aSudokuBoardView as array
@@ -193,9 +231,16 @@ method BuildSudokuBoard(oDlg,oFont,aSudokuBoard) class SudokuController
     local nCntCol as numeric
     local nColIndex as numeric
 
-    paramtype 1 var oDlg as object class MSDIALOG
-    paramtype 2 var oFont as object /*class TFONT*/
-    paramtype 3 var aSudokuBoard as array
+    local oView as object
+    local oController as object
+
+    paramtype 1 var oFont as object /*class TFONT*/
+
+    oController:=self
+    oView:=oController:oView
+
+    oDlg:=oView:oDlg
+    aSudokuBoard:=oController:SudokuData()["aSudokuBoard"]
 
     nRow:=20
 
@@ -292,113 +337,129 @@ method BuildSudokuBoard(oDlg,oFont,aSudokuBoard) class SudokuController
 
 return(aSudokuBoardView)
 
-method SudokuSolveBoard(oDlg,aSudokuBoardView,aSudokuSolved) class SudokuController
+method SudokuSolveBoard(aSudokuBoardView,lSolveAllNums) class SudokuController
+
+    local aSudokuSolved as array
 
     local cNumber as character
-
-    local lSolveAllNums:=!MsgNoYes(__Web2Ascii("Preencher apenas os n&uacute;meros Faltantes?"),__Web2Ascii("Preencher n&uacute;meros")) as logical
 
     local nLoop as numeric
     local nLoops as numeric
     local nChkNum as numeric
     local nNumChk as numeric
 
-    paramtype 1 var oDlg as object class MSDIALOG
-    paramtype 2 var aSudokuBoardView as array
-    paramtype 3 var aSudokuSolved as array
+    local lSudokuSolvedBoard:=.T. as logical
 
-    nLoops:=Len(aSudokuSolved)
-    for nLoop:=1 to nLoops
-        nNumChk:=Len(aSudokuSolved[nLoop])
-        for nChkNum:=1 to nNumChk
-            if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
-                cNumber:=__NToS(aSudokuSolved[nLoop][nChkNum])
-                if (lSolveAllNums)
-                    if (aSudokuBoardView[nLoop][nChkNum][2]!=cNumber)
-                        aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
-                    endif
-                else
-                    if (Empty(aSudokuBoardView[nLoop][nChkNum][2]))
-                        aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
+    lSudokuSolvedBoard:=self:IsActive()
+    if (lSudokuSolvedBoard)
+
+        paramtype 1 var aSudokuBoardView as array
+        paramtype 2 var lSolveAllNums as logical optional default .F.
+
+        aSudokuSolved:=self:SudokuDataGet("aSudoku",{})
+
+        nLoops:=Len(aSudokuSolved)
+        for nLoop:=1 to nLoops
+            nNumChk:=Len(aSudokuSolved[nLoop])
+            for nChkNum:=1 to nNumChk
+                if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
+                    cNumber:=__NToS(aSudokuSolved[nLoop][nChkNum])
+                    if (lSolveAllNums)
+                        if (aSudokuBoardView[nLoop][nChkNum][2]!=cNumber)
+                            aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
+                        endif
+                    else
+                        if (Empty(aSudokuBoardView[nLoop][nChkNum][2]))
+                            aSudokuBoardView[nLoop][nChkNum][2]:=cNumber
+                        endif
                     endif
                 endif
-            endif
-        next nChkNum
-    next nLoop
+            next nChkNum
+        next nLoop
 
-return(oDlg:Refresh())
+    endif
 
-method SudokuCheckBoard(oDlg,aSudokuBoardView,aSudokuSolved,lSolveAllNums) class SudokuController
+return(lSudokuSolvedBoard)
 
-    local aChkOk:={} as array
+method SudokuCheckBoard(aSudokuBoardView,lSolveAllNums,cMsgTitle,cMsgDetail) class SudokuController
+
+    local aChkOk as array
 
     local cCRLF:=CRLF as character
-    local cTitle as character
     local cNumber as character
-    local cMsgInfo as character
+
+    local lSudokuCheckBoard:=.F. as logical
 
     local nLoop as numeric
     local nLoops as numeric
     local nChkNum as numeric
     local nNumChk as numeric
 
-    paramtype 1 var oDlg as object class MSDIALOG
-    paramtype 2 var aSudokuBoardView as array
-    paramtype 3 var aSudokuSolved as array
-    paramtype 4 var lSolveAllNums as logical
+    lSudokuCheckBoard:=self:IsActive()
+    if (lSudokuCheckBoard)
 
-    nLoops:=Len(aSudokuSolved)
-    for nLoop:=1 to nLoops
-        nNumChk:=Len(aSudokuSolved[nLoop])
-        for nChkNum:=1 to nNumChk
-            if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
-                cNumber:=__NToS(aSudokuSolved[nLoop][nChkNum])
-                if (aSudokuBoardView[nLoop][nChkNum][2]==cNumber)
-                    aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly:=.T.
-                    aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_GREEN
-                    aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
-                    aAdd(aChkOk,{.T.,nLoop,nChkNum})
-                else
-                    aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_RED
-                    aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
-                    aAdd(aChkOk,{.F.,nLoop,nChkNum})
+        paramtype 1 var aSudokuBoardView as array
+        paramtype 2 var lSolveAllNums as logical optional default .F.
+        paramtype 3 var cMsgTitle as character optional default ""
+        paramtype 4 var cMsgDetail as character optional default ""
+
+        aChkOk:=Array(0)
+        aSudokuSolved:=self:SudokuDataGet("aSudoku",{})
+
+        nLoops:=Len(aSudokuSolved)
+        for nLoop:=1 to nLoops
+            nNumChk:=Len(aSudokuSolved[nLoop])
+            for nChkNum:=1 to nNumChk
+                if (!aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly)
+                    cNumber:=__NToS(aSudokuSolved[nLoop][nChkNum])
+                    if (aSudokuBoardView[nLoop][nChkNum][2]==cNumber)
+                        aSudokuBoardView[nLoop][nChkNum][1]:lReadOnly:=.T.
+                        aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_GREEN
+                        aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
+                        aAdd(aChkOk,{.T.,nLoop,nChkNum})
+                    else
+                        aSudokuBoardView[nLoop][nChkNum][1]:nClrPane:=CLR_RED
+                        aSudokuBoardView[nLoop][nChkNum][1]:nClrText:=CLR_WHITE
+                        aAdd(aChkOk,{.F.,nLoop,nChkNum})
+                    endif
                 endif
+            next nChkNum
+        next nLoop
+
+        begin sequence
+
+            if (!lSolveAllNums)
+
+                if ((nLoop:=aScan(aChkOk,{|aOk|!(aOk[1])}))>0)
+                    cMsgDetail:="Existem Informa&ccedil;&otilde;es inconsistentes!"
+                    cMsgDetail+=cCRLF
+                    cMsgDetail+="Corrija os n&uacute;meros dos quadrados pintados de vermelho!"
+                    cMsgTitle:="Inconsist&ecirc;ncia"
+                    break
+                endif
+
+                lSudokuCheckBoard:=.T.
+
+                cMsgDetail:="Parab&eacute;ns, voc&ecirc; conclui a partida com sucesso!"
+                cMsgDetail+=cCRLF
+                cMsgDetail+=cCRLF
+                cMsgDetail+="Tempo: "//+GetGlbValue("cSudokuTime")
+                cMsgTitle:="OK"
+
+            else
+
+                cMsgDetail:="Que Pena. voce desistiu do Jogo!"
+                cMsgDetail+=cCRLF
+                cMsgDetail+=cCRLF
+                cMsgDetail+="Tempo: "//+GetGlbValue("cSudokuTime")
+                cMsgTitle:="Desistente"
+
             endif
-        next nChkNum
-    next nLoop
 
-    oDlg:Refresh()
+        end sequence
 
-    begin sequence
+        MsObjects():FreeObjects(@aChkOk)
 
-        if (!lSolveAllNums)
+    endif
 
-            if ((nLoop:=aScan(aChkOk,{|aOk|!(aOk[1])}))>0)
-                cMsgInfo:="Existem Informa&ccedil;&otilde;es inconsistentes!"
-                cMsgInfo+=cCRLF
-                cMsgInfo+="Corrija os n&uacute;meros dos quadrados pintados de vermelho!"
-                cTitle:="Inconsist&ecirc;ncia"
-                Break
-            endif
-
-            cMsgInfo:="Parab&eacute;ns, voc&ecirc; conclui a partida com sucesso!"
-            cMsgInfo+=cCRLF
-            cMsgInfo+=cCRLF
-            cMsgInfo+="Tempo: "//+GetGlbValue("cSudokuTime")
-            cTitle:="OK"
-
-        else
-
-            cMsgInfo:="Que Pena. voce desistiu do Jogo!"
-            cMsgInfo+=cCRLF
-            cMsgInfo+=cCRLF
-            cMsgInfo+="Tempo: "//+GetGlbValue("cSudokuTime")
-            cTitle:="Desistente"
-
-        endif
-
-    end sequence
-
-    ApMsgInfo(__Web2Ascii(cMsgInfo),__Web2Ascii(cTitle))
-
-return(oDlg:Refresh())
+return(lSudokuCheckBoard)

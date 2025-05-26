@@ -32,6 +32,9 @@ class SudokuModel
     public method IsActive() as logical
 
     public method SudokuData() as json
+    public method SudokuDataSet(cKey as character,xValue as variant) as logical
+    public method SudokuDataGet(cKey as character,xDefault as variant) as variant
+
     public method SudokuLevel(nSudokuLevel as numeric) as numeric
     public method SudokuLevels() as array
 
@@ -80,6 +83,30 @@ method SudokuData() class SudokuModel
         return(self:jSudokuData)
     endif
 return
+
+method SudokuDataSet(cKey,xValue) class SudokuModel
+    local lSudokuDataSet as logical
+    lSudokuDataSet:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuDataSet)
+        paramtype 1 var cKey as character
+        self:jSudokuData[cKey]:=xValue
+    endif
+return(lSudokuDataSet)
+
+method SudokuDataGet(cKey,xDefault) class SudokuModel
+    local lSudokuDataGet as logical
+    local xValue as variant
+    lSudokuDataGet:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuDataGet)
+        paramtype 1 var cKey as character
+        if (self:jSudokuData:HasProperty(cKey))
+            xValue:=self:jSudokuData[cKey]
+        else
+            xValue:=xDefault
+        endif
+
+    endif
+return(xValue)
 
 method SudokuLevel(nSudokuLevel) class SudokuModel
     local nLevel as numeric
