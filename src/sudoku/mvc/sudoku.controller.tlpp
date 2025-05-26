@@ -59,6 +59,8 @@ endclass
 method New() class SudokuController
     self:lActive:=.F.
     if (self:CanExecute())
+        self:nSudokuLastLevel:=1
+        self:lSudokuKeepLevelOption:=.F.
         self:oModel:=SudokuModel():New()
         self:oView:=SudokuView():New(self)
     endif
@@ -169,7 +171,7 @@ return(nLevel)
 
 method SudokuLastLevel(nSudokuLastLevel) class SudokuController
     if (self:CanExecute())
-        paramtype 1 var nSudokuLastLevel as numeric optional default self:SudokuDataGet("nSudokuLastLevel",self:nSudokuLastLevel)
+        paramtype 1 var nSudokuLastLevel as numeric optional default self:nSudokuLastLevel
         self:nSudokuLastLevel:=nSudokuLastLevel
         self:SudokuDataSet("nSudokuLastLevel",nSudokuLastLevel)
     endif
@@ -177,7 +179,7 @@ return(nSudokuLastLevel)
 
 method SudokuKeepLevelOption(lSudokuKeepLevelOption) class SudokuController
     if (self:CanExecute())
-        paramtype 1 var lSudokuKeepLevelOption as logical optional default self:SudokuDataGet("lSudokuKeepLevelOption",self:lSudokuKeepLevelOption)
+        paramtype 1 var lSudokuKeepLevelOption as logical optional default self:lSudokuKeepLevelOption
         self:lSudokuKeepLevelOption:=lSudokuKeepLevelOption
         self:SudokuDataSet("lSudokuKeepLevelOption",lSudokuKeepLevelOption)
     endif

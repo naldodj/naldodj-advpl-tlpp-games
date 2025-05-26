@@ -78,7 +78,6 @@ static method Run(lSudokuKeepLevelOption,nSudokuLastLevel) class Sudoku
         if (lRun)
             lSudokuNewGame:=oController:SudokuDataGet("lSudokuNewGame",.F.)
             lSudokuKeepLevelOption:=oController:SudokuKeepLevelOption()
-            oController:SudokuKeepLevelOption(lSudokuKeepLevelOption)
             if (lSudokuKeepLevelOption)
                 nSudokuLastLevel:=oController:SudokuLastLevel()
             endif
