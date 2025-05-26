@@ -3,6 +3,9 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-26 20:47 UTC naldodj (Fix Randomize values)
+  * src/sudoku/mvc/sudoku.model.tlpp
+
 2025-05-26 18:27 UTC naldodj (Named Parameters)
   * src/sudoku/mvc/sudoku.model.tlpp
 

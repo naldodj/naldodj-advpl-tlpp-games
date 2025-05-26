@@ -151,7 +151,7 @@ method SudokuBuildSringBoard(aSudoku,lHTMLTable,lThemeIsDark) class SudokuModel
 return(cSudokuBoard)
 
 static function Random9()
-return((1+Randomize(0,8)))
+return(Min((1+Randomize(0,9)),9))
 
 static function Random9x(nPlus as numeric,nMaxRand as numeric)
 return((Int((nPlus+Randomize(0,nMaxRand))/9)*9))
@@ -295,19 +295,20 @@ static function Shuffle(aArray as array) as array
 
     local nTo as numeric
     local nLen:=Len(aArray) as numeric
-    local nStep:=(-2)
+    local nStep as numeric
+    local nStart:=2
 
-    if (Randomize(0,1)==1)
-        d:=1
+    if (Randomize(0,2)==1)
         nTo:=nLen
-        nStep:=-2
+        nStep:=2
+        nStart:=2
     else
-        d:=nLen
+        nStart:=(nLen-1)
         nTo:=2
-        nStep:=-2
+        nStep:=(-2)
     endif
 
-    for d:=2 to nTo step nStep
+    for d:=nStart to nTo step nStep
         j:=Random9()
         tmp:=aArray[d]
         aArray[d]:=aArray[j]
@@ -574,7 +575,7 @@ static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
     aEval(@aRandCol,{|,n as numeric|aRandCol[n]:=Random9()})
     aRandCol:=aUtils():Split(aRandCol,9)
 
-    if (Randomize(0,1)==1)
+    if (Randomize(0,2)==1)
         nRowTo:=Len(aRandCol)
         nRowStep:=1
         nRowStart:=1
@@ -585,7 +586,7 @@ static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
     endif
 
     for nRow:=nRowStart to nRowTo step nRowStep
-        if (Randomize(0,1)==1)
+        if (Randomize(0,2)==1)
             nColTo:=Min(Len(aRandCol[nRow]),9)
             nColStep:=1
             nColStart:=1
