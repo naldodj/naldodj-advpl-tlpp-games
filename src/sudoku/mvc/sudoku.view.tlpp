@@ -37,6 +37,17 @@ class SudokuView
 
     private method CreateBoard() as logical
 
+    public method SudokuData() as json
+    public method SudokuDataSet(cKey as character,xValue as variant) as logical
+    public method SudokuDataGet(cKey as character,xDefault as variant) as variant
+
+    public method SudokuTTimerCreate(oParent as object) as logical
+    public method SudokuTTimerUpdate() as logical
+    public method SudokuTTimerActivate() as logical
+    public method SudokuTTimerDeactivate() as logical
+
+    public method SudokuBoardBar(aSudokuBoardView as array) as json
+
 endclass
 
 method New(oController) class SudokuView
@@ -56,7 +67,7 @@ method Activate() class SudokuView
             .and.;
             (!self:lActive).and.(self:CanExecute());
     )
-        self:lActive:=self:lActive:=self:CreateBoard()
+        self:lActive:=self:CreateBoard()
         if (self:lActive)
             self:oDlg:Activate(nil,nil,nil,.T.,self:oDlg:bValid,nil,self:oDlg:bInit,nil,nil)
         else
@@ -86,6 +97,39 @@ method CanExecute() class SudokuView
         self:lExecute:=(GetClassName(self:oController)=="SUDOKU.SUDOKUCONTROLLER")
     endif
 return(self:lExecute)
+
+method SudokuData() class SudokuView
+    local jSudokuData as json
+    local lSudokuData as logical
+    lSudokuData:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuData)
+        jSudokuData:=self:jSudokuData
+    endif
+return(jSudokuData)
+
+method SudokuDataSet(cKey,xValue) class SudokuView
+    local lSudokuDataSet as logical
+    lSudokuDataSet:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuDataSet)
+        paramtype 1 var cKey as character
+        self:jSudokuData[cKey]:=xValue
+    endif
+return(lSudokuDataSet)
+
+method SudokuDataGet(cKey,xDefault) class SudokuView
+    local lSudokuDataGet as logical
+    local xValue as variant
+    lSudokuDataGet:=(self:CanExecute().and.self:IsActive())
+    if (lSudokuDataGet)
+        paramtype 1 var cKey as character
+        if (self:jSudokuData:HasProperty(cKey))
+            xValue:=self:jSudokuData[cKey]
+        else
+            xValue:=xDefault
+        endif
+
+    endif
+return(xValue)
 
 method SudokuLevel(aLevels,lAskSudokuLevel,lSudokuKeepLevelOption,nLevel) class SudokuView
 
@@ -195,11 +239,7 @@ method CreateBoard() class SudokuView
         oDlg:bInit:={;
             ||;
                  jSudokuData["aSudokuBoardView"]:=oController:BuildSudokuBoard(jSudokuData["oFontNum"]);
-                ,jSudokuData["SudokuBoardBarObjects"]:=SudokuBoardBar(;
-                     oDlg;
-                    ,@oController;
-                    ,@jSudokuData["aSudokuBoardView"];
-                );
+                ,jSudokuData["SudokuBoardBarObjects"]:=oController:SudokuBoardBar(@jSudokuData["aSudokuBoardView"]);
         }
 
         lCreateBoard:=.T.
@@ -208,133 +248,196 @@ method CreateBoard() class SudokuView
 
 return(lCreateBoard)
 
-static Function SudokuBoardBar(oDlg as object,oController as object,aSudokuBoardView as array) as json
+method SudokuTTimerCreate(oParent) class SudokuView
+    local cSpace50 as character
+    local lSudokuTTimerCreate as logical
+    local oView as object
+    local oSudokuGetTTimer as object
+    lSudokuTTimerCreate:=((self:CanExecute()).and.(self:IsActive()))
+    if (lSudokuTTimerCreate)
+        paramtype 1 var oParent as object class TBAR
+        oView:=self
+        oView:SudokuTTimerDeactivate()
+        oView:SudokuDataSet("cSudokuStartTime",Time())
+        oView:SudokuDataSet("cSudokuTimeElapsed","00:00:00")
+        cSpace50:=Space(50)
+        @ 000,080 MSGET oSudokuGetTTimer VAR (cSpace50+oView:SudokuData()["cSudokuTimeElapsed"]) SIZE 200,010 OF oParent PIXEL WHEN .F. CENTERED
+        oView:SudokuDataSet("oSudokuGetTTimer",oSudokuGetTTimer)
+        DEFINE;
+         TIMER self:jSudokuData["oSudokuTTimer"];
+      INTERVAL (1);
+        ACTION (oView:SudokuTTimerUpdate());
+             OF self:oDlg
+    endif
+return(lSudokuTTimerCreate)
 
-    local bButtonNewG as codeblock
-    local bButtonAllN as codeblock
-    local bButtonParM as codeblock
-    local bButtonChkG as codeblock
-    local bButtonEndG as codeblock
+method SudokuTTimerUpdate() class SudokuView
+    local lSudokuTTimerUpdate as logical
+    lSudokuTTimerUpdate:=((self:CanExecute()).and.(self:IsActive()))
+    lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("cSudokuTimeElapsed")))
+    lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("cSudokuStartTime")))
+    lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("oSudokuGetTTimer")))
+    if (lSudokuTTimerUpdate)
+        self:SudokuDataSet("cSudokuTimeElapsed",ElapTime(self:jSudokuData["cSudokuStartTime"],Time()))
+        self:SudokuDataGet("oSudokuGetTTimer"):Refresh()
+    endif
+return(lSudokuTTimerUpdate)
 
-    local bButtonHelp:={||SudokuHelp()} as codeblock
+method SudokuTTimerActivate() class SudokuView
+    local lSudokuTTimerActivate as logical
+    lSudokuTTimerActivate:=((self:CanExecute()).and.(self:IsActive()))
+    lSudokuTTimerActivate:=((lSudokuTTimerActivate).and.(self:jSudokuData:HasProperty("oSudokuTTimer")))
+    if (lSudokuTTimerActivate)
+        self:SudokuDataSet("cSudokuTimeElapsed","00:00:00")
+        ACTIVATE TIMER self:SudokuDataGet("oSudokuTTimer")
+    endif
+return(lSudokuTTimerActivate)
 
-    local cTime:=Time() as character
-    local cSpace:=Space(50) as character
+method SudokuTTimerDeactivate() class SudokuView
+    local lSudokuTTimerDeactivate as logical
+    lSudokuTTimerDeactivate:=((self:CanExecute()).and.(self:IsActive()))
+    lSudokuTTimerDeactivate:=((lSudokuTTimerDeactivate).and.(self:jSudokuData:HasProperty("oSudokuTTimer")))
+    if (lSudokuTTimerDeactivate)
+        self:SudokuDataGet("oSudokuTTimer"):Deactivate()
+    endif
+return(lSudokuTTimerDeactivate)
+
+method SudokuBoardBar(aSudokuBoardView) class SudokuView
+
+    local bButtonOK as codeblock
+    local bButtonHelp as codeblock
+    local bButtonNewGame as codeblock
+    local bButtonEndGame as codeblock
+    local bButtonParameters as codeblock
+    local bButtonFillNumbers as codeblock
+
     local cMsgTitle as character
     local cMsgDetail as character
 
     local jObjects:=JSONObject():New() as json
 
+    local lCheckAllNums:=.F. as logical
     local lSolveAllNums:=.F. as logical
 
-    bButtonNewG:={;
-        ||;
-            if(;
-                    MsgYesNo("Deseja Iniciar Novo Jogo?","New Game");
-                   ,(;
-                        oDlg:End();
-                       ,oController:SudokuDataSet("lSudokuNewGame",.T.);
+    local oDlg as object
+    local oView as object
+    local oController as object
+
+    if (self:CanExecute())
+
+        paramtype 1 var aSudokuBoardView as array
+
+        oView:=self
+        oDlg:=oView:oDlg
+        oController:=oView:oController
+
+        bButtonNewGame:={;
+            ||;
+                if(;
+                     ApMsgYesNo("Deseja Iniciar Novo Jogo?","New Game");
+                    ,(;
+                         oView:SudokuTTimerDeactivate();
+                        ,oDlg:End();
+                        ,oController:SudokuDataSet("lSudokuNewGame",.T.);
                     );
                     ,oController:SudokuDataSet("lSudokuNewGame",.F.);
                 );
-    }
+        }
 
-    bButtonAllN:={;
-        ||;
-            if(;
-                    (;
-                        (!lSolveAllNums);
-                        .and.;
-                        (lSolveAllNums:=MsgNoYes("Deseja Desistir do Jogo?","Aviso!"));
+        bButtonFillNumbers:={;
+            ||;
+                if(;
+                        (;
+                            (!lSolveAllNums);
+                            .and.;
+                            (lSolveAllNums:=ApMsgNoYes("Deseja Desistir do Jogo?","Aviso!"));
+                        );
+                        ,(;
+                             if(lSolveAllNums,oView:SudokuTTimerDeactivate(),nil);
+                            ,oController:SudokuSolveBoard(@aSudokuBoardView,lSolveAllNums);
+                            ,oController:SudokuCheckBoard(@aSudokuBoardView,lSolveAllNums,@cMsgTitle,@cMsgDetail);
+                            ,oDlg:Refresh();
+                            ,ApMsgInfo(__Web2Ascii(cMsgDetail),__Web2Ascii(cMsgTitle));
+                        );
+                        ,.F.;
                     );
-                    ,(oController:SudokuSolveBoard(@aSudokuBoardView,lSolveAllNums),Eval(bButtonChkG));
-                    ,.F.;
-                );
-    }
+        }
 
-    bButtonParM:={||if(oController:SudokuLevel(.T.),Eval(bButtonNewG),NIL)}
+        bButtonParameters:={||if(oController:SudokuLevel(.T.),Eval(bButtonNewGame),NIL)}
 
-    bButtonChkG:={;
-        ||;
-            (;
-                (!lSolveAllNums);
-                .and.;
-                (;
-                    lSolveAllNums:=!MsgNoYes(;
-                         __Web2Ascii("Preencher apenas os n&uacute;meros Faltantes?");
-                        ,__Web2Ascii("Preencher n&uacute;meros");
-                    );
-                );
-            );
-            ,oController:SudokuCheckBoard(@aSudokuBoardView,lSolveAllNums,@cMsgTitle,@cMsgDetail);
-            ,oDlg:Refresh();
-            ,ApMsgInfo(__Web2Ascii(cMsgDetail),__Web2Ascii(cMsgTitle));
-    }
+        bButtonOK:={;
+            ||;
+                 lCheckAllNums:=.T.;
+                ,oView:SudokuTTimerDeactivate();
+                ,oController:SudokuCheckBoard(@aSudokuBoardView,lCheckAllNums,@cMsgTitle,@cMsgDetail);
+                ,oDlg:Refresh();
+                ,ApMsgInfo(__Web2Ascii(cMsgDetail),__Web2Ascii(cMsgTitle));
+        }
 
-    bButtonEndG:={||if(MsgNoYes("Deseja Sair do Jogo?","Sair"),oDlg:End(),.F.)}
+        bButtonEndGame:={||if(ApMsgNoYes("Deseja Sair do Jogo?","Sair"),oDlg:End(),.F.)}
 
-    DEFINE BUTTONBAR jObjects["oButtonBar"] SIZE 025,025 3D TOP OF oDlg //PIXEL
+        bButtonHelp:={||SudokuHelp()}
 
-    DEFINE BUTTON jObjects["oButtonNewG"] RESOURCE "PMSCOLOR" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonNewG) TOOLTIP __Web2Ascii("Novo Jogo...<F2>")
-    jObjects["oButtonNewG"]:cTitle:=__Web2Ascii("Novo")
-    SetKey(VK_F2,jObjects["oButtonNewG"]:bAction)
+        DEFINE BUTTONBAR jObjects["oSudokuBoardButtonBar"] SIZE 025,025 3D TOP OF oDlg //PIXEL
+        jObjects["oSudokuBoardButtonBar"]:bRClicked:={||AllwaysTrue()}
 
-    DEFINE BUTTON jObjects["oButtonAllN"] RESOURCE "DESTINOS" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonAllN) TOOLTIP __Web2Ascii('Preencher n&uacute;meros...<F3>')
-    jObjects["oButtonAllN"]:cTitle:=__Web2Ascii("n&uacute;meros")
-    SetKey(VK_F3,jObjects["oButtonAllN"]:bAction)
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonNewGame"] RESOURCE "PMSCOLOR" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonNewGame) TOOLTIP __Web2Ascii("Novo Jogo...<F2>")
+        jObjects["oSudokuBoardButtonBarButtonNewGame"]:cTitle:=__Web2Ascii("Novo")
+        SetKey(VK_F2,jObjects["oSudokuBoardButtonBarButtonNewGame"]:bAction)
 
-    DEFINE BUTTON jObjects["oButtonParM"] RESOURCE "BMPPARAM" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonParM) TOOLTIP __Web2Ascii('Par&acirc;metros...<F4>')
-    jObjects["oButtonParM"]:cTitle:=__Web2Ascii("Config.")
-    SetKey(VK_F4,jObjects["oButtonParM"]:bAction)
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonFillNumbers"] RESOURCE "DESTINOS" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonFillNumbers) TOOLTIP __Web2Ascii('Preencher n&uacute;meros...<F3>')
+        jObjects["oSudokuBoardButtonBarButtonFillNumbers"]:cTitle:=__Web2Ascii("n&uacute;meros")
+        SetKey(VK_F3,jObjects["oSudokuBoardButtonBarButtonFillNumbers"]:bAction)
 
-    DEFINE BUTTON jObjects["oButtonChkG"] RESOURCE "OK" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonChkG) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>')
-    jObjects["oButtonChkG"]:cTitle:=__Web2Ascii("OK")
-    oDlg:bSet15:=jObjects["oButtonChkG"]:bAction
-    SetKey(15,oDlg:bSet15)
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonParameters"] RESOURCE "BMPPARAM" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonParameters) TOOLTIP __Web2Ascii('Par&acirc;metros...<F4>')
+        jObjects["oSudokuBoardButtonBarButtonParameters"]:cTitle:=__Web2Ascii("Config.")
+        SetKey(VK_F4,jObjects["oSudokuBoardButtonBarButtonParameters"]:bAction)
 
-    DEFINE BUTTON jObjects["oButtonEndG"] RESOURCE "FINAL" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonEndG) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>')
-    jObjects["oButtonEndG"]:cTitle:=__Web2Ascii("Sair")
-    oDlg:bSet24:=jObjects["oButtonEndG"]:bAction
-    SetKey(24,oDlg:bSet24)
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonOK"] RESOURCE "OK" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonOK) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>')
+        jObjects["oSudokuBoardButtonBarButtonOK"]:cTitle:=__Web2Ascii("OK")
+        oDlg:bSet15:=jObjects["oSudokuBoardButtonBarButtonOK"]:bAction
+        SetKey(15,oDlg:bSet15)
 
-    DEFINE BUTTON jObjects["oButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>')
-    jObjects["oButtonHelp"]:cTitle:=__Web2Ascii("Ajuda")
-    SetKey(VK_F1,jObjects["oButtonHelp"]:bAction)
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonEnd"] RESOURCE "FINAL" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonEndGame) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>')
+        jObjects["oSudokuBoardButtonBarButtonEnd"]:cTitle:=__Web2Ascii("Sair")
+        oDlg:bSet24:=jObjects["oSudokuBoardButtonBarButtonEnd"]:bAction
+        SetKey(24,oDlg:bSet24)
 
-    @ 000,080 MSGET jObjects["oElapTime"] VAR (cSpace+oController:SudokuData()["cSudokuTime"]) SIZE 200,010 OF jObjects["oButtonBar"] PIXEL WHEN .F. CENTERED
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>')
+        jObjects["oSudokuBoardButtonBarButtonHelp"]:cTitle:=__Web2Ascii("Ajuda")
+        SetKey(VK_F1,jObjects["oSudokuBoardButtonBarButtonHelp"]:bAction)
 
-    DEFINE TIMER jObjects["oTimer"] INTERVAL (1) ACTION (oController:SudokuData()["cSudokuTime"]:=ElapTime(cTime,Time()),jObjects["oElapTime"]:Refresh()) OF oDlg
-    ACTIVATE TIMER jObjects["oTimer"]
+        oView:SudokuTTimerCreate(jObjects["oSudokuBoardButtonBar"])
+        oView:SudokuTTimerActivate()
 
-    jObjects["oButtonBar"]:bRClicked:={||AllwaysTrue()}
+    endif
 
 return(jObjects)
 
-static Function SudokuParametersBar(oDlg as object,lAskSudokuLevel as logical) as json
+static function SudokuParametersBar(oDlg as object,lAskSudokuLevel as logical) as json
 
-    local bButtonChkG:={||oDlg:End()} as codeblock
-    local bButtonEndG:={||if(((lAskSudokuLevel).or.MsgNoYes("Deseja Sair do Jogo?","Sair")),oDlg:End(),NIL)} as codeblock
+    local bButtonOK:={||oDlg:End()} as codeblock
+    local bButtonEnd:={||if(((lAskSudokuLevel).or.ApMsgNoYes("Deseja Sair do Jogo?","Sair")),oDlg:End(),NIL)} as codeblock
     local bButtonHelp:={||SudokuHelp()} as codeblock
 
     local jObjects:=JSONObject():New() as json
 
-    DEFINE BUTTONBAR jObjects["oButtonBar"] SIZE 025,025 3D TOP OF oDlg
+    DEFINE BUTTONBAR jObjects["oSudokuParametersButtonBar"] SIZE 025,025 3D TOP OF oDlg
+    jObjects["oSudokuParametersButtonBar"]:bRClicked:={||AllwaysTrue()}
 
-    DEFINE BUTTON jObjects["oButtonChkG"] RESOURCE "OK" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonChkG) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>')
-    jObjects["oButtonChkG"]:cTitle:=__Web2Ascii("OK")
-    oDlg:bSet15:=jObjects["oButtonChkG"]:bAction
+    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonOK"] RESOURCE "OK" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonOK) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>')
+    jObjects["oSudokuParametersButtonBarButtonOK"]:cTitle:=__Web2Ascii("OK")
+    oDlg:bSet15:=jObjects["oSudokuParametersButtonBarButtonOK"]:bAction
     SetKey(15,oDlg:bSet15)
 
-    DEFINE BUTTON jObjects["oButtonEndG"] RESOURCE "FINAL" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonEndG) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>')
-    jObjects["oButtonEndG"]:cTitle:=__Web2Ascii("Sair")
-    oDlg:bSet24:=jObjects["oButtonEndG"]:bAction
+    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonEnd"] RESOURCE "FINAL" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonEnd) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>')
+    jObjects["oSudokuParametersButtonBarButtonEnd"]:cTitle:=__Web2Ascii("Sair")
+    oDlg:bSet24:=jObjects["oSudokuParametersButtonBarButtonEnd"]:bAction
     SetKey(24,oDlg:bSet24)
 
-    DEFINE BUTTON jObjects["oButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>')
-    jObjects["oButtonHelp"]:cTitle:=__Web2Ascii("Ajuda")
-    SetKey(VK_F1,jObjects["oButtonHelp"]:bAction)
-
-    jObjects["oButtonBar"]:bRClicked:={||AllwaysTrue()}
+    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>')
+    jObjects["oSudokuParametersButtonBarButtonHelp"]:cTitle:=__Web2Ascii("Ajuda")
+    SetKey(VK_F1,jObjects["oSudokuParametersButtonBarButtonHelp"]:bAction)
 
 return(jObjects)
 

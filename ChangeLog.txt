@@ -3,6 +3,12 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-26 15:28 UTC naldodj (New Features, Fix and TODO Item)
+  + src/game15/TODO.md
+  * src/sudoku/mvc/sudoku.controller.tlpp
+  * src/sudoku/mvc/sudoku.view.tlpp
+  * src/sudoku/TODO.md
+
 2025-05-25 21:51 UTC naldodj (New Features, Fix and TODO Item)
   * sudoku (TODO List)
     * src/sudoku/mvc/sudoku.controller.tlpp

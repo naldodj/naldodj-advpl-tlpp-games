@@ -40,16 +40,15 @@ class SudokuController
     public method SudokuDataSet(cKey as character,xValue as variant) as logical
     public method SudokuDataGet(cKey as character,xDefault as variant) as variant
 
+    //Model Interface
+    public method RunTest(lHTMLTable as logical,lThemeIsDark as logical) as character
     public method SudokuLevel(lAskSudokuLevel as logical) as numeric
     public method SudokuLastLevel(nSudokuLastLevel as numeric) as numeric
     public method SudokuKeepLevelOption(lSudokuKeepLevelOption as logical) as logical
-
-    public method RunTest(lHTMLTable as logical,lThemeIsDark as logical) as character
-
-    //Model Interface
     public method SudokuBuildSringBoard(aSudoku as array,lHTMLTable as logical,lThemeIsDark as logical) as character
 
     //View Interface
+    public method SudokuBoardBar(aSudokuBoardView as array) as json
     public method BuildSudokuBoard(oFont as object) as array
     public method SudokuSolveBoard(aSudokuBoardView as array,lSolveAllNums as logical) as logical
     public method SudokuCheckBoard(aSudokuBoardView as array,lSolveAllNums as logical) as logical
@@ -60,7 +59,7 @@ method New() class SudokuController
     self:lActive:=.F.
     if (self:CanExecute())
         self:nSudokuLastLevel:=1
-        self:lSudokuKeepLevelOption:=.F.
+        self:lSudokuKeepLevelOption:=.T.
         self:oModel:=SudokuModel():New()
         self:oView:=SudokuView():New(self)
     endif
@@ -236,108 +235,123 @@ method BuildSudokuBoard(oFont) class SudokuController
     local oView as object
     local oController as object
 
-    paramtype 1 var oFont as object /*class TFONT*/
+    if (self:IsActive())
 
-    oController:=self
-    oView:=oController:oView
+        paramtype 1 var oFont as object /*class TFONT*/
 
-    oDlg:=oView:oDlg
-    aSudokuBoard:=oController:SudokuData()["aSudokuBoard"]
+        oController:=self
+        oView:=oController:oView
 
-    nRow:=20
+        oDlg:=oView:oDlg
+        aSudokuBoard:=oController:SudokuData()["aSudokuBoard"]
 
-    nWidth:=CalcFieldSize("C",1,0,"9","9",oFont)
-    nHeight:=nWidth
+        nRow:=20
 
-    bGetSet:={||&("{|u|if(PCount()==0,aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"],aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"]:=u)}")}
-    bGetVar:={||"aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"]"}
+        nWidth:=CalcFieldSize("C",1,0,"9","9",oFont)
+        nHeight:=nWidth
 
-    lThemeIsDark:=WebApp():ThemeIsDark()
+        bGetSet:={||&("{|u|if(PCount()==0,aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"],aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"]:=u)}")}
+        bGetVar:={||"aSudokuBoardView["+__NToS(nLoop)+","+__NToS(nItem)+","+__NToS(SUDOKU_VAR)+"]"}
 
-    aSudokuSolved:=aClone(aSudokuBoard)
+        lThemeIsDark:=WebApp():ThemeIsDark()
 
-    aSudokuBoardView:=Array(9)
-    aEval(aSudokuBoardView,{|,nAT as numeric|aSudokuBoardView[nAT]:=aClone(Array(9,SUDOKU_ELEM))})
+        aSudokuSolved:=aClone(aSudokuBoard)
 
-    nLoops:=Len(aSudokuBoardView)
-    nCntRow:=0
-    for nLoop:=1 to nLoops
-        nItens:=Len(aSudokuBoardView[nLoop])
-        nCol:=15
-        nCntCol:=0
-        nColIndex:=0
-        for nItem:=1 to nItens
-            nSudokuGetNum:=aSudokuSolved[nLoop][++nColIndex]
-            lChange:=(nSudokuGetNum==0)
-            cSudokuGetNum:=__NToS(nSudokuGetNum)
-            if (lChange)
-                cSudokuGetNum:=" "
-            endif
-            aSudokuBoardView[nLoop][nItem][SUDOKU_VAR]:=cSudokuGetNum
-            aSudokuBoardView[nLoop][nItem][SUDOKU_OBJ]:=TGet():New(;
-                                                                nRow,;//01:<nRow>
-                                                                nCol,;//02:<nCol>
-                                                                Eval(bGetSet),;//03:bSETGET(<uVar>)
-                                                                oDlg,;//04:[<oWnd>]
-                                                                nWidth,;//05:<nWidth>
-                                                                nHeight,;//06:<nHeight>
-                                                                "9",;//07:<cPict>
-                                                                NIL,;//08:<{ValidFunc}>
-                                                                if(lChange,NIL,if(lThemeIsDark,CLR_WHITE,CLR_WHITE)),;//09:<nClrFore>
-                                                                if(lChange,NIL,if(lThemeIsDark,CLR_BLUE,CLR_BLUE)),;//10:<nClrBack>
-                                                                oFont,;//11:<oFont>
-                                                                .T.,;//12:<.design.>
-                                                                NIL,;//13:<oCursor>
-                                                                .T.,;//14:<.pixel.>
-                                                                NIL,;//15:<cMsg>
-                                                                .F.,;//16:<.update.>
-                                                                &("{||"+AllToChar(lChange)+"}"),;//17:<{uWhen}>
-                                                                .T.,;//18:<.lCenter.>
-                                                                .F.,;//19:<.lRight.>
-                                                                NIL,;//20:[\{|nKey, nFlags, Self|<uChange>\}]
-                                                                (!lChange),;//21:<.readonly.>
-                                                                .F.,;//22:<.pass.>
-                                                                NIL,;//23:<cF3>
-                                                                Eval(bGetVar),;//24:<(uVar)>
-                                                                NIL,;//25:?
-                                                                NIL,;//26:[<.lNoBorder.>]
-                                                                NIL,;//27:[<nHelpId>]
-                                                                NIL;//28:[<.lHasButton.>]
-            )
-            ++nCntCol
-            if (;
-                    (nCntCol==3);
-                    .or.;
-                    (nCntCol==6);
-            )
-                if (nCntCol==3)
-                    nCol+=40
+        aSudokuBoardView:=Array(9)
+        aEval(aSudokuBoardView,{|,nAT as numeric|aSudokuBoardView[nAT]:=aClone(Array(9,SUDOKU_ELEM))})
+
+        nLoops:=Len(aSudokuBoardView)
+        nCntRow:=0
+        for nLoop:=1 to nLoops
+            nItens:=Len(aSudokuBoardView[nLoop])
+            nCol:=15
+            nCntCol:=0
+            nColIndex:=0
+            for nItem:=1 to nItens
+                nSudokuGetNum:=aSudokuSolved[nLoop][++nColIndex]
+                lChange:=(nSudokuGetNum==0)
+                cSudokuGetNum:=__NToS(nSudokuGetNum)
+                if (lChange)
+                    cSudokuGetNum:=" "
+                endif
+                aSudokuBoardView[nLoop][nItem][SUDOKU_VAR]:=cSudokuGetNum
+                aSudokuBoardView[nLoop][nItem][SUDOKU_OBJ]:=TGet():New(;
+                                                                    nRow,;//01:<nRow>
+                                                                    nCol,;//02:<nCol>
+                                                                    Eval(bGetSet),;//03:bSETGET(<uVar>)
+                                                                    oDlg,;//04:[<oWnd>]
+                                                                    nWidth,;//05:<nWidth>
+                                                                    nHeight,;//06:<nHeight>
+                                                                    "9",;//07:<cPict>
+                                                                    NIL,;//08:<{ValidFunc}>
+                                                                    if(lChange,NIL,if(lThemeIsDark,CLR_WHITE,CLR_WHITE)),;//09:<nClrFore>
+                                                                    if(lChange,NIL,if(lThemeIsDark,CLR_BLUE,CLR_BLUE)),;//10:<nClrBack>
+                                                                    oFont,;//11:<oFont>
+                                                                    .T.,;//12:<.design.>
+                                                                    NIL,;//13:<oCursor>
+                                                                    .T.,;//14:<.pixel.>
+                                                                    NIL,;//15:<cMsg>
+                                                                    .F.,;//16:<.update.>
+                                                                    &("{||"+AllToChar(lChange)+"}"),;//17:<{uWhen}>
+                                                                    .T.,;//18:<.lCenter.>
+                                                                    .F.,;//19:<.lRight.>
+                                                                    NIL,;//20:[\{|nKey, nFlags, Self|<uChange>\}]
+                                                                    (!lChange),;//21:<.readonly.>
+                                                                    .F.,;//22:<.pass.>
+                                                                    NIL,;//23:<cF3>
+                                                                    Eval(bGetVar),;//24:<(uVar)>
+                                                                    NIL,;//25:?
+                                                                    NIL,;//26:[<.lNoBorder.>]
+                                                                    NIL,;//27:[<nHelpId>]
+                                                                    NIL;//28:[<.lHasButton.>]
+                )
+                ++nCntCol
+                if (;
+                        (nCntCol==3);
+                        .or.;
+                        (nCntCol==6);
+                )
+                    if (nCntCol==3)
+                        nCol+=40
+                    else
+                        nCol+=45
+                    endif
                 else
-                    nCol+=45
+                    nCol+=28
+                endif
+            next nItem
+            ++nCntRow
+            if (;
+                    (nCntRow==3);
+                    .or.;
+                    (nCntRow==6);
+                )
+                if (nCntRow==3)
+                    nRow+=40
+                else
+                    nRow+=45
                 endif
             else
-                nCol+=28
+                nRow+=26
             endif
-        next nItem
-        ++nCntRow
-        if (;
-                (nCntRow==3);
-                .or.;
-                (nCntRow==6);
-            )
-            if (nCntRow==3)
-                nRow+=40
-            else
-                nRow+=45
-            endif
-        else
-            nRow+=26
-        endif
-    next nLoop
+        next nLoop
 
-    MsObjects():FreeObjects(@aSudokuSolved)
+        MsObjects():FreeObjects(@aSudokuSolved)
+
+    endif
 
 return(aSudokuBoardView)
+
+method SudokuBoardBar(aSudokuBoardView) class SudokuController
+
+    local jSudokuBoardBarObjects as json
+
+    if (self:IsActive())
+        paramtype 1 var aSudokuBoardView as array
+        jSudokuBoardBarObjects:=self:oView:SudokuBoardBar(@aSudokuBoardView)
+    endif
+
+return(jSudokuBoardBarObjects)
 
 method SudokuSolveBoard(aSudokuBoardView,lSolveAllNums) class SudokuController
 
@@ -383,14 +397,14 @@ method SudokuSolveBoard(aSudokuBoardView,lSolveAllNums) class SudokuController
 
 return(lSudokuSolvedBoard)
 
-method SudokuCheckBoard(aSudokuBoardView,lSolveAllNums,cMsgTitle,cMsgDetail) class SudokuController
+method SudokuCheckBoard(aSudokuBoardView,lCheckAllNums,cMsgTitle,cMsgDetail) class SudokuController
 
     local aChkOk as array
 
     local cCRLF:=CRLF as character
     local cNumber as character
 
-    local lSudokuCheckBoard:=.F. as logical
+    local lSudokuCheckBoard as logical
 
     local nLoop as numeric
     local nLoops as numeric
@@ -401,7 +415,7 @@ method SudokuCheckBoard(aSudokuBoardView,lSolveAllNums,cMsgTitle,cMsgDetail) cla
     if (lSudokuCheckBoard)
 
         paramtype 1 var aSudokuBoardView as array
-        paramtype 2 var lSolveAllNums as logical optional default .F.
+        paramtype 2 var lCheckAllNums as logical optional default .F.
         paramtype 3 var cMsgTitle as character optional default ""
         paramtype 4 var cMsgDetail as character optional default ""
 
@@ -430,13 +444,14 @@ method SudokuCheckBoard(aSudokuBoardView,lSolveAllNums,cMsgTitle,cMsgDetail) cla
 
         begin sequence
 
-            if (!lSolveAllNums)
+            if (!lCheckAllNums)
 
                 if ((nLoop:=aScan(aChkOk,{|aOk|!(aOk[1])}))>0)
                     cMsgDetail:="Existem Informa&ccedil;&otilde;es inconsistentes!"
                     cMsgDetail+=cCRLF
                     cMsgDetail+="Corrija os n&uacute;meros dos quadrados pintados de vermelho!"
                     cMsgTitle:="Inconsist&ecirc;ncia"
+                    lSudokuCheckBoard:=.F.
                     break
                 endif
 
@@ -445,15 +460,17 @@ method SudokuCheckBoard(aSudokuBoardView,lSolveAllNums,cMsgTitle,cMsgDetail) cla
                 cMsgDetail:="Parab&eacute;ns, voc&ecirc; conclui a partida com sucesso!"
                 cMsgDetail+=cCRLF
                 cMsgDetail+=cCRLF
-                cMsgDetail+="Tempo: "//+GetGlbValue("cSudokuTime")
+                cMsgDetail+="Tempo: "+self:oView:SudokuDataGet("cSudokuTimeElapsed","00:00:00")
                 cMsgTitle:="OK"
 
             else
 
+                lSudokuCheckBoard:=.F.
+
                 cMsgDetail:="Que Pena. voce desistiu do Jogo!"
                 cMsgDetail+=cCRLF
                 cMsgDetail+=cCRLF
-                cMsgDetail+="Tempo: "//+GetGlbValue("cSudokuTime")
+                cMsgDetail+="Tempo: "+self:oView:SudokuDataGet("cSudokuTimeElapsed","00:00:00")
                 cMsgTitle:="Desistente"
 
             endif
