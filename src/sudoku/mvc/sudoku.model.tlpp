@@ -153,7 +153,7 @@ return(cSudokuBoard)
 static function Random9()
 return((1+Randomize(0,8)))
 
-static function Random9x(nPlus,nMaxRand)
+static function Random9x(nPlus as numeric,nMaxRand as numeric)
 return((Int((nPlus+Randomize(0,nMaxRand))/9)*9))
 
 static function Sudoku(/*@*/aSudoku as array) as logical
@@ -287,7 +287,7 @@ static function FindEmptyCell(aSudoku as array,nRow as numeric,nCol as numeric) 
 return(lFoundEmptyCell)
 
 // Embaralha um array
-static function Shuffle(aArray) as array
+static function Shuffle(aArray as array) as array
 
     local d as numeric
     local j as numeric

@@ -3,6 +3,9 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-26 18:27 UTC naldodj (Named Parameters)
+  * src/sudoku/mvc/sudoku.model.tlpp
+
 2025-05-26 15:53 UTC naldodj (Fix and TODO Item)
   * src/sudoku/mvc/sudoku.view.tlpp
 
