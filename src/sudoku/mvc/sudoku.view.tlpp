@@ -316,6 +316,7 @@ method SudokuBoardBar(aSudokuBoardView) class SudokuView
 
     local jObjects:=JSONObject():New() as json
 
+    local lSudokuWin:=.F. as logical
     local lCheckAllNums:=.F. as logical
     local lSolveAllNums:=.F. as logical
 
@@ -367,11 +368,11 @@ method SudokuBoardBar(aSudokuBoardView) class SudokuView
 
         bButtonOK:={;
             ||;
-                 lCheckAllNums:=.T.;
-                ,oView:SudokuTTimerDeactivate();
-                ,oController:SudokuCheckBoard(@aSudokuBoardView,lCheckAllNums,@cMsgTitle,@cMsgDetail);
+                 oView:SudokuTTimerDeactivate();
+                ,lSudokuWin:=oController:SudokuCheckBoard(@aSudokuBoardView,lCheckAllNums,@cMsgTitle,@cMsgDetail);
                 ,oDlg:Refresh();
                 ,ApMsgInfo(__Web2Ascii(cMsgDetail),__Web2Ascii(cMsgTitle));
+                ,if(!lSudokuWin,oView:SudokuTTimerActivate(),nil);
         }
 
         bButtonEndGame:={||if(ApMsgNoYes("Deseja Sair do Jogo?","Sair"),oDlg:End(),.F.)}
