@@ -33,3 +33,8 @@
 ##Sudoku Parameters (`sudoku.u_SudokuRun`)
 ![image](https://github.com/user-attachments/assets/c6782aac-30a3-48db-9ddc-6b6a66fed722)
 ![image](https://github.com/user-attachments/assets/0d368c33-f95b-409f-9047-a9d7243b1b50)
+
+---
+
+https://github.com/user-attachments/assets/bc398fee-519f-4b64-aedb-98c74a2fe48f
+
