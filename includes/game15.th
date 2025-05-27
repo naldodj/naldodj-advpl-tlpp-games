@@ -2,26 +2,40 @@
 
     #define __GAME15_TH__
 
-    #define SHAPE_ID            1
-    #define SHAPE_TOOLTIP       2
-    #define SHAPE_TOP           3
-    #define SHAPE_LEFT          4
-    #define SHAPE_WIDTH         5
-    #define SHAPE_HEIGHT        6
-    #define SHAPE_FILE          7
-    #define SHAPE_ACTION        8
-    #define SHAPE_BTNINDEX      9
-    #define SHAPE_BTNNUMBER    10
-    #define SHAPE_PROPERTIES   11
+    #define G15_SHAPE_ID            1
+    #define G15_SHAPE_TOOLTIP       2
+    #define G15_SHAPE_TOP           3
+    #define G15_SHAPE_LEFT          4
+    #define G15_SHAPE_WIDTH         5
+    #define G15_SHAPE_HEIGHT        6
+    #define G15_SHAPE_FILE          7
+    #define G15_SHAPE_ACTION        8
+    #define G15_SHAPE_BTNINDEX      9
+    #define G15_SHAPE_BTNNUMBER    10
+    #define G15_SHAPE_PROPERTIES   11
 
-    #define SHAPE_ELEM         11
+    #define G15_SHAPE_ALEN         11
 
-    #DEFINE AT_G15_TIME         1
-    #DEFINE AT_G15_RESULT       2
-    #DEFINE AT_G15_NAME         3
+    #DEFINE G15_AT_TIME         1
+    #DEFINE G15_AT_DPTIME       2
+    #DEFINE G15_AT_NPLAYS       3
+    #DEFINE G15_AT_CLICKS       4
+    #DEFINE G15_AT_TCLICK       5
+    #DEFINE G15_AT_NAME         6
 
-    #DEFINE AT_FIELDS           4
-    #DEFINE AT_R_E_C_N_O_       AT_FIELDS    //Deixar AT_R_E_C_N_O_ sempre como ultimo campo do aTWBrowseItems
+    #DEFINE G15_AT_ALEN         7
+    #DEFINE G15_AT_R_E_C_N_O_       G15_AT_ALEN //Deixar G15_AT_R_E_C_N_O_ sempre como ultimo campo do aTWBrowseItems
+
+#ifndef _DBSTRUCT_CH_
+    #include "dbstruct.ch"
+#endif
+    #DEFINE G15_DBS_NAME    DBS_NAME
+    #DEFINE G15_DBS_TYPE    DBS_TYPE
+    #DEFINE G15_DBS_LEN     DBS_LEN
+    #DEFINE G15_DBS_DEC     DBS_DEC
+    #DEFINE G15_DBS_TITLE   DBS_ALEN+1
+    #DEFINE G15_DBS_POS     DBS_ALEN+2
+    #DEFINE G15_DBS_ALEN    DBS_ALEN+2
 
     #define GAME15_TITLE            "Jogo Game15::by Naldo DJ::v2"
     #define GAME15_PROGRAM          "Game 15"

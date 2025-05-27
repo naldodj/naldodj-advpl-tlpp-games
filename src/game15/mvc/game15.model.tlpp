@@ -12,6 +12,10 @@
 #include "parmtype.ch"
 #include "tlpp-core.th"
 
+#ifndef _DBSTRUCT_CH_
+    #include "dbstruct.ch"
+#endif
+
 namespace game15
 using namespace game15
 using namespace naldodj.games
@@ -67,6 +71,7 @@ method Activate() class Game15Model
         self:lActive:=self:lActive.and.(self:jGame15Data:HasProperty("Game15_Table"))
         self:lActive:=self:lActive.and.(self:jGame15Data["Game15_Table"]:HasProperty("G15_Alias"))
         self:lActive:=self:lActive.and.(Select(self:jGame15Data["Game15_Table"]["G15_Alias"])>0)
+        self:StartTime()
         self:lActive:=self:lActive.and.Activate(self:jGame15Data)
     endif
 return(self:lActive)
@@ -229,217 +234,217 @@ static function Activate(jGame15Data as json) as logical
     aSize(aShapes,0)
 
     //"MainForm"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="GAME15"
-    aShapes[nID][SHAPE_TOP]:=0
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=394
-    aShapes[nID][SHAPE_HEIGHT]:=317
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="GAME15"
+    aShapes[nID][G15_SHAPE_TOP]:=0
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=394
+    aShapes[nID][G15_SHAPE_HEIGHT]:=317
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",0)
     AddProperty(@cProperties,"is-container=",1)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //GAME15_PROGRAM+" "+GAME15_VERSION
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=300
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
+    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=300
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
 /* BEGIN TODO:Descobrir uma Forma de Minimizar o DIALOG
 
     //"Minimize"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Minimize"
-    aShapes[nID][SHAPE_TOP]:=12
-    aShapes[nID][SHAPE_LEFT]:=317-42
-    aShapes[nID][SHAPE_WIDTH]:=14
-    aShapes[nID][SHAPE_HEIGHT]:=14
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["minbtn"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Minimize"
+    aShapes[nID][G15_SHAPE_TOP]:=12
+    aShapes[nID][G15_SHAPE_LEFT]:=317-42
+    aShapes[nID][G15_SHAPE_WIDTH]:=14
+    aShapes[nID][G15_SHAPE_HEIGHT]:=14
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["minbtn"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
 END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     //"Close"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Close"
-    aShapes[nID][SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
-    aShapes[nID][SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
-    aShapes[nID][SHAPE_WIDTH]:=14
-    aShapes[nID][SHAPE_HEIGHT]:=14
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Close"
+    aShapes[nID][G15_SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
+    aShapes[nID][G15_SHAPE_WIDTH]:=14
+    aShapes[nID][G15_SHAPE_HEIGHT]:=14
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Load a game"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Load Game"
-    aShapes[nID][SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
-    aShapes[nID][SHAPE_LEFT]:=14
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["load"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Load Game"
+    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=14
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["load"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Start of new game"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Start of new game"
-    aShapes[nID][SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
-    aShapes[nID][SHAPE_LEFT]:=110
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["start"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Start of new game"
+    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=110
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["start"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Save a game"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Save a game"
-    aShapes[nID][SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
-    aShapes[nID][SHAPE_LEFT]:=206
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["save"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Save a game"
+    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=206
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["save"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     aButtons:=jGame15Data["Game15_Files_bmps_play"]:GetNames()
     nButtons:=Len(aButtons)
@@ -471,34 +476,34 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
             jCoordinates["nTop"]:=(((nCol-1)*72)+64)
             jCoordinates["nLeft"]:=(((nRow-1)*72)+15)
 
-            aAdd(aShapes,Array(SHAPE_ELEM))
+            aAdd(aShapes,Array(G15_SHAPE_ALEN))
             nID:=Len(aShapes)
 
-            aShapes[nID][SHAPE_ID]:=++__nID
-            aShapes[nID][SHAPE_TOOLTIP]:=aButtons[nIndex]
-            aShapes[nID][SHAPE_TOP]:=jCoordinates["nTop"]
-            aShapes[nID][SHAPE_LEFT]:=jCoordinates["nLeft"]
-            aShapes[nID][SHAPE_WIDTH]:=jCoordinates["nWidth"]
-            aShapes[nID][SHAPE_HEIGHT]:=jCoordinates["nHeight"]
-            aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_play"][aButtons[nIndex]]
-            aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-            aShapes[nID][SHAPE_BTNINDEX]:=++nData
-            aShapes[nID][SHAPE_BTNNUMBER]:=Val(SubStr(aButtons[nIndex],2))
+            aShapes[nID][G15_SHAPE_ID]:=++__nID
+            aShapes[nID][G15_SHAPE_TOOLTIP]:=aButtons[nIndex]
+            aShapes[nID][G15_SHAPE_TOP]:=jCoordinates["nTop"]
+            aShapes[nID][G15_SHAPE_LEFT]:=jCoordinates["nLeft"]
+            aShapes[nID][G15_SHAPE_WIDTH]:=jCoordinates["nWidth"]
+            aShapes[nID][G15_SHAPE_HEIGHT]:=jCoordinates["nHeight"]
+            aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_play"][aButtons[nIndex]]
+            aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+            aShapes[nID][G15_SHAPE_BTNINDEX]:=++nData
+            aShapes[nID][G15_SHAPE_BTNNUMBER]:=Val(SubStr(aButtons[nIndex],2))
 
             cProperties:=""
-            AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+            AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
             AddProperty(@cProperties,"type=",8)
-            AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-            AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-            AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-            AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-            AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
+            AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+            AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+            AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+            AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+            AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
             AddProperty(@cProperties,"tooltip=","")
             AddProperty(@cProperties,"can-move=",1)
             AddProperty(@cProperties,"can-mark=",if(AllTrim(Str(nButtons))$aButtons[nIndex],0,1))
             AddProperty(@cProperties,"is-container=",0)
 
-            aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+            aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
         next nCols
 
@@ -507,94 +512,94 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
     MsObjects():FreeObjects(@aIndex)
 
     //"About"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="About"
-    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][SHAPE_LEFT]:=14
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["about"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="About"
+    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=14
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["about"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Top Table"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Top Table"
-    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][SHAPE_LEFT]:=110
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["top10"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Top Table"
+    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=110
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["top10"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Exit"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Exit"
-    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][SHAPE_LEFT]:=206
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["exit"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Exit"
+    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=206
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["exit"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     LoadMsgAbout(@jGame15Data,lThemeIsDark)
     LoadTopTable(@jGame15Data,lThemeIsDark)
@@ -612,299 +617,299 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     aSize(aShapes,0)
 
     //"MainForm"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="About"
-    aShapes[nID][SHAPE_TOP]:=0
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=394
-    aShapes[nID][SHAPE_HEIGHT]:=317
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform_about"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="About"
+    aShapes[nID][G15_SHAPE_TOP]:=0
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=394
+    aShapes[nID][G15_SHAPE_HEIGHT]:=317
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform_about"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",0)
     AddProperty(@cProperties,"is-container=",1)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //GAME15_PROGRAM+" "+GAME15_VERSION
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=300
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
+    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=300
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Close"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Close"
-    aShapes[nID][SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
-    aShapes[nID][SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
-    aShapes[nID][SHAPE_WIDTH]:=14
-    aShapes[nID][SHAPE_HEIGHT]:=14
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Close"
+    aShapes[nID][G15_SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
+    aShapes[nID][G15_SHAPE_WIDTH]:=14
+    aShapes[nID][G15_SHAPE_HEIGHT]:=14
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //Copyright "+Chr(169)+" "+GAME15_COPYRIGHT
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC("Copyright "+Chr(169)+" "+GAME15_COPYRIGHT,40)
-    aShapes[nID][SHAPE_TOP]:=50+if(lThemeIsDark,(50),50)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=317
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC("Copyright "+Chr(169)+" "+GAME15_COPYRIGHT,40)
+    aShapes[nID][G15_SHAPE_TOP]:=50+if(lThemeIsDark,(50),50)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=317
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //GAME15_AUTHOR
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_AUTHOR,40)
-    aShapes[nID][SHAPE_TOP]:=80+if(lThemeIsDark,(50),50)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=317
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_AUTHOR,40)
+    aShapes[nID][G15_SHAPE_TOP]:=80+if(lThemeIsDark,(50),50)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=317
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //GAME15_URL_BTDNGAME15
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC("BlackTDN::ADVPL Games ~ GAME 15",40)
-    aShapes[nID][SHAPE_TOP]:=110+if(lThemeIsDark,(50),50)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=317
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC("BlackTDN::ADVPL Games ~ GAME 15",40)
+    aShapes[nID][G15_SHAPE_TOP]:=110+if(lThemeIsDark,(50),50)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=317
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-mark=",1)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //GAME15_URL_COPYRIGHT
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_URL_COPYRIGHT,40)
-    aShapes[nID][SHAPE_TOP]:=140+if(lThemeIsDark,(50),50)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=317
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_URL_COPYRIGHT,40)
+    aShapes[nID][G15_SHAPE_TOP]:=140+if(lThemeIsDark,(50),50)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=317
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-mark=",1)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //This GAME15_PROGRAM is Freeware!
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC("This GAME15_PROGRAM is Freeware!",40)
-    aShapes[nID][SHAPE_TOP]:=170+if(lThemeIsDark,(50),50)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=317
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC("This GAME15_PROGRAM is Freeware!",40)
+    aShapes[nID][G15_SHAPE_TOP]:=170+if(lThemeIsDark,(50),50)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=317
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //Copying is allowed!"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=Padc("Copying is allowed!",40)
-    aShapes[nID][SHAPE_TOP]:=200+if(lThemeIsDark,(50),50)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=317
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=Padc("Copying is allowed!",40)
+    aShapes[nID][G15_SHAPE_TOP]:=200+if(lThemeIsDark,(50),50)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=317
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"OK"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="OK"
-    aShapes[nID][SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][SHAPE_LEFT]:=110
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["ok"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="OK"
+    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=110
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["ok"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
 return
 
@@ -919,153 +924,153 @@ static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
     aSize(aShapes,0)
 
     //"MainForm"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Top Table"
-    aShapes[nID][SHAPE_TOP]:=0
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=394
-    aShapes[nID][SHAPE_HEIGHT]:=317
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Top Table"
+    aShapes[nID][G15_SHAPE_TOP]:=0
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=394
+    aShapes[nID][G15_SHAPE_HEIGHT]:=317
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["mainform"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",0)
     AddProperty(@cProperties,"is-container=",1)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //GAME15_PROGRAM+" "+GAME15_VERSION
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
-    aShapes[nID][SHAPE_LEFT]:=0
-    aShapes[nID][SHAPE_WIDTH]:=300
-    aShapes[nID][SHAPE_HEIGHT]:=29
-    aShapes[nID][SHAPE_FILE]:=""
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
+    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=0
+    aShapes[nID][G15_SHAPE_WIDTH]:=300
+    aShapes[nID][G15_SHAPE_HEIGHT]:=29
+    aShapes[nID][G15_SHAPE_FILE]:=""
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",7)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
     AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
-    AddProperty(@cProperties,"text=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Close"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Close"
-    aShapes[nID][SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
-    aShapes[nID][SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
-    aShapes[nID][SHAPE_WIDTH]:=14
-    aShapes[nID][SHAPE_HEIGHT]:=14
-    aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Close"
+    aShapes[nID][G15_SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
+    aShapes[nID][G15_SHAPE_WIDTH]:=14
+    aShapes[nID][G15_SHAPE_HEIGHT]:=14
+    aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_bmps_aux"]["closebtn"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"OK"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="OK"
-    aShapes[nID][SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][SHAPE_LEFT]:=14
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["ok"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="OK"
+    aShapes[nID][G15_SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=14
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["ok"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
     //"Clear Top Table"
-    aAdd(aShapes,Array(SHAPE_ELEM))
+    aAdd(aShapes,Array(G15_SHAPE_ALEN))
     nID:=Len(aShapes)
 
-    aShapes[nID][SHAPE_ID]:=++__nID
-    aShapes[nID][SHAPE_TOOLTIP]:="Clear Top Table"
-    aShapes[nID][SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][SHAPE_LEFT]:=(317-110)
-    aShapes[nID][SHAPE_WIDTH]:=96
-    aShapes[nID][SHAPE_HEIGHT]:=24
-    aShapes[nID][SHAPE_FILE]:=aShapes[nID][SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["clear"]
-    aShapes[nID][SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
-    aShapes[nID][SHAPE_BTNINDEX]:=0
-    aShapes[nID][SHAPE_BTNNUMBER]:=0
+    aShapes[nID][G15_SHAPE_ID]:=++__nID
+    aShapes[nID][G15_SHAPE_TOOLTIP]:="Clear Top Table"
+    aShapes[nID][G15_SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_LEFT]:=(317-110)
+    aShapes[nID][G15_SHAPE_WIDTH]:=96
+    aShapes[nID][G15_SHAPE_HEIGHT]:=24
+    aShapes[nID][G15_SHAPE_FILE]:=aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["clear"]
+    aShapes[nID][G15_SHAPE_ACTION]:={|bBlock as codeblock|Eval(bBlock)}
+    aShapes[nID][G15_SHAPE_BTNINDEX]:=0
+    aShapes[nID][G15_SHAPE_BTNNUMBER]:=0
 
     cProperties:=""
-    AddProperty(@cProperties,"id=",aShapes[nID][SHAPE_ID])
+    AddProperty(@cProperties,"id=",aShapes[nID][G15_SHAPE_ID])
     AddProperty(@cProperties,"type=",8)
-    AddProperty(@cProperties,"top=",aShapes[nID][SHAPE_TOP])
-    AddProperty(@cProperties,"left=",aShapes[nID][SHAPE_LEFT])
-    AddProperty(@cProperties,"width=",aShapes[nID][SHAPE_WIDTH])
-    AddProperty(@cProperties,"height=",aShapes[nID][SHAPE_HEIGHT])
-    AddProperty(@cProperties,"image-file=",aShapes[nID][SHAPE_FILE])
-    AddProperty(@cProperties,"tooltip=",aShapes[nID][SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"top=",aShapes[nID][G15_SHAPE_TOP])
+    AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
+    AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
+    AddProperty(@cProperties,"image-file=",aShapes[nID][G15_SHAPE_FILE])
+    AddProperty(@cProperties,"tooltip=",aShapes[nID][G15_SHAPE_TOOLTIP])
     AddProperty(@cProperties,"can-move=",0)
     AddProperty(@cProperties,"can-mark=",1)
     AddProperty(@cProperties,"is-container=",0)
 
-    aShapes[nID][SHAPE_PROPERTIES]:=cProperties
+    aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
 return
 
@@ -1089,7 +1094,9 @@ return(cProperties)
 */
 static function OpenTopTable(jGame15Data as json)
 
-    local aFields:={{"G15_NAME","C",30,0},{"G15_RESULT","N",6,0},{"G15_TIME","C",8,0}} as array
+    local aNewFields as array
+    local aG15Fields as array
+    local aG15Columns as array
 
     local cRDD:="DBFCDX" as character
     local cG15Path:="\g15\" as character
@@ -1097,9 +1104,70 @@ static function OpenTopTable(jGame15Data as json)
     local cG15Index:=cG15Path+"game15.cdx" as character
     local cG15Alias:="GAME15" as character
 
+    local lIsOpen as logical
     local lShared:=.T. as logical
 
+    local nField as numeric
+    local nFields as numeric
     local nAttempts as numeric
+
+    aG15Fields:=Array(6,DBS_ALEN)
+    aG15Columns:=Array(7,G15_DBS_ALEN)
+
+    aG15Fields[1][DBS_NAME]:="G15_NAME"
+    aG15Fields[1][DBS_TYPE]:="C"
+    aG15Fields[1][DBS_LEN]:=80
+    aG15Fields[1][DBS_DEC]:=0
+    aEval(aG15Fields[1],{|x as variant,n as numeric|aG15Columns[1][n]:=x})
+    aG15Columns[1][G15_DBS_TITLE]:="Name"
+    aG15Columns[1][G15_DBS_POS]:=6
+
+    aG15Fields[2][DBS_NAME]:="G15_NPLAYS"
+    aG15Fields[2][DBS_TYPE]:="N"
+    aG15Fields[2][DBS_LEN]:=9
+    aG15Fields[2][DBS_DEC]:=0
+    aEval(aG15Fields[2],{|x as variant,n as numeric|aG15Columns[2][n]:=x})
+    aG15Columns[2][G15_DBS_TITLE]:="N. of Games Played"
+    aG15Columns[2][G15_DBS_POS]:=3
+
+    aG15Fields[3][DBS_NAME]:="G15_CLICKS"
+    aG15Fields[3][DBS_TYPE]:="N"
+    aG15Fields[3][DBS_LEN]:=3
+    aG15Fields[3][DBS_DEC]:=0
+    aEval(aG15Fields[3],{|x as variant,n as numeric|aG15Columns[3][n]:=x})
+    aG15Columns[3][G15_DBS_TITLE]:="Clicks"
+    aG15Columns[3][G15_DBS_POS]:=4
+
+    aG15Fields[4][DBS_NAME]:="G15_TCLICK"
+    aG15Fields[4][DBS_TYPE]:="N"
+    aG15Fields[4][DBS_LEN]:=9
+    aG15Fields[4][DBS_DEC]:=0
+    aEval(aG15Fields[4],{|x as variant,n as numeric|aG15Columns[3][n]:=x})
+    aG15Columns[4][G15_DBS_TITLE]:="T.Clicks"
+    aG15Columns[4][G15_DBS_POS]:=5
+
+    aG15Fields[5][DBS_NAME]:="G15_TIME"
+    aG15Fields[5][DBS_TYPE]:="C"
+    aG15Fields[5][DBS_LEN]:=8
+    aG15Fields[5][DBS_DEC]:=0
+    aEval(aG15Fields[5],{|x as variant,n as numeric|aG15Columns[4][n]:=x})
+    aG15Columns[5][G15_DBS_TITLE]:="Time"
+    aG15Columns[5][G15_DBS_POS]:=1
+
+    aG15Fields[6][DBS_NAME]:="G15_DPTIME"
+    aG15Fields[6][DBS_TYPE]:="C"
+    aG15Fields[6][DBS_LEN]:=8
+    aG15Fields[6][DBS_DEC]:=0
+    aEval(aG15Fields[6],{|x as variant,n as numeric|aG15Columns[5][n]:=x})
+    aG15Columns[6][G15_DBS_TITLE]:="DP.Time"
+    aG15Columns[6][G15_DBS_POS]:=2
+
+    aG15Columns[7][G15_DBS_NAME]:="RECNO"
+    aG15Columns[7][G15_DBS_TYPE]:="N"
+    aG15Columns[7][G15_DBS_LEN]:=20
+    aG15Columns[7][G15_DBS_DEC]:=0
+    aG15Columns[7][G15_DBS_TITLE]:="RecNo"
+    aG15Columns[7][G15_DBS_POS]:=Len(aG15Columns)
 
     begin sequence
 
@@ -1121,14 +1189,14 @@ static function OpenTopTable(jGame15Data as json)
 
         if (!File(cG15File))
             lShared:=.F.
-            dbCreate(cG15File,aFields,cRDD)
+            dbCreate(cG15File,aG15Fields,cRDD)
             nAttempts:=0
             while (NetErr())
                 Sleep(300)
                 if (++nAttempts>10)
                     break
                 endif
-                dbCreate(cG15File,aFields,cRDD)
+                dbCreate(cG15File,aG15Fields,cRDD)
             end while
         endif
 
@@ -1146,6 +1214,27 @@ static function OpenTopTable(jGame15Data as json)
             endif
             dbUseArea(.T.,cRDD,cG15File,cG15Alias,lShared,.F.)
         end while
+
+        aNewFields:=Array(0)
+        aAdd(aNewFields,"G15_NPLAYS")
+        aAdd(aNewFields,"G15_DPTIME")
+        aAdd(aNewFields,"G15_CLICKS")
+        aAdd(aNewFields,"G15_TCLICK")
+        nFields:=Len(aNewFields)
+        for nField:=1 to nFields
+            if ((cG15Alias)->(FieldPos(aNewFields[nField]))==0)
+                (cG15Alias)->(dbCloseArea())
+                fErase(cG15File)
+                MsObjects():FreeObjects(@aNewFields)
+                lIsOpen:=OpenTopTable(jGame15Data)
+                if (lIsOpen)
+                    cG15Alias:=jGame15Data["Game15_Table"]["G15_Alias"]
+                endif
+                break
+            endif
+        next nField
+
+        MsObjects():FreeObjects(@aNewFields)
 
         if (!lShared)
             lShared:=.T.
@@ -1184,12 +1273,18 @@ static function OpenTopTable(jGame15Data as json)
             jGame15Data["Game15_Table"]:=JSONObject():New()
         endif
         jGame15Data["Game15_Table"]["G15_Alias"]:=cG15Alias
+        jGame15Data["Game15_Table"]["G15_Fields"]:=aClone(aG15Fields)
+        jGame15Data["Game15_Table"]["G15_Columns"]:=aClone(aG15Columns)
 
     end sequence
 
-    jGame15Data["Game15_Table"]["lIsOpen"]:=(select(cG15Alias)>0)
+    MsObjects():FreeObjects(@aG15Fields)
+    MsObjects():FreeObjects(@aG15Columns)
 
-return(jGame15Data["Game15_Table"]["lIsOpen"])
+    jGame15Data["Game15_Table"]["lIsOpen"]:=(select(cG15Alias)>0)
+    lIsOpen:=jGame15Data["Game15_Table"]["lIsOpen"]
+
+return(lIsOpen)
 
 /*
     Funcao:SaveTopTable
@@ -1213,6 +1308,9 @@ static function SaveTopTable(jGame15Data as json) as logical
     local lFound as logical
     local lAddNew as logical
 
+    local nElapTipe as numeric
+    local nG5Clicks as numeric
+
     begin sequence
 
         cG15Alias:=jGame15Data["Game15_Table"]["G15_Alias"]
@@ -1225,6 +1323,7 @@ static function SaveTopTable(jGame15Data as json) as logical
             break
         endif
 
+        nG5Clicks:=jGame15Data["Game15_Clicks"]["nClicks"]
         cStartTime:=jGame15Data["Game15_Time"]["cStartTime"]
         dStartDate:=jGame15Data["Game15_Time"]["dStartDate"]
         cStartTime:=Time2NextDay(@cStartTime,@dStartDate)[1]
@@ -1248,27 +1347,29 @@ static function SaveTopTable(jGame15Data as json) as logical
 
             if (lAddNew)
                 (cG15Alias)->(dbAppend(.T.))
+                lLock:=.T.
+            else
+                lLock:=(cG15Alias)->(rLock())
             endif
-
-            lLock:=(cG15Alias)->(rLock())
 
             if (!lLock)
                 break
             endif
 
-            if (lAddNew)
-                (cG15Alias)->G15_NAME:=cG15Name
-                (cG15Alias)->G15_RESULT:=1
-                (cG15Alias)->G15_TIME:=cElapTime
-            else
-                cLastTime:=(cG15Alias)->G15_TIME
-                if (Empty(cLastTime))
-                    cLastTime:=cElapTime
-                endif
-                cElapTime:=G15TimeCalc(@cLastTime,@cElapTime)
-                (cG15Alias)->G15_TIME:=cElapTime
-                ++(cG15Alias)->G15_RESULT
+            (cG15Alias)->G15_NAME:=cG15Name
+            ++(cG15Alias)->G15_NPLAYS
+            (cG15Alias)->(G15_TCLICK:=(G15_CLICKS+nG5Clicks))
+            (cG15Alias)->G15_CLICKS:=nG5Clicks
+            cLastTime:=(cG15Alias)->G15_TIME
+            (cG15Alias)->G15_TIME:=cElapTime
+            if (Empty(cLastTime))
+                cLastTime:=cElapTime
             endif
+            cElapTime:=G15TimeCalc((cG15Alias)->G15_DPTIME,G15TimeCalc(cLastTime,cElapTime))
+            nElapTipe:=TimeToSecs(cElapTime)
+            nElapTipe/=(cG15Alias)->G15_NPLAYS
+            cElapTipe:=SecsToTime(nElapTipe)
+            (cG15Alias)->G15_DPTIME:=cElapTime
 
             (cG15Alias)->(dbUnLock())
 
@@ -1386,6 +1487,8 @@ static function InitGame15() as json
                 ,nTopFree as numeric;
             |;
     }
+    jGame15Data["Game15_Clicks"]:=JSONObject():New()
+    jGame15Data["Game15_Clicks"]["nClicks"]:=0
 
     jGame15Data["Game15_About"]:=JSONObject():New()
     jGame15Data["Game15_About"]["aShapes"]:=Array(0)
@@ -1573,17 +1676,17 @@ static function SwapButtons(jGame15Data as json) as logical
         nButtons:=Len(jGame15Data["Game15_Files_bmps_play"]:GetNames())
         nSQRTBtn:=SQRT(nButtons)
 
-        nD:=aScan(aShapes,{|aShape|(aShape[SHAPE_BTNNUMBER]>0)})
-        nJ:=(aScan(aShapes,{|aShape|(aShape[SHAPE_BTNNUMBER]==0)},nD+1)-nD)
+        nD:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]>0)})
+        nJ:=(aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
 
-        nFree:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==nButtons},nD,nJ)
-        nPress:=aScan(aShapes,{|aShape|aShape[SHAPE_ID]==nShape},nShape,nJ)
+        nFree:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nButtons},nD,nJ)
+        nPress:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_ID]==nShape},nShape,nJ)
         if (nPress==0)
-            nPress:=aScan(aShapes,{|aShape|aShape[SHAPE_ID]==nShape},nD,nJ)
+            nPress:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_ID]==nShape},nD,nJ)
         endif
 
-        nMin:=Min(aShapes[nFree][SHAPE_BTNINDEX],aShapes[nPress][SHAPE_BTNINDEX])
-        nMax:=Max(aShapes[nFree][SHAPE_BTNINDEX],aShapes[nPress][SHAPE_BTNINDEX])
+        nMin:=Min(aShapes[nFree][G15_SHAPE_BTNINDEX],aShapes[nPress][G15_SHAPE_BTNINDEX])
+        nMax:=Max(aShapes[nFree][G15_SHAPE_BTNINDEX],aShapes[nPress][G15_SHAPE_BTNINDEX])
 
         nAbs:=(nMax-nMin)
 
@@ -1593,29 +1696,29 @@ static function SwapButtons(jGame15Data as json) as logical
 
         jCoordinates:=jGame15Data["Coordinates"]
 
-        jCoordinates["nTop"]:=aShapes[nPress][SHAPE_TOP]
-        jCoordinates["nLeft"]:=aShapes[nPress][SHAPE_LEFT]
-        nIndex:=aShapes[nPress][SHAPE_BTNINDEX]
+        jCoordinates["nTop"]:=aShapes[nPress][G15_SHAPE_TOP]
+        jCoordinates["nLeft"]:=aShapes[nPress][G15_SHAPE_LEFT]
+        nIndex:=aShapes[nPress][G15_SHAPE_BTNINDEX]
 
-        aShapes[nPress][SHAPE_TOP]:=aShapes[nFree][SHAPE_TOP]
-        aShapes[nPress][SHAPE_LEFT]:=aShapes[nFree][SHAPE_LEFT]
-        aShapes[nPress][SHAPE_BTNINDEX]:=aShapes[nFree][SHAPE_BTNINDEX]
+        aShapes[nPress][G15_SHAPE_TOP]:=aShapes[nFree][G15_SHAPE_TOP]
+        aShapes[nPress][G15_SHAPE_LEFT]:=aShapes[nFree][G15_SHAPE_LEFT]
+        aShapes[nPress][G15_SHAPE_BTNINDEX]:=aShapes[nFree][G15_SHAPE_BTNINDEX]
 
-        aShapes[nFree][SHAPE_TOP]:=jCoordinates["nTop"]
-        aShapes[nFree][SHAPE_LEFT]:=jCoordinates["nLeft"]
-        aShapes[nFree][SHAPE_BTNINDEX]:=nIndex
+        aShapes[nFree][G15_SHAPE_TOP]:=jCoordinates["nTop"]
+        aShapes[nFree][G15_SHAPE_LEFT]:=jCoordinates["nLeft"]
+        aShapes[nFree][G15_SHAPE_BTNINDEX]:=nIndex
 
         MsObjects():FreeObjects(@jCoordinates)
 
         bUpdateView:=jGame15Data["Game15_Shapes"]["bUpdateView"]
         Eval(;
              bUpdateView;
-            ,aShapes[nPress][SHAPE_ID];
-            ,aShapes[nPress][SHAPE_LEFT];
-            ,aShapes[nPress][SHAPE_TOP];
-            ,aShapes[nFree][SHAPE_ID];
-            ,aShapes[nFree][SHAPE_LEFT];
-            ,aShapes[nFree][SHAPE_TOP];
+            ,aShapes[nPress][G15_SHAPE_ID];
+            ,aShapes[nPress][G15_SHAPE_LEFT];
+            ,aShapes[nPress][G15_SHAPE_TOP];
+            ,aShapes[nFree][G15_SHAPE_ID];
+            ,aShapes[nFree][G15_SHAPE_LEFT];
+            ,aShapes[nFree][G15_SHAPE_TOP];
         )
 
         aMatch:={;
@@ -1679,8 +1782,8 @@ static function HL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nL:=nRow
             aAdd(aMatchL,nL)
-            nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==nL},nD,nJ)
-            nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nL},nD,nJ)
+            nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
                 aAdd(aMatchG,nL)
@@ -1719,8 +1822,8 @@ static function HR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nR:=((nButtons-nRow)+1)
             aAdd(aMatchR,nR)
-            nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==nR},nD,nJ)
-            nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nR},nD,nJ)
+            nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
                 aAdd(aMatchG,nR)
@@ -1759,8 +1862,8 @@ static function HL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nL:=nRow
             aAdd(aMatchL,nL)
-            nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==nL},nD,nJ)
-            nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nL},nD,nJ)
+            nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
                 aAdd(aMatchG,nL)
@@ -1799,8 +1902,8 @@ static function HR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nR:=((nButtons-nRow)+1)
             aAdd(aMatchR,nR)
-            nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==nR},nD,nJ)
-            nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nR},nD,nJ)
+            nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
                 aAdd(aMatchG,nR)
@@ -1836,8 +1939,8 @@ static function VL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     for nCol:=1 to nButtons
         aMatchV[nCol]:=nCol
-        nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==nCol},nD,nJ)
-        nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+        nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nCol},nD,nJ)
+        nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
         lMatch:=(nCol==nBtnIDX)
         if (lMatch)
             aMatchG[nCol]:=nCol
@@ -1872,8 +1975,8 @@ static function VR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     for nCol:=1 to nButtons
         aMatchV[nCol]:=((nButtons-nCol)+1)
-        nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==aMatchV[nCol]},nD,nJ)
-        nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+        nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nCol]},nD,nJ)
+        nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
         lMatch:=(nCol==nBtnIDX)
         if (lMatch)
             aMatchG[nCol]:=aMatchV[nCol]
@@ -1909,8 +2012,8 @@ static function VL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
     for nCol:=nSQRTBtn to nButtons step nSQRTBtn
         for nRow:=nCol to 1 step -(1)
             aMatchV[++nIndex]:=nRow
-            nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
-            nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
+            nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=(nIndex==nBtnIDX)
             if (lMatch)
                 aMatchG[nIndex]:=aMatchV[nIndex]
@@ -1950,8 +2053,8 @@ static function VR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
     for nCol:=nButtons to 1 step -(nSQRTBtn)
         for nRow:=((nCol-nSQRTBtn)+1) to nButtons
             aMatchV[++nIndex]:=nRow
-            nAT:=aScan(aShapes,{|aShape|aShape[SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
-            nBtnIDX:=aShapes[nAT][SHAPE_BTNINDEX]
+            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
+            nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=(nIndex==nBtnIDX)
             if (lMatch)
                 aMatchG[nIndex]:=aMatchV[nIndex]
@@ -2009,8 +2112,8 @@ static procedure SaveGame(aShapes as array,cG15File as character)
         endif
         cG15File+=cExt
 
-        nD:=aScan(aShapes,{|aShape|(aShape[SHAPE_BTNNUMBER]>0)})
-        nJ:=(aScan(aShapes,{|aShape|(aShape[SHAPE_BTNNUMBER]==0)},nD+1)-nD)
+        nD:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]>0)})
+        nJ:=(aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
 
         aEval(aShapes,{|aShape|aAdd(aSaveG,aClone(aShape))},nD,nJ)
 
@@ -2053,8 +2156,8 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
             break
         endif
 
-        nD:=aScan(aShapes,{|aShape|(aShape[SHAPE_BTNNUMBER]>0)})
-        nJ:=(aScan(aShapes,{|aShape|(aShape[SHAPE_BTNNUMBER]==0)},nD+1)-nD)
+        nD:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]>0)})
+        nJ:=(aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
 
         if (Len(aRestG)!=nJ)
             lRestoreGame:=.F.
@@ -2067,35 +2170,35 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
                 lRestoreGame:=.F.
                 break
             endif
-            if (Len(aRestG[nBTn])!=SHAPE_ELEM)
+            if (Len(aRestG[nBTn])!=G15_SHAPE_ALEN)
                 lRestoreGame:=.F.
                 break
             endif
-            nAT:=aScan(aShapes,{|aShape|(aShape[SHAPE_TOOLTIP]==aRestG[nBTn][SHAPE_TOOLTIP])},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_TOOLTIP]==aRestG[nBTn][G15_SHAPE_TOOLTIP])},nD,nJ)
             if (nAT==0)
                 lRestoreGame:=.F.
                 break
             endif
-            if (ValType(aShapes[nAT][SHAPE_TOP])!=ValType(aRestG[nBTn][SHAPE_TOP]))
+            if (ValType(aShapes[nAT][G15_SHAPE_TOP])!=ValType(aRestG[nBTn][G15_SHAPE_TOP]))
                 lRestoreGame:=.F.
                 break
             endif
-            if (ValType(aShapes[nAT][SHAPE_LEFT])!=ValType(aRestG[nBTn][SHAPE_LEFT]))
+            if (ValType(aShapes[nAT][G15_SHAPE_LEFT])!=ValType(aRestG[nBTn][G15_SHAPE_LEFT]))
                 lRestoreGame:=.F.
                 break
             endif
-            if (ValType(aShapes[nAT][SHAPE_BTNINDEX])!=ValType(aRestG[nBTn][SHAPE_BTNINDEX]))
+            if (ValType(aShapes[nAT][G15_SHAPE_BTNINDEX])!=ValType(aRestG[nBTn][G15_SHAPE_BTNINDEX]))
                 lRestoreGame:=.F.
                 break
             endif
         next nBTn
 
         for nBTn:=1 to nBTns
-            nAT:=aScan(aShapes,{|aShape|(aShape[SHAPE_TOOLTIP]==aRestG[nBTn][SHAPE_TOOLTIP])},nD,nJ)
-            aShapes[nAT][SHAPE_TOP]:=aRestG[nBTn][SHAPE_TOP]
-            aShapes[nAT][SHAPE_LEFT]:=aRestG[nBTn][SHAPE_LEFT]
-            aShapes[nAT][SHAPE_BTNINDEX]:=aRestG[nBTn][SHAPE_BTNINDEX]
-            Eval(bUpdateView,aShapes[nAT][SHAPE_ID],aShapes[nAT][SHAPE_LEFT],aShapes[nAT][SHAPE_TOP])
+            nAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_TOOLTIP]==aRestG[nBTn][G15_SHAPE_TOOLTIP])},nD,nJ)
+            aShapes[nAT][G15_SHAPE_TOP]:=aRestG[nBTn][G15_SHAPE_TOP]
+            aShapes[nAT][G15_SHAPE_LEFT]:=aRestG[nBTn][G15_SHAPE_LEFT]
+            aShapes[nAT][G15_SHAPE_BTNINDEX]:=aRestG[nBTn][G15_SHAPE_BTNINDEX]
+            Eval(bUpdateView,aShapes[nAT][G15_SHAPE_ID],aShapes[nAT][G15_SHAPE_LEFT],aShapes[nAT][G15_SHAPE_TOP])
         next nBTn
 
         lRestoreGame:=.T.

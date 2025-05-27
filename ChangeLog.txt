@@ -3,6 +3,13 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-27 10:03 UTC naldodj (New Features)
+  *  game15
+    * includes/game15.th
+    * src/game15/mvc/game15.controller.tlpp
+    * src/game15/mvc/game15.model.tlpp
+    * src/game15/mvc/game15.view.tlpp
+
 2025-05-26 20:47 UTC naldodj (Fix Randomize values)
   * src/sudoku/mvc/sudoku.model.tlpp
 

@@ -216,6 +216,7 @@ return
 method ShowTopTable() class Game15View
 
     local aTWBrowseItems as array
+    local aTWBrowseHeaders as array
 
     local bInit as codeblock
     local bValid as codeblock
@@ -241,7 +242,9 @@ method ShowTopTable() class Game15View
         oTRect:=TRect():New(0,0,365,305)
 
         aTWBrowseItems:=Array(0)
-        oController:BuildLBoxArray(@aTWBrowseItems)
+        oController:BuildTWBrowseArrayItems(@aTWBrowseItems)
+        aTWBrowseHeaders:=Array(0)
+        oController:BuildTWBrowseArrayHeaders(@aTWBrowseHeaders)
 
         cIcon:=oController:GetGame15Data("Game15_Files_ico","ico")
         DEFINE MSDIALOG oDlg TITLE OemToAnsi("TOP Results") FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF oView:oDlg ICON cIcon PIXEL STYLE WS_POPUP
@@ -255,7 +258,8 @@ method ShowTopTable() class Game15View
             oTPaintPanel:=TPaintPanel():New(jCoordinates["nTop"],jCoordinates["nLeft"],jCoordinates["nWidth"],jCoordinates["nHeight"],oDlg,.F.)
             oTPaintPanel:Align:=CONTROL_ALIGN_ALLCLIENT
 
-            @ oTRect:nTop+20,oTRect:nLeft+5 LISTBOX oTWBrowse FIELDS HEADER "Time","Result","Name" SIZE oTRect:nRight/2.05,oTRect:nBottom/2.35 OF oTPaintPanel PIXEL COLSIZES 15,25,50
+            @ oTRect:nTop+20,oTRect:nLeft+5 LISTBOX oTWBrowse FIELDS SIZE oTRect:nRight/2.05,oTRect:nBottom/2.35 OF oTPaintPanel PIXEL
+            oTWBrowse:aHeaders:=aTWBrowseHeaders
             oTWBrowse:SetArray(aTWBrowseItems)
             oController:ViewSetTWBrowseItemsLine(@oTWBrowse,@aTWBrowseItems)
 
@@ -271,8 +275,9 @@ method ShowTopTable() class Game15View
         ACTIVATE DIALOG oDlg CENTERED ON INIT Eval(bInit) VALID Eval(bValid)
 
         MsObjects():FreeObjects(@aTWBrowseItems)
+        MsObjects():FreeObjects(@aTWBrowseHeaders)
 
-        MsObjects():FreeObjects(oTWBrowse)
+        MsObjects():FreeObjects(@oTWBrowse)
         MsObjects():FreeObjects(@oTPaintPanel)
         MsObjects():FreeObjects(@oDlg)
         DelClassIntf()
@@ -341,8 +346,8 @@ static procedure LoadGame(x as numeric,y as numeric,oController as object,oTPain
 
     nShapes:=oController:ShapeGetSize(cShape)
     for nShape:=1 to nShapes
-        nID:=oController:ShapeGetATValue(cShape,nShape,SHAPE_ID)
-        cProperties:=oController:ShapeGetATValue(cShape,nShape,SHAPE_PROPERTIES)
+        nID:=oController:ShapeGetATValue(cShape,nShape,G15_SHAPE_ID)
+        cProperties:=oController:ShapeGetATValue(cShape,nShape,G15_SHAPE_PROPERTIES)
         oTPaintPanel:AddShape(cProperties)
         oTPaintPanel:SetCanMove(nID,lCanMove)
         oTPaintPanel:SetCanDeform(nID,lCanDeform)
@@ -370,6 +375,9 @@ static function lClickGame15(x as numeric,y as numeric,oView as object,oControll
 
     local nShape as numeric
     local nShapeAT as numeric
+
+    local nClicks as numeric
+
     local nATNoPlayButton as numeric
 
     SYMBOL_UNUSED(x)
@@ -387,21 +395,21 @@ static function lClickGame15(x as numeric,y as numeric,oView as object,oControll
             break
         endif
 
-        bShapeAction:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_ACTION)
+        bShapeAction:=oController:ShapeGetATValue(cShape,nShapeAT,G15_SHAPE_ACTION)
         lAction:=(ValType(bShapeAction)=="B")
 
         if (!lAction)
             break
         endif
 
-        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_TOOLTIP)
+        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,G15_SHAPE_TOOLTIP)
         nATNoPlayButton:=aScan(oView:aNotPlayButtonsActions,{|e as array|e[1]==cShapeToolTip})
         if (nATNoPlayButton>0)
             Eval(oView:aNotPlayButtonsActions[nATNoPlayButton][2])
             break
         endif
 
-        cShapeProperties:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_PROPERTIES)
+        cShapeProperties:=oController:ShapeGetATValue(cShape,nShapeAT,G15_SHAPE_PROPERTIES)
         lICanMove:=oController:ViewCanMoveButton(cShapeToolTip,cShapeProperties)
         if (!lICanMove)
             break
@@ -421,6 +429,8 @@ static function lClickGame15(x as numeric,y as numeric,oView as object,oControll
                ,Tone(3000,1);
         }
         oController:SetGame15Data("Game15_Shapes","bUpdateView",bUpdateView)
+        nClicks:=oController:GetGame15Data("Game15_Clicks","nClicks",0)
+        oController:SetGame15Data("Game15_Clicks","nClicks",++nClicks)
 
         Eval(bShapeAction,{||if(oController:SwapButtons(),oView:SaveTopTable(),nil)})
 
@@ -468,9 +478,9 @@ static function lClickTopTable(x as numeric,y as numeric,oView as object,oTPaint
         aTopTableAction:=Array(0)
         aAdd(aTopTableAction,{"Close",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
         aAdd(aTopTableAction,{"OK",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
-        aAdd(aTopTableAction,{"Clear Top Table",{||oView:ClearTopTable(),oController:BuildLBoxArray(@aTWBrowseItems),oTWBrowse:Refresh()}})
+        aAdd(aTopTableAction,{"Clear Top Table",{||oView:ClearTopTable(),oController:BuildTWBrowseArrayItems(@aTWBrowseItems),oTWBrowse:Refresh()}})
 
-        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_TOOLTIP)
+        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,G15_SHAPE_TOOLTIP)
         nATTopTableAction:=aScan(aTopTableAction,{|e as array|e[1]==cShapeToolTip})
         if (nATTopTableAction>0)
             Eval(aTopTableAction[nATTopTableAction][2])
@@ -498,8 +508,8 @@ static procedure LoadTopTable(oTPaintPanel as object,oController as object)
 
     nShapes:=oController:ShapeGetSize(cShape)
     for nShape:=1 to nShapes
-        nID:=oController:ShapeGetATValue(cShape,nShape,SHAPE_ID)
-        cProperties:=oController:ShapeGetATValue(cShape,nShape,SHAPE_PROPERTIES)
+        nID:=oController:ShapeGetATValue(cShape,nShape,G15_SHAPE_ID)
+        cProperties:=oController:ShapeGetATValue(cShape,nShape,G15_SHAPE_PROPERTIES)
         oTPaintPanel:AddShape(cProperties)
         oTPaintPanel:SetCanMove(nID,lCanMove)
         oTPaintPanel:SetCanDeform(nID,lCanDeform)
@@ -580,8 +590,8 @@ static procedure LoadMsgAbout(oTPaintPanel as object,oController as object)
 
     nShapes:=oController:ShapeGetSize(cShape)
     for nShape:=1 to nShapes
-        nID:=oController:ShapeGetATValue(cShape,nShape,SHAPE_ID)
-        cProperties:=oController:ShapeGetATValue(cShape,nShape,SHAPE_PROPERTIES)
+        nID:=oController:ShapeGetATValue(cShape,nShape,G15_SHAPE_ID)
+        cProperties:=oController:ShapeGetATValue(cShape,nShape,G15_SHAPE_PROPERTIES)
         oTPaintPanel:AddShape(cProperties)
         oTPaintPanel:SetCanMove(nID,lCanMove)
         oTPaintPanel:SetCanDeform(nID,lCanDeform)
@@ -628,7 +638,7 @@ static function lClickMsgAbout(x as numeric,y as numeric,oTPaintPanel as object,
         aAdd(aMsgAboutAction,{PadC(GAME15_URL_COPYRIGHT,40),{||ShellExecute("open",GAME15_URL_COPYRIGHT,"","",1)}})
         aAdd(aMsgAboutAction,{"OK",{||oTPaintPanel:ClearAll(),oTPaintPanel:oWnd:End()}})
 
-        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SHAPE_TOOLTIP)
+        cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,G15_SHAPE_TOOLTIP)
         nATMsgAboutAction:=aScan(aMsgAboutAction,{|e as array|e[1]==cShapeToolTip})
         if (nATMsgAboutAction>0)
             Eval(aMsgAboutAction[nATMsgAboutAction][2])

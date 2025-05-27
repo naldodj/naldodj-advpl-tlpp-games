@@ -51,7 +51,8 @@ class Game15Controller
     public method Time2NextDay(cTime as character,dDate as date) as array
 
     //View Interface
-    public method BuildLBoxArray(aTWBrowseItems as array) as logical
+    public method BuildTWBrowseArrayItems(/*@*/aTWBrowseItems as array) as logical
+    public method BuildTWBrowseArrayHeaders(/*@*/aTWBrowseItems as array) as logical
     public method GetPlayerNameSize() as numeric
     public method SetGame15Data(cSection as character,cKey as character,xValue as variant) as logical
     public method GetGame15Data(cSection as character,cKey as character,xDefault as variant) as variant
@@ -208,16 +209,29 @@ method Time2NextDay(cTime,dDate) class Game15Controller
 return(aTime2NextDay)
 
 //View Interface
-method BuildLBoxArray(aTWBrowseItems) class Game15Controller
+method BuildTWBrowseArrayItems(/*@*/aTWBrowseItems) class Game15Controller
     local cG15Alias as character
-    local lBuildLBoxArray as logical
-    paramtype 1 var aTWBrowseItems as array
-    lBuildLBoxArray:=self:IsActive()
-    if (lBuildLBoxArray)
+    local lBuildTWBrowseArrayItems as logical
+    lBuildTWBrowseArrayItems:=self:IsActive()
+    if (lBuildTWBrowseArrayItems)
+        paramtype 1 var aTWBrowseItems as array
         cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
-        lBuildLBoxArray:=BuildLBoxArray(@cG15Alias,@aTWBrowseItems)
+        lBuildTWBrowseArrayItems:=BuildTWBrowseArrayItems(@cG15Alias,@aTWBrowseItems)
     endif
-return(lBuildLBoxArray)
+return(lBuildTWBrowseArrayItems)
+
+method BuildTWBrowseArrayHeaders(/*@*/aTWBrowseHeaders) class Game15Controller
+    local aG15Columns as array
+    local lBuildTWBrowseArrayHeaders as logical
+    lBuildTWBrowseArrayHeaders:=self:IsActive()
+    if (lBuildTWBrowseArrayHeaders)
+        paramtype 1 var aTWBrowseHeaders as array
+        aG15Columns:=self:jGame15Data["Game15_Table"]["G15_Columns"]
+        aSort(aG15Columns,nil,nil,{|x,y|x[G15_DBS_POS]<y[G15_DBS_POS]})
+        aSize(aTWBrowseHeaders,0)
+        aEval(aG15Columns,{|f as array,n as numeric|aAdd(aTWBrowseHeaders,f[G15_DBS_TITLE])})
+    endif
+return(lBuildTWBrowseArrayHeaders)
 
 method GetPlayerNameSize() class Game15Controller
     local cG15Alias as character
@@ -295,9 +309,9 @@ method ShapeGetIDAT(cSection,nShape) class Game15Controller
     lShapeGetIDAT:=self:IsActive()
     if (lShapeGetIDAT)
         aShapes:=self:jGame15Data[cSection]["aShapes"]
-        nShapeAT:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)},nShape)
+        nShapeAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_ID]==nShape)},nShape)
         if (nShapeAT==0)
-            nShapeAT:=aScan(aShapes,{|aShape|(aShape[SHAPE_ID]==nShape)})
+            nShapeAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_ID]==nShape)})
         endif
     endif
 
@@ -358,18 +372,22 @@ method ViewSetTWBrowseItemsLine(oTWBrowse,aTWBrowseItems) class Game15Controller
 
     if (lViewSetTWBrowseItemsLine)
         cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
-        oTWBrowse:bLine:={||(cG15Alias)->(MsGoto(aTWBrowseItems[oTWBrowse:nAT][AT_R_E_C_N_O_])),;
+        oTWBrowse:bLine:={||(cG15Alias)->(MsGoto(aTWBrowseItems[oTWBrowse:nAT][G15_AT_R_E_C_N_O_])),;
                                 {;
-                                    aTWBrowseItems[oTWBrowse:nAT][AT_G15_TIME],;
-                                    aTWBrowseItems[oTWBrowse:nAT][AT_G15_RESULT],;
-                                    aTWBrowseItems[oTWBrowse:nAT][AT_G15_NAME];
+                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_TIME],;
+                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_DPTIME],;
+                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_NPLAYS],;
+                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_CLICKS],;
+                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_TCLICK],;
+                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_NAME],;
+                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_R_E_C_N_O_];
                         };
                     }
     endif
 
 return
 
-static procedure BuildLBoxArray(cG15Alias as character,aTWBrowseItems as array)
+static procedure BuildTWBrowseArrayItems(cG15Alias as character,aTWBrowseItems as array)
 
     local cNickName:=(cG15Alias)->(IndexKey()) as character
 
@@ -386,12 +404,15 @@ static procedure BuildLBoxArray(cG15Alias as character,aTWBrowseItems as array)
     While (cG15Alias)->((!Eof()))
 
         nTWBrowseItems++
-        aAdd(aTWBrowseItems,Array(AT_FIELDS))
+        aAdd(aTWBrowseItems,Array(G15_AT_ALEN))
 
-        aTWBrowseItems[nTWBrowseItems][AT_G15_TIME ]:=(cG15Alias)->G15_TIME
-        aTWBrowseItems[nTWBrowseItems][AT_G15_RESULT]:=(cG15Alias)->G15_RESULT
-        aTWBrowseItems[nTWBrowseItems][AT_G15_NAME ]:=(cG15Alias)->G15_NAME
-        aTWBrowseItems[nTWBrowseItems][AT_R_E_C_N_O_]:=(cG15Alias)->(Recno())
+        aTWBrowseItems[nTWBrowseItems][G15_AT_TIME]:=(cG15Alias)->G15_TIME
+        aTWBrowseItems[nTWBrowseItems][G15_AT_DPTIME]:=(cG15Alias)->G15_DPTIME
+        aTWBrowseItems[nTWBrowseItems][G15_AT_NPLAYS]:=(cG15Alias)->G15_NPLAYS
+        aTWBrowseItems[nTWBrowseItems][G15_AT_CLICKS]:=(cG15Alias)->G15_CLICKS
+        aTWBrowseItems[nTWBrowseItems][G15_AT_TCLICK]:=(cG15Alias)->G15_TCLICK
+        aTWBrowseItems[nTWBrowseItems][G15_AT_NAME]:=(cG15Alias)->G15_NAME
+        aTWBrowseItems[nTWBrowseItems][G15_AT_R_E_C_N_O_]:=(cG15Alias)->(Recno())
 
         (cG15Alias)->(dbSkip())
 
@@ -402,11 +423,14 @@ static procedure BuildLBoxArray(cG15Alias as character,aTWBrowseItems as array)
     if (!lBuildOk)
 
         nTWBrowseItems++
-        aAdd(aTWBrowseItems,Array(AT_FIELDS))
-        aTWBrowseItems[nTWBrowseItems][AT_G15_TIME ]:=Space(Len((cG15Alias)->G15_TIME))
-        aTWBrowseItems[nTWBrowseItems][AT_G15_RESULT]:=Space(10)
-        aTWBrowseItems[nTWBrowseItems][AT_G15_NAME ]:=Space(Len((cG15Alias)->G15_NAME))
-        aTWBrowseItems[nTWBrowseItems][AT_R_E_C_N_O_]:=0
+        aAdd(aTWBrowseItems,Array(G15_AT_ALEN))
+        aTWBrowseItems[nTWBrowseItems][G15_AT_TIME ]:="00:00:00"
+        aTWBrowseItems[nTWBrowseItems][G15_AT_DPTIME ]:="00:00:00"
+        aTWBrowseItems[nTWBrowseItems][G15_AT_NPLAYS]:=0
+        aTWBrowseItems[nTWBrowseItems][G15_AT_CLICKS]:=0
+        aTWBrowseItems[nTWBrowseItems][G15_AT_TCLICK]:=0
+        aTWBrowseItems[nTWBrowseItems][G15_AT_NAME ]:="NONAME"
+        aTWBrowseItems[nTWBrowseItems][G15_AT_R_E_C_N_O_]:=0
 
     endif
 
