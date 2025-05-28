@@ -3,6 +3,25 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-28 20:05 UTC naldodj (MCP)
+  + mcp
+    + hb/mcp/compile.sh
+    + hb/mcp/go64.bat
+    + hb/mcp/hb_out.log
+    + hb/mcp/hb_totvs_mcp.hbp
+    + hb/mcp/hb_totvs_mcp.prg
+    + hb/mcp/msvc64/hb_totvs_mcp.exe
+    + hb/mcp/msvc64/libcrypto-3-x64.dll
+    + hb/mcp/msvc64/libcurl-x64.dll
+    + hb/mcp/msvc64/libmysql64.dll
+    + hb/mcp/msvc64/libssl-3-x64.dll
+    + src/sudoku/mcp/sudoku.mcp.tlpp
+    + hb/mcp/opensudoku.py
+    * src/sudoku/sudoku.tlpp
+  * .gitignore
+  * includes/game15.th
+  * includes/sudoku.th
+
 2025-05-27 10:03 UTC naldodj (New Features)
   *  game15
     * includes/game15.th

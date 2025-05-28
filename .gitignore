@@ -3,3 +3,4 @@ _commit.txt
 /src/tst/json-data
 /src/tst/json-schema
 /.vscode
+hb/mcp/hb_totvs_mcp.env

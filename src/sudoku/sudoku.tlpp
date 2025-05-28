@@ -20,6 +20,7 @@
 
 namespace sudoku
 using namespace sudoku
+using namespace dna.tech
 using namespace naldodj.games
 
 function u_SudokuRun()
@@ -48,6 +49,22 @@ procedure u_SudokuRunTests(nTests as numeric,lHTMLTable as logical,lThemeIsDark 
         endif
     next nTest
 
+return
+
+procedure u_SudokuMCPRunServer()
+    local lTMCPServer as logical
+    local oTMCPServer as object
+    lTMCPServer:=FindClass("DNA.TECH.TMCPServer")
+    if (lTMCPServer)
+        oTMCPServer:=TMCPServer():New("SudokuMCPServer")
+        oTMCPServer:SetMemberData("cFileMsgIN","c:\tmp\hb.totvs.mcp.msg.json")
+        oTMCPServer:SetMemberData("cFileMsgOUT","c:\tmp\totvs.hb.mcp.msg.json")
+        oTMCPServer:SetMemberData("cFileMCPServerStop","sudokumcpserver.stop")
+        oTMCPServer:AddTool("open_sudoku","Opens the Sudoku game in the browser.",{|jParam|MCPExecute(jParam,"SUDOKU.U_SUDOKURUN")})
+        oTMCPServer:AddTool("open_sudoku_test","Runs a Sudoku test and opens the result in the browser.",{|jParam|MCPExecute(jParam,"SUDOKU.U_SUDOKURUNTESTS")})
+        oTMCPServer:Run()
+        MsObjects():FreeObjects(oTMCPServer)
+    endif
 return
 
 class Sudoku
@@ -115,3 +132,8 @@ static method RunTest(lHTMLTable,lThemeIsDark) class Sudoku
     MsObjects():FreeObjects(@oController)
 
 return(cSudokuBoard)
+
+static function MCPExecute(jParam,cFunction) as numeric
+    local nRet as numeric
+    nRet:=WinExec("C:\totvs\protheus1212410\web.agent.sudoku.mcp.client.bat "+cFunction)
+return(nRet)

@@ -1,0 +1,6 @@
+Application Internal Error - C:\GitHub\naldodj-advpl-tlpp-games\hb\mcp\msvc64\hb_totvs_mcp.exe
+Terminated at: 2025-05-28 18:33:23
+Unrecoverable error 9001: Error recovery failure
+Called from PROCESSMESSAGE(142) in hb_totvs_mcp.prg
+Called from MAIN(113) in hb_totvs_mcp.prg
+------------------------------------------------------------------------

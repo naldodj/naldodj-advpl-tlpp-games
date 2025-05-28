@@ -9,6 +9,8 @@
 
     #define SUDOKU_TITLE "NaldoDJ Games :: Sudoku"
 
-    #include "game.tool.th"
+    #ifndef __GAME_TOOL_TH__
+        #include "game.tool.th"
+    #endif
 
 #endif
