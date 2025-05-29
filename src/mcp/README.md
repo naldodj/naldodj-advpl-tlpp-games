@@ -2,6 +2,8 @@
 
 Você sabia que é possível executar um servidor MCP (Multi-Code Processor) dentro do ecossistema TOTVS Protheus, utilizando recursos herdados diretamente do Harbour?
 
+![ChatGPT Image 29 de mai  de 2025, 09_44_47](https://github.com/user-attachments/assets/62e5eac2-132a-4047-a4d0-a24b7ceac390)
+
 Acabo de publicar um experimento prático que demonstra isso com a execução do jogo Sudoku, onde o servidor MCP é escrito em Harbour, recebe comandos via stdin, envia para o servidor MCP no Protheus TL++. Pode testá-los utilizando scripts em Python.
 
 🔍 O que este exemplo mostra:
@@ -44,7 +46,7 @@ https://github.com/user-attachments/assets/59807843-6f36-4a5f-b2fa-2720a050de16
 ---
 
 ## Executando as Ferramentas
-https://github.com/user-attachments/assets/2424b532-5146-44c4-9024-4d6dab59b45a
+https://github.com/user-attachments/assets/b5da5d5c-01a9-44b0-8b26-d389e8af3f4e
 
 ---
 
