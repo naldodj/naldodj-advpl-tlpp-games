@@ -1,9 +1,5 @@
 🧠 MCP no Protheus com base no Harbour: integração prática com Python e TL++ 🎮
 
-https://github.com/user-attachments/assets/2424b532-5146-44c4-9024-4d6dab59b45a
-
----
-
 Você sabia que é possível executar um servidor MCP (Multi-Code Processor) dentro do ecossistema TOTVS Protheus, utilizando recursos herdados diretamente do Harbour?
 
 Acabo de publicar um experimento prático que demonstra isso com a execução do jogo Sudoku, onde o servidor MCP é escrito em Harbour, recebe comandos via stdin, interpreta código TL++ e aciona recursos externos como o navegador através de scripts Python.
@@ -29,6 +25,15 @@ Esse modelo pode ser expandido para chamadas seguras, autenticação, controle d
 
 🔗 Acesse o repositório completo:
 github.com/naldodj/naldodj-advpl-tlpp-games
+
+
+## Listando as Ferramentas
+https://github.com/user-attachments/assets/12ba70ab-a939-4c82-85de-44a44df110f2
+
+---
+
+## Executando as Ferramentas
+https://github.com/user-attachments/assets/2424b532-5146-44c4-9024-4d6dab59b45a
 
 ---
 
