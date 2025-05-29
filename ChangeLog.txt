@@ -3,6 +3,16 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-29 09:03 UTC naldodj (sudoku.mcp.tlpp -> dna.games.mcp.tlpp)
+  + hb/mcp/msvc64/hb_totvs_mcp.env
+  * hb/mcp/hb_totvs_mcp.prg
+  * hb/mcp/msvc64/hb_totvs_mcp.exe
+  * hb/mcp/sudoku.list.tools.json -> py/dna.tech.games.list.tools.json
+  * hb/mcp/sudoku.list.tools.py -> py/dna.tech.games.list.tools.py
+  * hb/mcp/sudoku.open.tool.py -> py/dna.tech.games.call.tool.py
+  * src/sudoku/mcp/README.md -> src/mcp/README.md
+  * src/sudoku/mcp/sudoku.mcp.tlpp -> src/mcp/dna.games.mcp.tlpp
+
 2025-05-28 23:32 UTC naldodj (Fix Randomize values)
   * src/sudoku/mvc/sudoku.model.tlpp
 

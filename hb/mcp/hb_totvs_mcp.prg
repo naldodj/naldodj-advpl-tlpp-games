@@ -6,7 +6,7 @@
 | | | || |_) | _ | |_ | (_) || |_  \ V / \__ \ _ | | | | | || (__ | |_) |
 |_| |_||_.__/ (_) \__| \___/  \__|  \_/  |___/(_)|_| |_| |_| \___|| .__/
                                                                   |_|
-vscode MCP support
+stdio MCP support
 
 Ref.: FiveTech Software tech support forums
 Post by Antonio Linares => Sun Apr 20, 2025 1:54 pm
@@ -27,13 +27,10 @@ Released to Public Domain.
 #pragma -km+
 #pragma -ko+
 
-
 #include "hblog.ch"
 #include "inkey.ch"
 #include "fileio.ch"
 #include "hbinkey.ch"
-
-#define __LOGFILE__ (hb_ProgName()+".log")
 
 #define SW_HIDE             0
 #define SW_SHOWNORMAL       1
@@ -50,13 +47,26 @@ Released to Public Domain.
 
 static s__cLogFileName as character
 
+REQUEST hb_DirBuild
+REQUEST hb_DirExists
+REQUEST hb_DirCreate
+REQUEST hb_DirSepAdd
+REQUEST hb_DirSepToOS
+REQUEST hb_FNameName
+REQUEST hb_FNameNameExt
+
 procedure Main()
 
     local cInput as character
     local cCurDir as character
     local cResponse as character
-    local cExeFileName as character
     local cIniFileName as character
+    local cExeFileName as character
+
+    local cMCPIODir as character
+    local cFileMsgIN as char
+    local cFileMsgOUT as character
+    local cFileServerStop as character
 
     local hIni as hash
 
@@ -73,13 +83,16 @@ procedure Main()
     ErrorBlock({|oError|LogFile("error",hb_JSONEncode(hb_DumpVar(oError,.T.,nil)),HB_LOG_ERROR)})
 
     cExeFileName:=hb_ProgName()
-    cIniFileName:="..\"+hb_FNameName(cExeFileName)+".env"
+    cIniFileName:=hb_FNameName(cExeFileName)+".env"
+    if (hb_FileExists("..\"+cIniFileName))
+        cIniFileName:="..\"+cIniFileName
+    endif
 
     cCurDir:=StrTran(StrTran(cExeFileName,hb_FNameName(cExeFileName),""),hb_FNameExt(cExeFileName),"")
 
     hIni:=hb_iniRead((cCurDir+cIniFileName),.F.,nil,.F.)
 
-    s__cLogFileName:=hIni["HBTOTVSMCP"]["HBTOTVSMCP_LOGFILE"]
+    s__cLogFileName:=hIni["HB_TOTVS_MCP"]["LOGFILE"]
 
     nStyle:=(HB_LOG_ST_DATE+HB_LOG_ST_ISODATE+HB_LOG_ST_TIME+HB_LOG_ST_LEVEL)
     nFileSize:=1
@@ -92,25 +105,37 @@ procedure Main()
     INIT LOG ON FILE (nSeverity,s__cLogFileName,nFileSize,nFileCount)
     SET LOG STYLE (nStyle)
 
-    nAttempts:=Val(hIni["HBTOTVSMCP"]["HBTOTVSMCP_WAIT_FOR_AGENTS_TIMES"])
-    nAttemptIdle:=Val(hIni["HBTOTVSMCP"]["HBTOTVSMCP_WAIT_FOR_AGENTS_IDLE"])
+    nAttempts:=Val(hIni["HB_TOTVS_MCP"]["WAIT_FOR_AGENTS_TIMES"])
+    nAttemptIdle:=Val(hIni["HB_TOTVS_MCP"]["WAIT_FOR_AGENTS_IDLE"])
+
+    cMCPIODir:=hb_DirSepAdd(hb_DirSepToOS(hIni["HB_TOTVS_MCP"]["MCP_IO_DIR"]))
+
+    if (!hb_DirExists(cMCPIODir))
+        hb_DirBuild(cMCPIODir)
+    endif
+
+    cFileMsgIN:=hb_PathJoin(cMCPIODir,hb_FNameNameExt(hIni["HB_TOTVS_MCP"]["FILEMSGIN"]))
+    cFileMsgOUT:=hb_PathJoin(cMCPIODir,hb_FNameNameExt(hIni["HB_TOTVS_MCP"]["FILEMSGOUT"]))
+    cFileServerStop:=hb_PathJoin(cMCPIODir,hb_FNameNameExt(hIni["HB_TOTVS_MCP"]["FILESERVERSTOP"]))
 
     while (.T.)
 
-        if (hb_FileExists(cExeFileName+".stop"))
-            fErase(cExeFileName+".stop")
+        if (hb_FileExists(cFileServerStop))
+            fErase(cFileServerStop)
             exit
         endif
 
-        // Process the message
+        // Read input from standard input (stdin)
+        // This is where the MCP server reads messages from stdin
         cInput:=StdIN()
         LogFile("StdIN",cInput)
         if (Empty(cInput))
            exit // Exit if no input (EOF)
         endif
 
-        // Process the message
-        cResponse:=ProcessMessage(cInput,nAttempts,nAttemptIdle)
+        // Process the input message
+        // This function handles the JSON-RPC message processing
+        cResponse:=ProcessMessage(cInput,cFileMsgIN,cFileMsgOUT,cFileServerStop,nAttempts,nAttemptIdle)
         if (!Empty(cResponse))
             LogFile("StdOUT",cResponse)
             StdOUT(cResponse)
@@ -125,7 +150,7 @@ procedure Main()
     return
 
 // Function to process JSON-RPC messages
-static function ProcessMessage(cInput as character,nAttempts as numeric,nAttemptIdle as numeric)
+static function ProcessMessage(cInput as character,cFileMsgIN as character,cFileMsgOUT as character,cFileServerStop as character,nAttempts as numeric,nAttemptIdle as numeric)
 
     local cMethod as character
     local cMessage as character
@@ -147,26 +172,29 @@ static function ProcessMessage(cInput as character,nAttempts as numeric,nAttempt
         nId:=hJSON["id"]
     endif
 
-    hb_MemoWrit("c:\tmp\hb.totvs.mcp.msg.json",cInput)
+    hb_MemoWrit(cFileMsgOUT,cInput)
 
     hb_IdleSleep(nAttemptIdle)
 
     nAttempt:=0
-    while (!hb_FileExists("c:\tmp\totvs.hb.mcp.msg.json"))
+    while (!hb_FileExists(cFileMsgIN))
         LogFile(cMethod,"Waiting for totvs to respond to `"+cMethod+"` request. Attempt: ["+hb_NToC(nAttempt)+"/"+hb_NToC(nAttempts)+"]")
         if (++nAttempt>=nAttempts)
             exit
         endif
         hb_IdleSleep(nAttemptIdle)
+        if (hb_FileExists(cFileServerStop))
+            exit
+        endif
     end while
 
-    if (hb_FileExists("c:\tmp\totvs.hb.mcp.msg.json"))
-        cMessage:=hb_MemoRead("c:\tmp\totvs.hb.mcp.msg.json")
+    if (hb_FileExists(cFileMsgIN))
+        cMessage:=hb_MemoRead(cFileMsgIN)
         LogFile(cMethod,"totvs respond to `"+cMethod+"` request. Message: "+cMessage)
         if ((cMethod!="notifications/initialized").and.(!Empty(cMessage)))
             hb_JSONDecode(cMessage,@hResponse)
         endif
-        fErase("c:\tmp\totvs.hb.mcp.msg.json")
+        fErase(cFileMsgIN)
     else
         LogFile(cMethod,"Error for totvs to respond to `"+cMethod+"` request")
         hResponse:={=>}
@@ -190,7 +218,7 @@ static function ProcessMessage(cInput as character,nAttempts as numeric,nAttempt
 static procedure LogFile(cKey as character,cMessage as character,nSeverity as numeric)
     hb_default(@nSeverity,HB_LOG_DEBUG)
     LOG cKey+": "+cMessage PRIORITY nSeverity
-return
+    return
 
 #pragma BEGINDUMP
 

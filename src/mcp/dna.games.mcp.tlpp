@@ -9,28 +9,36 @@
 \__ \| |_| || (_| || (_) ||   < | |_| | _ | | | | | || (__ | |_) |
 |___/ \__,_| \__,_| \___/ |_|\_\ \__,_|(_)|_| |_| |_| \___|| .__/
                                                            |_|
-    funcao:u_SudokuMCPRunServer
+    funcao:u_DNAGamesMCPRunServer
     Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
     Data:28/05/2025
-    Uso:Exectuta o Jogo Sudoku via MCPServer
+    Uso:Exectuta os Jogos da colecao DNA.TECH.GAMES via MCPServer
 
     * Copyright 2012-3999 marinaldo.jesus <http://www.blacktdn.com.br>
 
 */
 
+namespace dna.games.mcp
+
 using namespace sudoku
+using namespace game15
+
 using namespace dna.tech
 using namespace naldodj.games
 
-procedure u_SudokuMCPRunServer()
+procedure u_DNAGamesMCPRunServer()
+    local cDirMCPIO as character
     local lTMCPServer as logical
     local oTMCPServer as object
     lTMCPServer:=FindClass("DNA.TECH.TMCPServer")
     if (lTMCPServer)
-        oTMCPServer:=TMCPServer():New("SudokuMCPServer")
-        oTMCPServer:SetMemberData("cFileMsgIN","c:\tmp\hb.totvs.mcp.msg.json")
-        oTMCPServer:SetMemberData("cFileMsgOUT","c:\tmp\totvs.hb.mcp.msg.json")
-        oTMCPServer:SetMemberData("cFileMCPServerStop","sudokumcpserver.stop")
+        cDirMCPIO:="c:\tmp\mcp_io\"
+        DirTools():MakeDir(cDirMCPIO)
+        oTMCPServer:=TMCPServer():New("DNAGamesMCPServer")
+        oTMCPServer:SetMemberData("cFileMsgIN",cDirMCPIO+"hb.totvs.mcp.msg.json")
+        oTMCPServer:SetMemberData("cFileMsgOUT",cDirMCPIO+"totvs.hb.mcp.msg.json")
+        oTMCPServer:SetMemberData("cFileMCPServerStop",cDirMCPIO+"dna.games.mcp.server.stop")
+        oTMCPServer:AddTool("open_game15","Opens the Game15 game in the browser.",{|jParam|MCPExecute(jParam,"GAME15.U_GAME15RUN")})
         oTMCPServer:AddTool("open_sudoku","Opens the Sudoku game in the browser.",{|jParam|MCPExecute(jParam,"SUDOKU.U_SUDOKURUN")})
         oTMCPServer:AddTool("open_sudoku_test","Runs a Sudoku test and opens the result in the browser.",{|jParam|MCPExecute(jParam,"SUDOKU.U_SUDOKURUNTESTS")})
         oTMCPServer:Run()
@@ -40,6 +48,7 @@ return
 
 static function MCPExecute(jParam as json,cFunction as character) as json
     local nRet as numeric
-    nRet:=WinExec("C:\totvs\protheus1212410\web.agent.sudoku.mcp.client.bat "+cFunction)
+    conout("Executing MCP function: "+cFunction+" with parameters: "+jParam:ToJSON())
+    nRet:=WinExec("C:\totvs\protheus1212410\web.agent.dna.games.mcp.bat "+cFunction)
     jParam["HasError"]:=(nRet!=0)
 return(jParam)
