@@ -31,6 +31,7 @@ procedure u_DNAGamesMCPRunServer()
     local cDirMCPIO as character
     local lTMCPServer as logical
     local oTMCPServer as object
+    //?????Quer o codigo completo? Apoie! ?? : [Torne-se um Sponsor](https://github.com/sponsors/naldodj)
     lTMCPServer:=FindClass("DNA.TECH.TMCPServer")
     if (lTMCPServer)
         cDirMCPIO:="c:\tmp\mcp_io\"
