@@ -4,7 +4,7 @@ Você sabia que é possível executar um servidor MCP (Multi-Code Processor) den
 
 ![ChatGPT Image 29 de mai  de 2025, 09_44_47](https://github.com/user-attachments/assets/62e5eac2-132a-4047-a4d0-a24b7ceac390)
 
-Acabo de publicar um experimento prático que demonstra isso com a execução do jogo Sudoku, onde o servidor MCP é escrito em Harbour, recebe comandos via stdin, envia para o servidor MCP no Protheus TL++. Pode testá-los utilizando scripts em Python.
+Acabo de publicar um experimento prático que demonstra isso com a execução dos jogos em TL++, onde um aplicativo Harbour recebe comandos via stdin, envia para o servidor MCP no Protheus TL++ que os executa. 
 
 🔍 O que este exemplo mostra:
 
