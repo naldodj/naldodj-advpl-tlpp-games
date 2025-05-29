@@ -5,3 +5,4 @@ _commit.txt
 /.vscode
 hb/mcp/hb_totvs_mcp.env
 /hb/mcp/hb_out.log
+py/hb_totvs_mcp.log

@@ -3,6 +3,10 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-29 10:08 UTC naldodj (Update files)
+  * .gitignore
+  * py/dna.tech.games.list.tools.json
+
 2025-05-29 09:28 UTC naldodj (sudoku.mcp.tlpp -> dna.games.mcp.tlpp)
   * src/mcp/dna.games.mcp.tlpp
 
