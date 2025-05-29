@@ -3,6 +3,10 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-28 23:25 UTC naldodj (Update .gitignore)
+  * .gitignore
+    - hb/mcp/hb_out.log
+
 2025-05-28 22:30 UTC naldodj (MCP)
   * mcp
     + hb/mcp/sudoku.list.tools.json

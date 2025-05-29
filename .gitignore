@@ -4,3 +4,4 @@ _commit.txt
 /src/tst/json-schema
 /.vscode
 hb/mcp/hb_totvs_mcp.env
+/hb/mcp/hb_out.log
