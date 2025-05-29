@@ -29,7 +29,7 @@ Um arquivo [dna.games.mcp.tlpp](https://github.com/naldodj/naldodj-advpl-tlpp-ga
     - [FiveTech Artificial Intelligence](https://forums.fivetechsupport.com/viewforum.php?f=38&sid=7cf26344253a8322ec414e65674777cd)
   
 🐍 Scripts Python: 
-  - [dna.tech.games.list.tools.py]([https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/py/dna.tech.games.list.tools.json]
+  - [dna.tech.games.list.tools.py](https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/py/dna.tech.games.list.tools.json)
   - [dna.tech.games.call.tool.py](https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/py/dna.tech.games.call.tool.py)
 
 🧠 Definição da ferramenta TL++: [dna.games.mcp.tlpp](https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/src/mcp/dna.games.mcp.tlpp)
