@@ -3,6 +3,9 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-29 09:28 UTC naldodj (sudoku.mcp.tlpp -> dna.games.mcp.tlpp)
+  * src/mcp/dna.games.mcp.tlpp
+
 2025-05-29 09:03 UTC naldodj (sudoku.mcp.tlpp -> dna.games.mcp.tlpp)
   + hb/mcp/msvc64/hb_totvs_mcp.env
   * hb/mcp/hb_totvs_mcp.prg
