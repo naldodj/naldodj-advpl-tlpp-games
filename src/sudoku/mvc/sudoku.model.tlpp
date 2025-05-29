@@ -598,7 +598,7 @@ static function RemoveNumbers(aSudoku as array,nSudokuLevel as numeric) as array
         for nCol:=nColStart to nColTo step nColStep
             nColRD:=(nRDCol:=aRandCol[nRow][nCol])
             lExit:=.F.
-            lPlus:=(Randomize(0,1)==1)
+            lPlus:=(Randomize(0,2)==1)
             nATCol:=aScan(aRandCol[nRow],{|n as numeric|(n==nColRD)})
             while (aScan(aRandCol[nRow],{|n as numeric|(n==nColRD)},nATCol+1)>0)
                 if (lPlus)

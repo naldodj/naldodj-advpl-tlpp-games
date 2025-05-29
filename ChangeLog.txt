@@ -3,6 +3,9 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-28 23:32 UTC naldodj (Fix Randomize values)
+  * src/sudoku/mvc/sudoku.model.tlpp
+
 2025-05-28 23:25 UTC naldodj (Update .gitignore)
   * .gitignore
     - hb/mcp/hb_out.log
