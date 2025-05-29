@@ -21,12 +21,17 @@ Um arquivo [dna.games.mcp.tlpp](https://github.com/naldodj/naldodj-advpl-tlpp-ga
 🛠️ Arquivos envolvidos:
 🧩 Servidor MCP: [dna.games.mcp.tlpp](https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/src/mcp/dna.games.mcp.tlpp)
 🧩 Interprete STDIN: [hb_totvs_mcp.prg](https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/hb/mcp/hb_totvs_mcp.prg)
-
+  - Referencia(s)
+    - [FiveTech TMCPServer](https://forums.fivetechsupport.com/viewtopic.php?t=45579) 
+    - [FiveTech vsCode MCP Suport](https://forums.fivetechsupport.com/viewtopic.php?p=279038&fbclid=IwY2xjawKlMM1leHRuA2FlbQIxMABicmlkETA2Mk4xd3g1dXkyN000NTREAR4fdh9gm-RjZTonmQbVevBSRp3TujM_kExu1lRq-L6FwnrxGBiS3fYNy_jWOA_aem_uMxpNJi83J9wa1ExWjcYNw#p279038)
+    - [FiveTech Artificial Intelligence](https://forums.fivetechsupport.com/viewforum.php?f=38&sid=7cf26344253a8322ec414e65674777cd)
+  
 🐍 Scripts Python: 
   - [dna.tech.games.list.tools.py]([https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/py/dna.tech.games.list.tools.json]
   - [dna.tech.games.call.tool.py](https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/py/dna.tech.games.call.tool.py)
 
 🧠 Definição da ferramenta TL++: [dna.games.mcp.tlpp](https://github.com/naldodj/naldodj-advpl-tlpp-games/blob/main/src/mcp/dna.games.mcp.tlpp)
+  - referência: [FiveTech]()
 
 Esse modelo pode ser expandido para chamadas seguras, autenticação, controle de acesso, testes automatizados e muito mais — tudo isso com o poder de um servidor leve, interpretado e extensível.
 
