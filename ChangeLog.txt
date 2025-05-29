@@ -3,6 +3,13 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-28 22:30 UTC naldodj (MCP)
+  * mcp
+    + hb/mcp/sudoku.list.tools.json
+    + hb/mcp/sudoku.list.tools.py
+    * src/sudoku/mcp/sudoku.mcp.tlpp
+    * hb/mcp/opensudoku.py -> hb/mcp/sudoku.open.tool.py
+
 2025-05-28 20:05 UTC naldodj (MCP)
   + mcp
     + hb/mcp/compile.sh

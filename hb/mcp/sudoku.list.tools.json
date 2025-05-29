@@ -1,0 +1,34 @@
+{
+    "jsonrpc": "2.0",
+    "id": -1,
+    "result": [{
+            "id": "0B99C76E263CF011BD27C88A9A3BC27E",
+            "name": "open_sudoku",
+            "description": "Opens the Sudoku game in the browser.",
+            "inputSchema": {
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                }
+            },
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "args": []
+        }, {
+            "id": "0C99C76E263CF011BD27C88A9A3BC27E",
+            "name": "open_sudoku_test",
+            "description": "Runs a Sudoku test and opens the result in the browser.",
+            "inputSchema": {
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                }
+            },
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "args": []
+        }
+    ]
+}
