@@ -55,12 +55,11 @@ REQUEST hb_DirSepToOS
 REQUEST hb_FNameName
 REQUEST hb_FNameNameExt
 
-procedure Main()
+procedure Main(cIniFileName as character)
 
     local cInput as character
     local cCurDir as character
     local cResponse as character
-    local cIniFileName as character
     local cExeFileName as character
 
     local cMCPIODir as character
@@ -83,9 +82,12 @@ procedure Main()
     ErrorBlock({|oError|LogFile("error",hb_JSONEncode(hb_DumpVar(oError,.T.,nil)),HB_LOG_ERROR)})
 
     cExeFileName:=hb_ProgName()
-    cIniFileName:=hb_FNameName(cExeFileName)+".env"
-    if (hb_FileExists("..\"+cIniFileName))
-        cIniFileName:="..\"+cIniFileName
+
+    if ((PCount()==0).or.(Empty(cIniFileName)))
+        cIniFileName:=hb_FNameName(cExeFileName)+".env"
+        if (hb_FileExists("..\"+cIniFileName))
+            cIniFileName:="..\"+cIniFileName
+        endif
     endif
 
     cCurDir:=StrTran(StrTran(cExeFileName,hb_FNameName(cExeFileName),""),hb_FNameExt(cExeFileName),"")

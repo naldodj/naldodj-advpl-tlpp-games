@@ -3,6 +3,13 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-05-30 00:14 UTC naldodj (New Path MCP IO)
+  * hb/mcp/hb_totvs_mcp.prg
+  * hb/mcp/msvc64/hb_totvs_mcp.env
+  * hb/mcp/msvc64/hb_totvs_mcp.exe
+  * src/mcp/dna.games.mcp.tlpp
+  * src/sudoku/sudoku.tlpp
+
 2025-05-29 11:28 UTC naldodj (Update files)
   * src/mcp/dna.games.mcp.tlpp
 
