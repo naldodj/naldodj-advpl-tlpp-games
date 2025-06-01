@@ -3,6 +3,54 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-06-01 09:22 UTC naldodj (New Features)
+  * .gitignore
+  + src/game15/resources/bmps_play/game15_b00_dark_new.png
+  + src/game15/resources/bmps_play/game15_b01_dark_new.png
+  + src/game15/resources/bmps_play/game15_b02_dark_new.png
+  + src/game15/resources/bmps_play/game15_b03_dark_new.png
+  + src/game15/resources/bmps_play/game15_b04_dark_new.png
+  + src/game15/resources/bmps_play/game15_b05_dark_new.png
+  + src/game15/resources/bmps_play/game15_b06_dark_new.png
+  + src/game15/resources/bmps_play/game15_b07_dark_new.png
+  + src/game15/resources/bmps_play/game15_b08_dark_new.png
+  + src/game15/resources/bmps_play/game15_b09_dark_new.png
+  + src/game15/resources/bmps_play/game15_b10_dark_new.png
+  + src/game15/resources/bmps_play/game15_b11_dark_new.png
+  + src/game15/resources/bmps_play/game15_b12_dark_new.png
+  + src/game15/resources/bmps_play/game15_b13_dark_new.png
+  + src/game15/resources/bmps_play/game15_b14_dark_new.png
+  + src/game15/resources/bmps_play/game15_b15_dark_new.png
+  + src/game15/resources/bmps_play/game15_b16_dark_new.png
+  + src/game15/resources/buttons/game15_about_dark_new.png
+  + src/game15/resources/buttons/game15_clear_dark_new.png
+  + src/game15/resources/buttons/game15_exit_dark_new.png
+  + src/game15/resources/buttons/game15_load_dark_new.png
+  + src/game15/resources/buttons/game15_ok_dark_new.png
+  + src/game15/resources/buttons/game15_save_dark_new.png
+  + src/game15/resources/buttons/game15_start_dark_new.png
+  + src/game15/resources/buttons/game15_top10_dark_new.png
+  * src/game15/resources/buttons/game15_about_dark.png
+  * src/game15/resources/buttons/game15_clear_dark.png
+  * src/game15/resources/buttons/game15_exit_dark.png
+  * src/game15/resources/buttons/game15_load_dark.png
+  * src/game15/resources/buttons/game15_ok_dark.png
+  * src/game15/resources/buttons/game15_save_dark.png
+  * src/game15/resources/buttons/game15_start_dark.png
+  * src/game15/resources/buttons/game15_top10_dark.png
+  - src/game15/resources/buttons/game15_about_dark_red.png
+  * src/mcp/dna.games.mcp.tlpp
+  - hb/mcp/compile.sh
+  - hb/mcp/go64.bat
+  - hb/mcp/hb_totvs_mcp.hbp
+  - hb/mcp/hb_totvs_mcp.prg
+  - hb/mcp/msvc64/hb_totvs_mcp.env
+  - hb/mcp/msvc64/hb_totvs_mcp.exe
+  - hb/mcp/msvc64/libcrypto-3-x64.dll
+  - hb/mcp/msvc64/libcurl-x64.dll
+  - hb/mcp/msvc64/libmysql64.dll
+  - hb/mcp/msvc64/libssl-3-x64.dll
+
 2025-05-30 02:28 UTC naldodj (New Features)
   * hb/mcp/msvc64/hb_totvs_mcp.exe
   * src/mcp/dna.games.mcp.tlpp

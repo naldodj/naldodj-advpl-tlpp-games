@@ -34,23 +34,23 @@ procedure u_DNAGamesMCPRunServer()
     //?????Quer o codigo completo? Apoie! ?? : [Torne-se um Sponsor](https://github.com/sponsors/naldodj)
     lTMCPServer:=FindClass("DNA.TECH.TMCPServer")
     if (lTMCPServer)
-        cDirMCPIO:="c:\tmp\mcp_io\dna_games_mcp_io\"
+        cDirMCPIO:="c:\tmp\tmcpserver\mcp_io\dna_games_mcp_io\"
         DirTools():MakeDir(cDirMCPIO)
         oTMCPServer:=TMCPServer():New("DNAGamesMCPServer")
         oTMCPServer:SetMemberData("cFileMsgIN",cDirMCPIO+"hb.totvs.mcp.msg.json")
         oTMCPServer:SetMemberData("cFileMsgOUT",cDirMCPIO+"totvs.hb.mcp.msg.json")
         oTMCPServer:SetMemberData("cFileMCPServerStop",cDirMCPIO+"dna.games.mcp.server.stop")
-        oTMCPServer:AddTool("open_game15","Opens the Game15 game in the browser.",{|jParam|oTMCPServer:CallBackTool(jParam,{|oTMCPServer,jParam|MCPExecute(oTMCPServer,jParam,"GAME15.U_GAME15RUN")})})
-        oTMCPServer:AddTool("open_sudoku","Opens the Sudoku game in the browser.",{|jParam|oTMCPServer:CallBackTool(jParam,{|oTMCPServer,jParam|MCPExecute(oTMCPServer,jParam,"SUDOKU.U_SUDOKURUN")})})
-        oTMCPServer:AddTool("open_sudoku_test","Runs a Sudoku test and opens the result in the browser.",{|jParam|oTMCPServer:CallBackTool(jParam,{|oTMCPServer,jParam|MCPExecute(oTMCPServer,jParam,"SUDOKU.U_SUDOKURUNTESTS")})})
+        oTMCPServer:AddTool("open_game15","Opens the Game15 game in the browser.",{|jParam|oTMCPServer:CallBackTool(jParam,{|oTMCPServer,jParam|MCPExecuteInBrowser(oTMCPServer,jParam,"GAME15.U_GAME15RUN")})})
+        oTMCPServer:AddTool("open_sudoku","Opens the Sudoku game in the browser.",{|jParam|oTMCPServer:CallBackTool(jParam,{|oTMCPServer,jParam|MCPExecuteInBrowser(oTMCPServer,jParam,"SUDOKU.U_SUDOKURUN")})})
+        oTMCPServer:AddTool("open_sudoku_test","Runs a Sudoku test and opens the result in the browser.",{|jParam|oTMCPServer:CallBackTool(jParam,{|oTMCPServer,jParam|MCPExecuteInBrowser(oTMCPServer,jParam,"SUDOKU.U_SUDOKURUNTESTS")})})
         oTMCPServer:Run()
         MsObjects():FreeObjects(@oTMCPServer)
     endif
 return
 
-static function MCPExecute(oTMCPServer as object,jParam as json,cFunction as character) as json
+static function MCPExecuteInBrowser(oTMCPServer as object,jParam as json,cFunction as character) as json
     local nRet as numeric
     oTMCPServer:ConOut("Executing MCP function: "+cFunction+" with parameters: "+jParam:ToJSON())
-    nRet:=WinExec("C:\totvs\protheus1212410\web.agent.dna.games.mcp.bat "+cFunction)
+    nRet:=WinExec("C:\totvs\protheus1212410\web.agent.mcp.client.bat "+cFunction)
     jParam["HasError"]:=(nRet!=0)
 return(jParam)

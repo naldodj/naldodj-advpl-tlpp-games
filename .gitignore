@@ -1,8 +1,10 @@
 
 _commit.txt
-/src/tst/json-data
-/src/tst/json-schema
-/.vscode
+.vscode
+src/tst/json-data
+src/tst/json-schema
+src/mcp/.vscode/
+rc/mcp/.vscode/.advpl/
 hb/mcp/hb_totvs_mcp.env
-/hb/mcp/hb_out.log
+hb/mcp/hb_out.log
 py/hb_totvs_mcp.log
