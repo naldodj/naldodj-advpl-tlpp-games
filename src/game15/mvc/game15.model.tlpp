@@ -215,7 +215,8 @@ static function Activate(jGame15Data as json) as logical
 
     local jCoordinates as json
 
-    local lThemeIsDark:=WebApp():ThemeIsDark() as logical
+    local lThemeIsDark:=G15ThemeIsDark() as logical
+    local lThemeIsDarkNew:=G15ThemeIsDarkNew() as logical
 
     local nCol as numeric
     local nRow as numeric
@@ -269,7 +270,7 @@ static function Activate(jGame15Data as json) as logical
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
+    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,if(lThemeIsDarkNew,0.5,(-5)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=0
     aShapes[nID][G15_SHAPE_WIDTH]:=300
     aShapes[nID][G15_SHAPE_HEIGHT]:=29
@@ -285,7 +286,7 @@ static function Activate(jGame15Data as json) as logical
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -362,7 +363,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="Load Game"
-    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
+    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,if(lThemeIsDarkNew,0,(-14)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=14
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
@@ -392,7 +393,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="Start of new game"
-    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
+    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,if(lThemeIsDarkNew,0,(-14)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=110
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
@@ -422,7 +423,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="Save a game"
-    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,(-14),0)
+    aShapes[nID][G15_SHAPE_TOP]:=36+if(lThemeIsDark,if(lThemeIsDarkNew,0,(-14)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=206
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
@@ -517,7 +518,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="About"
-    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,if(lThemeIsDarkNew,(-5),(-7)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=14
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
@@ -547,7 +548,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="Top Table"
-    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,if(lThemeIsDarkNew,(-5),(-7)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=110
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
@@ -577,7 +578,7 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="Exit"
-    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,(-7),0)
+    aShapes[nID][G15_SHAPE_TOP]:=(394-32)+if(lThemeIsDark,if(lThemeIsDarkNew,(-5),(-7)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=206
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
@@ -601,12 +602,12 @@ END TODO:Descobrir uma Forma de Minimizar o DIALOG*/
 
     aShapes[nID][G15_SHAPE_PROPERTIES]:=cProperties
 
-    LoadMsgAbout(@jGame15Data,lThemeIsDark)
-    LoadTopTable(@jGame15Data,lThemeIsDark)
+    LoadMsgAbout(@jGame15Data,lThemeIsDark,lThemeIsDarkNew)
+    LoadTopTable(@jGame15Data,lThemeIsDark,lThemeIsDarkNew)
 
 return(.T.)
 
-static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
+static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical,lThemeIsDarkNew as logical)
 
     local aShapes:=jGame15Data["Game15_About"]["aShapes"] as array
 
@@ -652,7 +653,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
+    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,if(lThemeIsDarkNew,0.5,(-5)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=0
     aShapes[nID][G15_SHAPE_WIDTH]:=300
     aShapes[nID][G15_SHAPE_HEIGHT]:=29
@@ -668,7 +669,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -727,7 +728,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -756,7 +757,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -785,7 +786,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -815,7 +816,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -845,7 +846,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -874,7 +875,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -913,7 +914,7 @@ static procedure LoadMsgAbout(jGame15Data as json,lThemeIsDark as logical)
 
 return
 
-static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
+static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical,lThemeIsDarkNew as logical)
 
     local aShapes:=jGame15Data["Game15_TopTable"]["aShapes"] as array
 
@@ -959,7 +960,7 @@ static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:=PadC(GAME15_PROGRAM+" "+GAME15_VERSION,35)
-    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,(-5),0)
+    aShapes[nID][G15_SHAPE_TOP]:=12.5+if(lThemeIsDark,if(lThemeIsDarkNew,0.5,(-5)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=0
     aShapes[nID][G15_SHAPE_WIDTH]:=300
     aShapes[nID][G15_SHAPE_HEIGHT]:=29
@@ -975,7 +976,7 @@ static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
     AddProperty(@cProperties,"left=",aShapes[nID][G15_SHAPE_LEFT])
     AddProperty(@cProperties,"width=",aShapes[nID][G15_SHAPE_WIDTH])
     AddProperty(@cProperties,"height=",aShapes[nID][G15_SHAPE_HEIGHT])
-    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,"#AF352C","#FFFFFF"))
+    AddProperty(@cProperties,"pen-color=",if(lThemeIsDark,if(lThemeIsDarkNew,"#955A09","#AF352C"),"#FFFFFF"))
     AddProperty(@cProperties,"pen-width=","1")
     AddProperty(@cProperties,"font=","Roboto,12,1,0,3")
     AddProperty(@cProperties,"text=",aShapes[nID][G15_SHAPE_TOOLTIP])
@@ -988,7 +989,7 @@ static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="Close"
-    aShapes[nID][G15_SHAPE_TOP]:=12+if(lThemeIsDark,(-8),0)
+    aShapes[nID][G15_SHAPE_TOP]:=12+if(lThemeIsDark,if(lThemeIsDarkNew,(0.5),(-8)),0)
     aShapes[nID][G15_SHAPE_LEFT]:=317-26+if(lThemeIsDark,(+5),0)
     aShapes[nID][G15_SHAPE_WIDTH]:=14
     aShapes[nID][G15_SHAPE_HEIGHT]:=14
@@ -1018,8 +1019,8 @@ static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="OK"
-    aShapes[nID][G15_SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][G15_SHAPE_LEFT]:=14
+    aShapes[nID][G15_SHAPE_TOP]:=(394-032)+if(lThemeIsDark.and.!lThemeIsDarkNew,(-7),1.5)
+    aShapes[nID][G15_SHAPE_LEFT]:=14+if(lThemeIsDarkNew,(-2),0)
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
     aShapes[nID][G15_SHAPE_FILE]:=aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["ok"]
@@ -1048,8 +1049,8 @@ static procedure LoadTopTable(jGame15Data as json,lThemeIsDark as logical)
 
     aShapes[nID][G15_SHAPE_ID]:=++__nID
     aShapes[nID][G15_SHAPE_TOOLTIP]:="Clear Top Table"
-    aShapes[nID][G15_SHAPE_TOP]:=(394-032)+if(lThemeIsDark,(-7),0)
-    aShapes[nID][G15_SHAPE_LEFT]:=(317-110)
+    aShapes[nID][G15_SHAPE_TOP]:=(394-032)+if(lThemeIsDark.and.!lThemeIsDarkNew,(-7),1.5)
+    aShapes[nID][G15_SHAPE_LEFT]:=(317-110)+if(lThemeIsDarkNew,(2),0)
     aShapes[nID][G15_SHAPE_WIDTH]:=96
     aShapes[nID][G15_SHAPE_HEIGHT]:=24
     aShapes[nID][G15_SHAPE_FILE]:=aShapes[nID][G15_SHAPE_FILE]:=jGame15Data["Game15_Files_buttons"]["clear"]
@@ -1469,7 +1470,8 @@ static function InitGame15() as json
 
     local jGame15Data:=JSONObject():New() as json
 
-    local lThemeIsDark:=WebApp():ThemeIsDark() as logical
+    local lThemeIsDark:=G15ThemeIsDark() as logical
+    local lThemeIsDarkNew:=G15ThemeIsDarkNew() as logical
 
     local nFile as numeric
     local nFiles as numeric
@@ -1519,24 +1521,24 @@ static function InitGame15() as json
     nFiles:=16
     for nFile:=1 to nFiles
         cFile:=StrZero(nFile,2)
-        jGame15Data["Game15_Files_bmps_play"]["b"+cFile]:="game15_b"+cFile+if(lThemeIsDark,"_dark","")+".png"
+        jGame15Data["Game15_Files_bmps_play"]["b"+cFile]:="game15_b"+cFile+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
     next nFile
 
     jGame15Data["Game15_Files_bmps_aux"]:=JSONObject():New()
-    jGame15Data["Game15_Files_bmps_aux"]["minbtn"]:="game15_minbtn"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_bmps_aux"]["mainform"]:="game15_mainform"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_bmps_aux"]["minbtn"]:="game15_minbtn"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_bmps_aux"]["mainform"]:="game15_mainform"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
     jGame15Data["Game15_Files_bmps_aux"]["mainform_about"]:="game15_mainform"+if(lThemeIsDark,"_dark_black","")+".png"
-    jGame15Data["Game15_Files_bmps_aux"]["closebtn"]:="game15_closebtn"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_bmps_aux"]["closebtn"]:="game15_closebtn"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
 
     jGame15Data["Game15_Files_buttons"]:=JSONObject():New()
-    jGame15Data["Game15_Files_buttons"]["about"]:="game15_about"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_buttons"]["clear"]:="game15_clear"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_buttons"]["exit"]:="game15_exit"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_buttons"]["load"]:="game15_load"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_buttons"]["ok"]:="game15_ok"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_buttons"]["save"]:="game15_save"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_buttons"]["start"]:="game15_start"+if(lThemeIsDark,"_dark","")+".png"
-    jGame15Data["Game15_Files_buttons"]["top10"]:="game15_top10"+if(lThemeIsDark,"_dark","")+".png"
+    jGame15Data["Game15_Files_buttons"]["about"]:="game15_about"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_buttons"]["clear"]:="game15_clear"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_buttons"]["exit"]:="game15_exit"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_buttons"]["load"]:="game15_load"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_buttons"]["ok"]:="game15_ok"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_buttons"]["save"]:="game15_save"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_buttons"]["start"]:="game15_start"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
+    jGame15Data["Game15_Files_buttons"]["top10"]:="game15_top10"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
 
     ExtractFiles(@jGame15Data,"Game15_Files_buttons")
     ExtractFiles(@jGame15Data,"Game15_Files_bmps_aux")
@@ -2208,3 +2210,11 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
     MsObjects():FreeObjects(@aRestG)
 
 return(lRestoreGame)
+
+static function G15ThemeIsDark() as logical
+    local lThemeIsDark:=WebApp():ThemeIsDark() as logical
+return(lThemeIsDark)
+
+static function G15ThemeIsDarkNew() as logical
+    local lThemeIsDarkNew:=((G15ThemeIsDark()).and.(Upper(GetPvProfString("GAME15","THEME","",GetSrvIniName()))=="DARK_NEW")) as logical
+return(lThemeIsDarkNew)

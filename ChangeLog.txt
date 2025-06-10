@@ -3,6 +3,11 @@
    Entries may not always be in chronological/commit order.
    See license at the end of file. */
 
+2025-06-10 12:12 UTC naldodj (dark_new)
+  + src/game15/resources/bmps_aux/game15_mainform_dark_new.png
+  * src/game15/mvc/game15.model.tlpp
+  * src/game15/resources/buttons/game15_start_dark_new.png
+
 2025-06-01 09:22 UTC naldodj (New Features)
   * .gitignore
   + src/game15/resources/bmps_play/game15_b00_dark_new.png
