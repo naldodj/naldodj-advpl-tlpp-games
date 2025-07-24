@@ -1,7 +1,15 @@
 /* Encoding: UTF-8 (No BOM)  Notation (in 5th column):
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
-   See license at the end of file. */
+   See license at the end of file.
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")
+*/
+
+2025-07-24 21:37 UTC naldodj (makepatch)
+  + bin/patches/ext.txt
+  + bin/patches/makepatch.bat
+  + bin/patches/makepatch.lst
+  + bin/patches/makepatch.ps1
 
 2025-06-10 12:12 UTC naldodj (dark_new)
   + src/game15/resources/bmps_aux/game15_mainform_dark_new.png
