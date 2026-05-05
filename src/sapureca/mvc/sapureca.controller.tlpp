@@ -69,6 +69,7 @@ method Activate() class SapuRecaController
         self:lActive:=lActive
         if (self:lActive)
             self:jSapuRecaData:=oModel:SapuRecaData()
+            FWMsgRun(nil,{||oView:AnimationPreLoad()},"Wait..","Loading animations")
             oView:Activate()
         endif
     endif

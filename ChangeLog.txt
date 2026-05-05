@@ -2,8 +2,18 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add GIF frame state & step playback; adjust timers)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Preload GIFs, lower animation timer, fix GIF file I/O)"
 */
+
+2026-05-05 22:49 UTC naldodj (Preload GIFs, lower animation timer, fix GIF file I/O)
+  Preload GIFs, lower animation timer, fix GIF file I/O
+    Add GIF preloading and speed up animations: introduce AnimationPreLoad() in the SapuReca view and call it asynchronously during controller Activate() and when restarting the game to populate a GIF cache before creating animations.
+    Add SAPURECA_ANIMATE_TIMER and use it for animation timers to reduce interval (improve animation responsiveness).
+    Robustify GIF temp file handling in h_gif89: avoid recreating existing frame files, add filename-aware error messages, ensure file handles are closed on write errors, and adjust ReadFromStream fOpen sequence to check file open errors earlier.
+      These changes reduce startup lag, reuse cached frames, and make temp-file operations safer.
+        * src/sapureca/mvc/sapureca.controller.tlpp
+        * src/sapureca/mvc/sapureca.view.tlpp
+        * src/tools/h_gif89.tlpp
 
 2026-05-05 18:26 UTC naldodj (Add GIF frame state & step playback; adjust timers)
   Add GIF frame state & step playback; adjust timers

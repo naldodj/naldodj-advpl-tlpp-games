@@ -14,6 +14,7 @@
 
 #define SAPURECA_ANIMATE_DELAY 5
 #define SAPURECA_ANIMATE_SLEEP 100
+#define SAPURECA_ANIMATE_TIMER 1
 
 namespace sapureca
 using namespace sapureca
@@ -44,6 +45,7 @@ class SapuRecaView
 
     public method PlaySound(cWave as character) as logical
     public method UpdatePosition(nShape as numeric,nLeft as numeric,nTop as numeric,lWin as logical,cJumpImage as character,nAnimLeft as numeric,nAnimTop as numeric,nAnimWidth as numeric,nAnimHeight as numeric) as logical
+    public method AnimationPreLoad() as logical
     public method AnimationCreate() as logical
     public method AnimationActivate() as logical
     public method AnimationDeactivate(lRemove as logical) as logical
@@ -219,6 +221,24 @@ method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnim
 
 return(lUpdatePosition)
 
+method AnimationPreLoad() class SapuRecaView
+
+    local aShapes as array
+
+    local lAnimationPreLoad as logical
+
+    lAnimationPreLoad:=((self:CanExecute()).and.(ValType(self:oController)=="O").and.(self:oController:IsActive()))
+    if (lAnimationPreLoad)
+        DEFAULT __aSapuRecaGifCache:=Array(0)
+        aShapes:=self:oController:GetSapuRecaData("SapuReca_Shapes","aShapes",{})
+        lAnimationPreLoad:=(Len(aShapes)>0)
+        if (lAnimationPreLoad)
+            PreLoadGIFFrames(@aShapes,@self)
+        endif
+    endif
+
+return(lAnimationPreLoad)
+
 method AnimationCreate() class SapuRecaView
 
     local aShapes as array
@@ -277,15 +297,15 @@ method AnimationCreate() class SapuRecaView
         nGIFFrog:=Randomize(1,1500)
         nGIFFreg:=Randomize(1,1500)
 
-        DEFINE TIMER oTimerFly OF self:oDlg INTERVAL SAPURECA_ANIMATE_SLEEP ACTION Eval(oTimerFly:bAction)
+        DEFINE TIMER oTimerFly OF self:oDlg INTERVAL SAPURECA_ANIMATE_TIMER ACTION Eval(oTimerFly:bAction)
         oTimerFly:bAction:={||TPlayGIF(4,@nGIFFly,"flyAlone",@oGIFFly,@aShapes,@oView,.F.)}
         self:jAnimation["oTimerFly"]:=oTimerFly
 
-        DEFINE TIMER oTimerFrog OF self:oDlg INTERVAL SAPURECA_ANIMATE_SLEEP ACTION Eval(oTimerFrog:bAction)
+        DEFINE TIMER oTimerFrog OF self:oDlg INTERVAL SAPURECA_ANIMATE_TIMER ACTION Eval(oTimerFrog:bAction)
         oTimerFrog:bAction:={||TPlayGIF(2,@nGIFFrog,"Frog",@oGIFFrog,@aShapes,@oView,.F.)}
         self:jAnimation["oTimerFrog"]:=oTimerFrog
 
-        DEFINE TIMER oTimerFreg OF self:oDlg INTERVAL SAPURECA_ANIMATE_SLEEP ACTION Eval(oTimerFreg:bAction)
+        DEFINE TIMER oTimerFreg OF self:oDlg INTERVAL SAPURECA_ANIMATE_TIMER ACTION Eval(oTimerFreg:bAction)
         oTimerFreg:bAction:={||TPlayGIF(3,@nGIFFreg,"Freg",@oGIFHFreg,@aShapes,@oView,.T.)}
         self:jAnimation["oTimerFreg"]:=oTimerFreg
 
@@ -491,7 +511,7 @@ static function lClickSapuReca(x as numeric,y as numeric,oView as object,oContro
 
         cShapeToolTip:=oController:ShapeGetATValue(cShape,nShapeAT,SAPURECA_SHAPE_TOOLTIP)
         if (cShapeToolTip=="Reiniciar")
-            FWMsgRun(nil,{||oView:AnimationDeactivate(.F.),oController:ReloadBoard(),LoadSapuReca(nil,nil,@oView,@oController,@oView:oTPaintPanel),oView:AnimationCreate(),oView:AnimationActivate()},"Wait..","Start of new game")
+            FWMsgRun(nil,{||oView:AnimationDeactivate(.F.),oController:ReloadBoard(),oView:AnimationPreLoad(),LoadSapuReca(nil,nil,@oView,@oController,@oView:oTPaintPanel),oView:AnimationCreate(),oView:AnimationActivate()},"Wait..","Start of new game")
             break
         endif
 

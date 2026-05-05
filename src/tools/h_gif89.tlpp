@@ -110,28 +110,31 @@ static method LoadGIF(cGIF,aGifInfo,aFrames,aImgInfo,cPath) class H_GIF89
 
                 ++nImgCount
 
-                cFileName:=cPath+cFile+"_frame_"+StrZero(nImgCount,4)+".gif"
-                nFileHandle:=fCreate(cFileName,FC_NORMAL)
-
-                if (fError()<>0)
-                    HGif89Alert("Error while creating a temp file: "+Str(fError()))
-                    lLoadGif:=H_GIF89_FALSE
-                    break
-                endif
-
                 cPicBuf:=cGifHeader+SubStr(cStream,i-1,j-i)
                 cImgHeader:=Left(SubStr(cStream,i-1,j-i),16)
 
-                if (fWrite(nFileHandle,cPicBuf)<>Len(cPicBuf))
-                    HGif89Alert("Error while writing a file: "+Str(fError()))
-                    lLoadGif:=H_GIF89_FALSE
-                    break
-                endif
+                cFileName:=cPath+cFile+"_frame_"+StrZero(nImgCount,4)+".gif"
+                if (!File(cFileName))
+                    nFileHandle:=fCreate(cFileName,FC_NORMAL)
 
-                if (!fClose(nFileHandle))
-                    HGif89Alert("Error while closing a file: "+Str(fError()))
-                    lLoadGif:=H_GIF89_FALSE
-                    break
+                    if (fError()<>0)
+                        HGif89Alert("Error while creating a temp file ("+cFileName+"): "+Str(fError()))
+                        lLoadGif:=H_GIF89_FALSE
+                        break
+                    endif
+
+                    if (fWrite(nFileHandle,cPicBuf)<>Len(cPicBuf))
+                        HGif89Alert("Error while writing a file ("+cFileName+"): "+Str(fError()))
+                        fClose(nFileHandle)
+                        lLoadGif:=H_GIF89_FALSE
+                        break
+                    endif
+
+                    if (!fClose(nFileHandle))
+                        HGif89Alert("Error while closing a file ("+cFileName+"): "+Str(fError()))
+                        lLoadGif:=H_GIF89_FALSE
+                        break
+                    endif
                 endif
 
                 aSize(aFrames,nImgCount)
@@ -158,28 +161,31 @@ static method LoadGIF(cGIF,aGifInfo,aFrames,aImgInfo,cPath) class H_GIF89
 
             ++nImgCount
 
-            cFileName:=cPath+cFile+"_frame_"+StrZero(nImgCount,4)+".gif"
-            nFileHandle:=fCreate(cFileName,FC_NORMAL)
-
-            if (fError()<>0)
-                HGif89Alert("Error while creating a temp file: "+Str(fError()))
-                lLoadGif:=H_GIF89_FALSE
-                break
-            endif
-
             cPicBuf:=cGifHeader+SubStr(cStream,i-1,Len(cStream)-i)
             cImgHeader:=Left(SubStr(cStream,i-1,Len(cStream)-i),16)
 
-            if (fWrite(nFileHandle,cPicBuf)<>Len(cPicBuf))
-                HGif89Alert("Error while writing a file: "+Str(fError()))
-                lLoadGif:=H_GIF89_FALSE
-                break
-            endif
+            cFileName:=cPath+cFile+"_frame_"+StrZero(nImgCount,4)+".gif"
+            if (!File(cFileName))
+                nFileHandle:=fCreate(cFileName,FC_NORMAL)
 
-            if (!fClose(nFileHandle))
-                HGif89Alert("Error while closing a file: "+Str(fError()))
-                lLoadGif:=H_GIF89_FALSE
-                break
+                if (fError()<>0)
+                    HGif89Alert("Error while creating a temp file ("+cFileName+"): "+Str(fError()))
+                    lLoadGif:=H_GIF89_FALSE
+                    break
+                endif
+
+                if (fWrite(nFileHandle,cPicBuf)<>Len(cPicBuf))
+                    HGif89Alert("Error while writing a file ("+cFileName+"): "+Str(fError()))
+                    fClose(nFileHandle)
+                    lLoadGif:=H_GIF89_FALSE
+                    break
+                endif
+
+                if (!fClose(nFileHandle))
+                    HGif89Alert("Error while closing a file ("+cFileName+"): "+Str(fError()))
+                    lLoadGif:=H_GIF89_FALSE
+                    break
+                endif
             endif
 
             aSize(aFrames,nImgCount)
@@ -209,9 +215,9 @@ static method ReadFromStream(cFile,cStream) class H_GIF89
     paramtype 1 var cFile as character
     paramtype 2 var cStream as character optional
 
-    begin sequence
+    nFileHandle:=fOpen(cFile)
 
-        nFileHandle:=fOpen(cFile)
+    begin sequence
 
         if (fError()<>0)
             break
