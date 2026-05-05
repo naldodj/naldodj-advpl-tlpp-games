@@ -441,7 +441,6 @@ static procedure LoadSapuReca(x as numeric,y as numeric,oView as object,oControl
         lCanMove:=(aShapes[nShape][SAPURECA_SHAPE_MOVE]==1)
         lCanDeform:=(aShapes[nShape][SAPURECA_SHAPE_DEFORM]==1)
         lVisible:=aShapes[nShape][SAPURECA_SHAPE_VISIBLE]
-
         oTPaintPanel:AddShape(cProperties)
         oTPaintPanel:SetCanMove(nID,lCanMove)
         oTPaintPanel:SetCanDeform(nID,lCanDeform)
@@ -543,7 +542,7 @@ static procedure PreLoadGIFFrames(aShapes as array,oView as object)
     local nShape as numeric
     local nShapes as numeric
 
-    cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca\")
+    cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca"+BACK_SLASH)
     nShapes:=Len(aShapes)
 
     for nShape:=1 to nShapes
@@ -629,7 +628,7 @@ return(oGIF)
 static function ShapeGetATByToolTip(aShapes as array,cToolTip as character) as numeric
 return(aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_TOOLTIP]==cToolTip}))
 
-static function TPlayGIF(nTimer,nAnimeCGIF,cShape,oGIF,aShapes,oView,lHide) as logical
+static function TPlayGIF(nTimer as numeric,nAnimeCGIF as numeric,cShape as character,oGIF as object,aShapes as array,oView as object,lHide as logical) as logical
 
     local lPlay as logical
 
@@ -661,7 +660,7 @@ static function TPlayGIF(nTimer,nAnimeCGIF,cShape,oGIF,aShapes,oView,lHide) as l
 
 return(lPlay)
 
-static function PlayGIFC(nTimer,cShape,oObjGIF,aShapes,oView,lHide) as logical
+static function PlayGIFC(nTimer as numeric,cShape as character,oObjGIF as object,aShapes as array,oView as object,lHide as logical) as logical
 
     local cGIFFile as character
 
@@ -679,7 +678,7 @@ static function PlayGIFC(nTimer,cShape,oObjGIF,aShapes,oView,lHide) as logical
 
 return(lPlayGIFC)
 
-static function PlayGIFFrameStep(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
+static function PlayGIFFrameStep(nTimer as numeric,cGIFFile as character,oObjGIF as object,oView as object,lHide as logical) as logical
 
     local aGIFFrames as array
     local aPictures as array
@@ -707,14 +706,15 @@ static function PlayGIFFrameStep(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
         aSize(__aSapuRecaGIFState,nTimer)
     endif
 
-    lBusy:=((ValType(__aSapuRecaTTimer[nTimer])=="L").and.__aSapuRecaTTimer[nTimer])
+    lBusy:=((ValType(__aSapuRecaTTimer[nTimer])=="L").and.(__aSapuRecaTTimer[nTimer]))
     lPlayGIFFrameStep:=((!lBusy).and.(!__lSapuRecaStopTimers).and.File(cGIFFile).and.(ValType(oObjGIF)=="O"))
     if (lPlayGIFFrameStep)
+
         __aSapuRecaTTimer[nTimer]:=.T.
 
         begin sequence
 
-            cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca\")
+            cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca"+BACK_SLASH)
             aGIFFrames:=GetGIFFrames(@cGIFFile,@cTempPath)
             lPlayGIFFrameStep:=(Len(aGIFFrames)>=3)
             if (!lPlayGIFFrameStep)
@@ -758,11 +758,12 @@ static function PlayGIFFrameStep(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
         end sequence
 
         __aSapuRecaTTimer[nTimer]:=.F.
+
     endif
 
 return(lPlayGIFFrameStep)
 
-static function PlayGIFFrames(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
+static function PlayGIFFrames(nTimer as numeric,cGIFFile as character,oObjGIF as object,oView as object,lHide as logical) as logical
 
     local aGIFFrames as array
     local aImageInfo as array
@@ -781,14 +782,15 @@ static function PlayGIFFrames(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
     DEFAULT __aSapuRecaTTimer:=Array(5)
     DEFAULT __lSapuRecaStopTimers:=.F.
 
-    lPlayGIFFrames:=((!__lSapuRecaStopTimers).and.File(cGIFFile).and.(ValType(oObjGIF)=="O"))
+    lPlayGIFFrames:=((!__lSapuRecaStopTimers).and.(File(cGIFFile)).and.(ValType(oObjGIF)=="O"))
     if (lPlayGIFFrames)
+
         __aSapuRecaTTimer[nTimer]:=.T.
 
         begin sequence
 
             cBMPFile:=oObjGIF:cBMPFile
-            cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca\")
+            cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca"+BACK_SLASH)
             aGIFFrames:=GetGIFFrames(@cGIFFile,@cTempPath)
             lPlayGIFFrames:=(Len(aGIFFrames)>=3)
             if (!lPlayGIFFrames)
@@ -830,6 +832,7 @@ static function PlayGIFFrames(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
         end sequence
 
         __aSapuRecaTTimer[nTimer]:=.F.
+
     endif
 
 return(lPlayGIFFrames)

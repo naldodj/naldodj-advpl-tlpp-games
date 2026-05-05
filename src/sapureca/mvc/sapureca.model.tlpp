@@ -317,7 +317,7 @@ return(lStartTime)
 
 static function InitSapuReca() as json
 
-    local cTempPath:=(GetTempPath()+"SapuReca\") as character
+    local cTempPath:=(GetTempPath()+"SapuReca"+BACK_SLASH) as character
     local jSapuRecaData:=JSONObject():New() as json
 
     jSapuRecaData["SapuReca_Shapes"]:=JSONObject():New()
@@ -441,7 +441,7 @@ static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as n
     local nWidth as numeric
 
     do case
-    case nIndex==1
+    case (nIndex==1)
         cKey:="Grebe"
         cDirection:="D"
         nBaseBoard:=3
@@ -461,7 +461,7 @@ static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as n
         cJump2:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_2"]
         nJump1:=88
         nJump2:=176
-    case nIndex==2
+    case (nIndex==2)
         cKey:="Grube"
         cDirection:="D"
         nBaseBoard:=2
@@ -481,7 +481,7 @@ static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as n
         cJump2:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_2"]
         nJump1:=88
         nJump2:=176
-    case nIndex==3
+    case (nIndex==3)
         cKey:="Grobe"
         cDirection:="D"
         nBaseBoard:=1
@@ -501,7 +501,7 @@ static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as n
         cJump2:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_2"]
         nJump1:=88
         nJump2:=176
-    case nIndex==4
+    case (nIndex==4)
         cKey:="Fruda"
         cDirection:="E"
         nBaseBoard:=7
@@ -521,7 +521,7 @@ static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as n
         cJump2:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_2"]
         nJump1:=-88
         nJump2:=-176
-    case nIndex==5
+    case (nIndex==5)
         cKey:="Froda"
         cDirection:="E"
         nBaseBoard:=6
@@ -541,7 +541,7 @@ static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as n
         cJump2:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_2"]
         nJump1:=-88
         nJump2:=-176
-    case nIndex==6
+    case (nIndex==6)
         cKey:="Frida"
         cDirection:="E"
         nBaseBoard:=5
@@ -574,7 +574,36 @@ static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as n
 
 return(nShapeID)
 
-static function AddShape(jSapuRecaData,cKey,nType,nLeft,nTop,nWidth,nHeight,cImage,cToolTip,lVisible,nMove,nDeform,nMark,cDirection,nMove1Left,nMove1Top,nMove1Width,nMove1Height,nMove2Left,nMove2Top,nMove2Width,nMove2Height,cMove1Image,cMove2Image,nMove1Jump,nMove2Jump,nIndex,bAction) as numeric
+static function AddShape(;
+     jSapuRecaData as json;
+    ,cKey as character;
+    ,nType as numeric;
+    ,nLeft as numeric;
+    ,nTop as numeric;
+    ,nWidth as numeric;
+    ,nHeight as numeric;
+    ,cImage as character;
+    ,cToolTip as character;
+    ,lVisible as logical;
+    ,nMove as numeric;
+    ,nDeform as numeric;
+    ,nMark as numeric;
+    ,cDirection as character;
+    ,nMove1Left as numeric;
+    ,nMove1Top as numeric;
+    ,nMove1Width as numeric;
+    ,nMove1Height as numeric;
+    ,nMove2Left as numeric;
+    ,nMove2Top as numeric;
+    ,nMove2Width as numeric;
+    ,nMove2Height as numeric;
+    ,cMove1Image as character;
+    ,cMove2Image as character;
+    ,nMove1Jump as numeric;
+    ,nMove2Jump as numeric;
+    ,nIndex as numeric;
+    ,bAction as codeblock;
+) as numeric
 
     local aShapes as array
     local cProperties:="" as character

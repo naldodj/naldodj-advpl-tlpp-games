@@ -2,8 +2,17 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Preload GIFs, lower animation timer, fix GIF file I/O)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add BACK_SLASH constant and type signatures)"
 */
+
+2026-05-05 23:47 UTC naldodj (Add BACK_SLASH constant and type signatures)
+  Add BACK_SLASH constant and type signatures
+    Introduce BACK_SLASH, FORWARD_SLASH and SLASH macros in includes/game.tool.th and replace hardcoded "\" path separators with BACK_SLASH in the code.
+    Split and add explicit parameter types for AddShape and several GIF/animation helper functions to improve readability and type safety.
+    Also added parentheses around case conditions and applied small whitespace/formatting fixes in sapureca.model.tlpp and sapureca.view.tlpp related to shape loading and GIF frame handling.
+    * includes/game.tool.th
+    * src/sapureca/mvc/sapureca.model.tlpp
+    * src/sapureca/mvc/sapureca.view.tlpp
 
 2026-05-05 22:49 UTC naldodj (Preload GIFs, lower animation timer, fix GIF file I/O)
   Preload GIFs, lower animation timer, fix GIF file I/O

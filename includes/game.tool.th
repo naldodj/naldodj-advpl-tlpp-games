@@ -9,4 +9,15 @@
     #xtranslate __NToS(<n>) => cTools():NToS(<n>)
     #xtranslate __Web2Ascii(<cStr>) => OemToAnsi(cTools():WebAccentuationToAscii(<cStr>))
 
+    #ifndef BACK_SLASH
+        #define BACK_SLASH chr(92)
+    #endif
+
+    #ifndef FORWARD_SLASH
+        #define FORWARD_SLASH chr(47)
+        #ifndef SLASH
+            #define SLASH FORWARD_SLASH
+        #endif
+    #endif
+
 #endif
