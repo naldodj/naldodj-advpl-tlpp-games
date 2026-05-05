@@ -1,0 +1,713 @@
+/*
+                                                                             _        _
+ ___   __ _  _ __   _   _  _ __   ___   ___   __ _     _ __ ___    ___    __| |  ___ | |
+/ __| / _` || '_ \ | | | || '__| / _ \ / __| / _` |   | '_ ` _ \  / _ \  / _` | / _ \| |
+\__ \| (_| || |_) || |_| || |   |  __/| (__ | (_| | _ | | | | | || (_) || (_| ||  __/| |
+|___/ \__,_|| .__/  \__,_||_|    \___| \___| \__,_|(_)|_| |_| |_| \___/  \__,_| \___||_|
+            |_|
+*/
+
+#include "totvs.ch"
+#include "sapureca.th"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace sapureca
+using namespace sapureca
+using namespace naldodj.games
+
+class SapuRecaModel
+
+    private data jSapuRecaData as json
+
+    private data lActive as logical
+    private data lExecute as logical
+
+    public method New() as object
+
+    public method Activate() as logical
+    public method DeActivate() as logical
+
+    public method SapuRecaData() as json
+    public method SapuRecaDataSet(cKey as character,xValue as variant) as logical
+    public method SapuRecaDataGet(cKey as character,xDefault as variant) as variant
+
+    public method ReloadBoard() as logical
+
+    public method CanExecute() as logical
+    public method IsActive() as logical
+
+    public method SwapFrog(nX as numeric,nY as numeric) as logical
+    public method CheckWin() as logical
+
+    public method SaveGame(cFile as character) as logical
+    public method RestoreGame(cFile as character) as logical
+
+    public method StartTime() as logical
+
+endclass
+
+method New() class SapuRecaModel
+    self:lActive:=.F.
+    self:CanExecute()
+return(self)
+
+method Activate() class SapuRecaModel
+    self:lExecute:=self:CanExecute()
+    self:lActive:=self:lExecute
+    if (self:lActive)
+        self:jSapuRecaData:=InitSapuReca()
+        self:lActive:=(ValType(self:jSapuRecaData)=="J")
+        if (self:lActive)
+            self:lActive:=self:ReloadBoard()
+            self:StartTime()
+        endif
+    endif
+return(self:lActive)
+
+method DeActivate() class SapuRecaModel
+    if ((self:lActive).and.(ValType(self:jSapuRecaData)=="J"))
+        if (self:jSapuRecaData:HasProperty("SapuReca_Files"))
+            RemoveFiles(@self:jSapuRecaData,"SapuReca_Files")
+        endif
+        if (self:jSapuRecaData:HasProperty("SapuReca_Waves"))
+            RemoveFiles(@self:jSapuRecaData,"SapuReca_Waves")
+        endif
+        MsObjects():FreeObjects(@self:jSapuRecaData)
+        self:lActive:=.F.
+    endif
+return(self:lActive)
+
+method SapuRecaData() class SapuRecaModel
+    local jSapuRecaData as json
+    if (self:CanExecute())
+        jSapuRecaData:=self:jSapuRecaData
+    endif
+return(jSapuRecaData)
+
+method SapuRecaDataSet(cKey,xValue) class SapuRecaModel
+    local lSapuRecaDataSet as logical
+    lSapuRecaDataSet:=(self:CanExecute().and.self:IsActive())
+    if (lSapuRecaDataSet)
+        paramtype 1 var cKey as character
+        self:jSapuRecaData[cKey]:=xValue
+    endif
+return(lSapuRecaDataSet)
+
+method SapuRecaDataGet(cKey,xDefault) class SapuRecaModel
+    local lSapuRecaDataGet as logical
+    local xValue as variant
+    lSapuRecaDataGet:=(self:CanExecute().and.self:IsActive())
+    if (lSapuRecaDataGet)
+        paramtype 1 var cKey as character
+        if (self:jSapuRecaData:HasProperty(cKey))
+            xValue:=self:jSapuRecaData[cKey]
+        else
+            xValue:=xDefault
+        endif
+    endif
+return(xValue)
+
+method ReloadBoard() class SapuRecaModel
+    local lReloadBoard as logical
+    lReloadBoard:=((self:CanExecute()).and.(ValType(self:jSapuRecaData)=="J"))
+    if (lReloadBoard)
+        self:jSapuRecaData["SapuReca_Board"]["aStonesJump"]:=StonesJump()
+        self:jSapuRecaData["SapuReca_Board"]["lStarted"]:=.F.
+        self:jSapuRecaData["SapuReca_Board"]["lFinished"]:=.F.
+        BuildShapes(@self:jSapuRecaData)
+    endif
+return(lReloadBoard)
+
+method CanExecute() class SapuRecaModel
+    self:lExecute:=FWIsInCallStack("SAPURECA.U_SAPURECARUN")
+return(self:lExecute)
+
+method IsActive() class SapuRecaModel
+return(self:lActive)
+
+method SwapFrog(nX,nY) class SapuRecaModel
+
+    local aBoard as array
+    local aShapes as array
+
+    local bUpdateView as codeblock
+
+    local cDirection as character
+    local cJumpImage as character
+
+    local lJump as logical
+    local lJump1 as logical
+    local lJump2 as logical
+    local lSwapFrog:=.F. as logical
+    local lWin as logical
+
+    local nATJump as numeric
+    local nATPos as numeric
+    local nIndex as numeric
+    local nJump as numeric
+    local nAnimHeight as numeric
+    local nAnimLeft as numeric
+    local nAnimTop as numeric
+    local nAnimWidth as numeric
+    local nLeft as numeric
+    local nShape as numeric
+    local nShapeAT as numeric
+    local nTop as numeric
+
+    SYMBOL_UNUSED(nX)
+    SYMBOL_UNUSED(nY)
+
+    begin sequence
+
+        if (!(self:IsActive()).or.(ValType(self:jSapuRecaData)<>"J"))
+            break
+        endif
+
+        if (self:CheckWin())
+            break
+        endif
+
+        aShapes:=self:jSapuRecaData["SapuReca_Shapes"]["aShapes"]
+        aBoard:=self:jSapuRecaData["SapuReca_Board"]["aStonesJump"]
+        nShape:=self:jSapuRecaData["SapuReca_Shapes"]["nShapeAtu"]
+        nShapeAT:=ShapeGetIDAT(@self:jSapuRecaData,"SapuReca_Shapes",nShape)
+
+        if ((nShapeAT<=0).or.(nShapeAT>Len(aShapes)))
+            break
+        endif
+
+        if (aShapes[nShapeAT][SAPURECA_SHAPE_MARK]<>1)
+            break
+        endif
+
+        nIndex:=aShapes[nShapeAT][SAPURECA_SHAPE_INDEX]
+        if (nIndex<=0)
+            break
+        endif
+
+        nATPos:=aScan(aBoard,nIndex)
+        nATJump:=nATPos
+        cDirection:=aShapes[nShapeAT][SAPURECA_SHAPE_DIRECTION]
+
+        lJump:=.F.
+        lJump1:=.F.
+        lJump2:=.F.
+
+        if (cDirection=="D")
+            if (++nATJump<=Len(aBoard))
+                lJump:=(aBoard[nATJump]==0)
+                if (lJump)
+                    lJump1:=.T.
+                elseif (++nATJump<=Len(aBoard))
+                    lJump:=(aBoard[nATJump]==0)
+                    lJump2:=lJump
+                endif
+            endif
+        elseif (cDirection=="E")
+            if (--nATJump>=1)
+                lJump:=(aBoard[nATJump]==0)
+                if (lJump)
+                    lJump1:=.T.
+                elseif (--nATJump>=1)
+                    lJump:=(aBoard[nATJump]==0)
+                    lJump2:=lJump
+                endif
+            endif
+        endif
+
+        if (!lJump)
+            break
+        endif
+
+        aBoard[nATPos]:=0
+        aBoard[nATJump]:=nIndex
+
+        if (lJump1)
+            cJumpImage:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_IMAGE]
+            nJump:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_JUMP]
+            nAnimLeft:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_LEFT]
+            nAnimTop:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_TOP]
+            nAnimWidth:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_WIDTH]
+            nAnimHeight:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_HEIGHT]
+        else
+            cJumpImage:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE2_IMAGE]
+            nJump:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE2_JUMP]
+            nAnimLeft:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE2_LEFT]
+            nAnimTop:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE2_TOP]
+            nAnimWidth:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE2_WIDTH]
+            nAnimHeight:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE2_HEIGHT]
+        endif
+
+        aShapes[nShapeAT][SAPURECA_SHAPE_LEFT]+=nJump
+        aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_LEFT]+=(nJump/2)
+        aShapes[nShapeAT][SAPURECA_SHAPE_MOVE2_LEFT]+=(nJump/2)
+
+        nLeft:=aShapes[nShapeAT][SAPURECA_SHAPE_LEFT]
+        nTop:=aShapes[nShapeAT][SAPURECA_SHAPE_TOP]
+
+        self:jSapuRecaData["SapuReca_Board"]["lStarted"]:=.T.
+        lWin:=self:CheckWin()
+        ShapeSetVisibleByToolTip(@self:jSapuRecaData,"Instrucoes",.F.)
+        ShapeSetVisibleByToolTip(@self:jSapuRecaData,"Reiniciar",.T.)
+        if (lWin)
+            ShapeSetVisibleByToolTip(@self:jSapuRecaData,"Parabens",.T.)
+        endif
+
+        bUpdateView:=self:jSapuRecaData["SapuReca_Shapes"]["bUpdateView"]
+        if (ValType(bUpdateView)=="B")
+            Eval(bUpdateView,nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight)
+        endif
+
+        lSwapFrog:=.T.
+
+    end sequence
+
+return(lSwapFrog)
+
+method CheckWin() class SapuRecaModel
+    local aBoard as array
+    local lWin:=.F. as logical
+    if ((self:IsActive()).and.(ValType(self:jSapuRecaData)=="J"))
+        aBoard:=self:jSapuRecaData["SapuReca_Board"]["aStonesJump"]
+        lWin:=((Len(aBoard)==7).and.(aBoard[4]==0).and.((aBoard[1]+aBoard[2]+aBoard[3])==15))
+        self:jSapuRecaData["SapuReca_Board"]["lFinished"]:=lWin
+    endif
+return(lWin)
+
+method SaveGame(cFile) class SapuRecaModel
+    local lSaveGame as logical
+    paramtype 1 var cFile as character
+    lSaveGame:=((self:IsActive()).and.!Empty(cFile))
+    if (lSaveGame)
+        lSaveGame:=aUtils():SaveArray(self:jSapuRecaData["SapuReca_Board"]["aStonesJump"],cFile)
+    endif
+return(lSaveGame)
+
+method RestoreGame(cFile) class SapuRecaModel
+    local aBoard as array
+    local lRestoreGame as logical
+    paramtype 1 var cFile as character
+    lRestoreGame:=((self:IsActive()).and.File(cFile))
+    if (lRestoreGame)
+        aBoard:=aUtils():RestArray(cFile)
+        lRestoreGame:=(ValType(aBoard)=="A").and.(Len(aBoard)==7)
+        if (lRestoreGame)
+            self:jSapuRecaData["SapuReca_Board"]["aStonesJump"]:=aClone(aBoard)
+            self:jSapuRecaData["SapuReca_Board"]["lStarted"]:=.T.
+            self:jSapuRecaData["SapuReca_Board"]["lFinished"]:=.F.
+            BuildShapes(@self:jSapuRecaData)
+            self:CheckWin()
+        endif
+        MsObjects():FreeObjects(@aBoard)
+    endif
+return(lRestoreGame)
+
+method StartTime() class SapuRecaModel
+    local lStartTime as logical
+    lStartTime:=self:IsActive()
+    if (lStartTime)
+        if (!self:jSapuRecaData:HasProperty("SapuReca_Time"))
+            self:jSapuRecaData["SapuReca_Time"]:=JSONObject():New()
+        endif
+        self:jSapuRecaData["SapuReca_Time"]["cStartTime"]:=Time()
+        self:jSapuRecaData["SapuReca_Time"]["dStartDate"]:=Date()
+    endif
+return(lStartTime)
+
+static function InitSapuReca() as json
+
+    local cTempPath:=(GetTempPath()+"SapuReca\") as character
+    local jSapuRecaData:=JSONObject():New() as json
+
+    jSapuRecaData["SapuReca_Shapes"]:=JSONObject():New()
+    jSapuRecaData["SapuReca_Shapes"]["aShapes"]:=Array(0)
+    jSapuRecaData["SapuReca_Shapes"]["nShapeAtu"]:=0
+    jSapuRecaData["SapuReca_Shapes"]["bUpdateView"]:={||}
+    jSapuRecaData["SapuReca_Shapes"]["nInstrucoesID"]:=0
+    jSapuRecaData["SapuReca_Shapes"]["nParabensID"]:=0
+    jSapuRecaData["SapuReca_Shapes"]["nReiniciarID"]:=0
+
+    jSapuRecaData["SapuReca_Board"]:=JSONObject():New()
+    jSapuRecaData["SapuReca_Board"]["aStonesJump"]:=StonesJump()
+    jSapuRecaData["SapuReca_Board"]["lStarted"]:=.F.
+    jSapuRecaData["SapuReca_Board"]["lFinished"]:=.F.
+
+    jSapuRecaData["Coordinates"]:=JSONObject():New()
+    jSapuRecaData["Coordinates"]["nTop"]:=0
+    jSapuRecaData["Coordinates"]["nLeft"]:=0
+    jSapuRecaData["Coordinates"]["nWidth"]:=497
+    jSapuRecaData["Coordinates"]["nHeight"]:=635
+
+    jSapuRecaData["SapuReca_Path"]:=JSONObject():New()
+    jSapuRecaData["SapuReca_Path"]["Temp_Path"]:=cTempPath
+
+    jSapuRecaData["SapuReca_Files"]:=JSONObject():New()
+    jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"]:="instrucoes.gif"
+    jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"]:="pantano.jpg"
+    jSapuRecaData["SapuReca_Files"]["JOGO_PARABENS"]:="parabens.gif"
+    jSapuRecaData["SapuReca_Files"]["JOGO_ICO"]:="perereca.ico"
+    jSapuRecaData["SapuReca_Files"]["RECA_FRAME_START"]:="reca_1_frame_0000.gif"
+    jSapuRecaData["SapuReca_Files"]["RECA_JUMP_1"]:="reca_j1.gif"
+    jSapuRecaData["SapuReca_Files"]["RECA_JUMP_2"]:="reca_j2.gif"
+    jSapuRecaData["SapuReca_Files"]["JOGO_REINICIAR"]:="reiniciar.gif"
+    jSapuRecaData["SapuReca_Files"]["SAPO_DANCANTE"]:="sapo_dancando.gif"
+    jSapuRecaData["SapuReca_Files"]["SAPO_INSETO"]:="sapoInseto.gif"
+    jSapuRecaData["SapuReca_Files"]["SAPU_FRAME_START"]:="sapu_1_frame_0000.gif"
+    jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_1"]:="sapu_J1.gif"
+    jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_2"]:="sapu_J2.gif"
+    jSapuRecaData["SapuReca_Files"]["PASSARO_VOANDO"]:="passaro_voando.gif"
+
+    jSapuRecaData["SapuReca_Waves"]:=JSONObject():New()
+    jSapuRecaData["SapuReca_Waves"]["SOM_APLAUSOS"]:="aplausos.wav"
+    jSapuRecaData["SapuReca_Waves"]["SOM_SAPU_RECA"]:="sapo.wav"
+    jSapuRecaData["SapuReca_Waves"]["SOM_BACKGROUND"]:="sapos.wav"
+
+    ExtractFiles(@jSapuRecaData,"SapuReca_Files")
+    ExtractFiles(@jSapuRecaData,"SapuReca_Waves")
+
+return(jSapuRecaData)
+
+static function StonesJump() as array
+return({3,2,1,0,6,5,4})
+
+static procedure BuildShapes(jSapuRecaData as json)
+
+    local aBoard as array
+    local aShapes as array
+
+    local nBoard as numeric
+    local nBoards as numeric
+    local nIndex as numeric
+
+    aShapes:=jSapuRecaData["SapuReca_Shapes"]["aShapes"]
+    aSize(aShapes,0)
+    jSapuRecaData["SapuReca_Shapes"]["nShapeAtu"]:=0
+    jSapuRecaData["SapuReca_Shapes"]["nInstrucoesID"]:=0
+    jSapuRecaData["SapuReca_Shapes"]["nParabensID"]:=0
+    jSapuRecaData["SapuReca_Shapes"]["nReiniciarID"]:=0
+
+    AddShape(@jSapuRecaData,"Container",1,0,0,497,635,"","Container",.T.,0,1,0,"C",0,0,497,635,0,0,497,635,"","",0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+    AddShape(@jSapuRecaData,"SapuReca",8,0,0,497,635,jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],"SapuReca",.T.,0,1,0,"C",0,0,497,635,0,0,497,635,jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+
+    jSapuRecaData["SapuReca_Shapes"]["nInstrucoesID"]:=;
+        AddShape(@jSapuRecaData,"Instrucoes",8,180,100,293,78,jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"],"Instrucoes",.T.,0,0,0,"C",180,100,293,78,180,100,293,78,jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"],jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+
+    jSapuRecaData["SapuReca_Shapes"]["nParabensID"]:=;
+        AddShape(@jSapuRecaData,"Parabens",8,180,100,283,72,jSapuRecaData["SapuReca_Files"]["JOGO_PARABENS"],"Parabens",.F.,0,0,0,"C",180,100,283,72,180,100,283,72,jSapuRecaData["SapuReca_Files"]["JOGO_PARABENS"],jSapuRecaData["SapuReca_Files"]["JOGO_PARABENS"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+
+    aBoard:=jSapuRecaData["SapuReca_Board"]["aStonesJump"]
+    nBoards:=Len(aBoard)
+    for nBoard:=1 to nBoards
+        nIndex:=aBoard[nBoard]
+        if (nIndex>0)
+            AddFrogShape(@jSapuRecaData,nIndex,nBoard)
+        endif
+    next nBoard
+
+    jSapuRecaData["SapuReca_Shapes"]["nReiniciarID"]:=;
+        AddShape(@jSapuRecaData,"Reiniciar",8,205,473,230,23,jSapuRecaData["SapuReca_Files"]["JOGO_REINICIAR"],"Reiniciar",.F.,0,0,1,"C",191,472,230,23,191,472,230,23,jSapuRecaData["SapuReca_Files"]["JOGO_REINICIAR"],jSapuRecaData["SapuReca_Files"]["JOGO_REINICIAR"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+
+    AddShape(@jSapuRecaData,"Frog",8,65,405,85,83,jSapuRecaData["SapuReca_Files"]["SAPO_DANCANTE"],"Frog",.F.,0,0,0,"C",30,205,85,83,30,205,85,83,jSapuRecaData["SapuReca_Files"]["SAPO_DANCANTE"],jSapuRecaData["SapuReca_Files"]["SAPO_DANCANTE"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+    AddShape(@jSapuRecaData,"Freg",8,420,405,120,72,jSapuRecaData["SapuReca_Files"]["SAPO_INSETO"],"Freg",.F.,0,0,0,"C",211,202,120,72,211,202,120,72,jSapuRecaData["SapuReca_Files"]["SAPO_INSETO"],jSapuRecaData["SapuReca_Files"]["SAPO_INSETO"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+    AddShape(@jSapuRecaData,"flyAlone",8,10,10,340,88,jSapuRecaData["SapuReca_Files"]["PASSARO_VOANDO"],"flyAlone",.F.,0,0,0,"C",10,10,340,88,10,10,340,88,jSapuRecaData["SapuReca_Files"]["PASSARO_VOANDO"],jSapuRecaData["SapuReca_Files"]["PASSARO_VOANDO"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+
+return
+
+static function AddFrogShape(jSapuRecaData as json,nIndex as numeric,nBoard as numeric) as numeric
+
+    local cDirection as character
+    local cImage as character
+    local cJump1 as character
+    local cJump2 as character
+    local cKey as character
+
+    local nBaseBoard as numeric
+    local nBaseLeft as numeric
+    local nHeight as numeric
+    local nJump1 as numeric
+    local nJump2 as numeric
+    local nLeft as numeric
+    local nMove1Height as numeric
+    local nMove1Left as numeric
+    local nMove1Top as numeric
+    local nMove1Width as numeric
+    local nMove2Height as numeric
+    local nMove2Left as numeric
+    local nMove2Top as numeric
+    local nMove2Width as numeric
+    local nOffset as numeric
+    local nShapeID as numeric
+    local nWidth as numeric
+
+    do case
+    case nIndex==1
+        cKey:="Grebe"
+        cDirection:="D"
+        nBaseBoard:=3
+        nBaseLeft:=191
+        nWidth:=83
+        nHeight:=72
+        nMove1Top:=146.5
+        nMove1Left:=8+(45*2)
+        nMove1Width:=190
+        nMove1Height:=100
+        nMove2Top:=126.5
+        nMove2Left:=7.8+(45*2)
+        nMove2Width:=270
+        nMove2Height:=150
+        cImage:=jSapuRecaData["SapuReca_Files"]["SAPU_FRAME_START"]
+        cJump1:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_1"]
+        cJump2:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_2"]
+        nJump1:=88
+        nJump2:=176
+    case nIndex==2
+        cKey:="Grube"
+        cDirection:="D"
+        nBaseBoard:=2
+        nBaseLeft:=103
+        nWidth:=83
+        nHeight:=72
+        nMove1Top:=146.5
+        nMove1Left:=8+45
+        nMove1Width:=190
+        nMove1Height:=100
+        nMove2Top:=126.5
+        nMove2Left:=7.8+45
+        nMove2Width:=270
+        nMove2Height:=150
+        cImage:=jSapuRecaData["SapuReca_Files"]["SAPU_FRAME_START"]
+        cJump1:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_1"]
+        cJump2:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_2"]
+        nJump1:=88
+        nJump2:=176
+    case nIndex==3
+        cKey:="Grobe"
+        cDirection:="D"
+        nBaseBoard:=1
+        nBaseLeft:=15
+        nWidth:=83
+        nHeight:=72
+        nMove1Top:=146.5
+        nMove1Left:=8
+        nMove1Width:=190
+        nMove1Height:=100
+        nMove2Top:=126.5
+        nMove2Left:=7.8
+        nMove2Width:=270
+        nMove2Height:=150
+        cImage:=jSapuRecaData["SapuReca_Files"]["SAPU_FRAME_START"]
+        cJump1:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_1"]
+        cJump2:=jSapuRecaData["SapuReca_Files"]["SAPU_JUMP_2"]
+        nJump1:=88
+        nJump2:=176
+    case nIndex==4
+        cKey:="Fruda"
+        cDirection:="E"
+        nBaseBoard:=7
+        nBaseLeft:=537
+        nWidth:=85
+        nHeight:=79
+        nMove1Top:=152.6
+        nMove1Left:=221
+        nMove1Width:=180
+        nMove1Height:=90
+        nMove2Top:=122.6
+        nMove2Left:=178
+        nMove2Width:=265
+        nMove2Height:=150
+        cImage:=jSapuRecaData["SapuReca_Files"]["RECA_FRAME_START"]
+        cJump1:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_1"]
+        cJump2:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_2"]
+        nJump1:=-88
+        nJump2:=-176
+    case nIndex==5
+        cKey:="Froda"
+        cDirection:="E"
+        nBaseBoard:=6
+        nBaseLeft:=449
+        nWidth:=85
+        nHeight:=79
+        nMove1Top:=152.6
+        nMove1Left:=220.5-45
+        nMove1Width:=180
+        nMove1Height:=90
+        nMove2Top:=122.6
+        nMove2Left:=178-45
+        nMove2Width:=265
+        nMove2Height:=150
+        cImage:=jSapuRecaData["SapuReca_Files"]["RECA_FRAME_START"]
+        cJump1:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_1"]
+        cJump2:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_2"]
+        nJump1:=-88
+        nJump2:=-176
+    case nIndex==6
+        cKey:="Frida"
+        cDirection:="E"
+        nBaseBoard:=5
+        nBaseLeft:=361
+        nWidth:=85
+        nHeight:=79
+        nMove1Top:=152.6
+        nMove1Left:=221-(45*2)
+        nMove1Width:=180
+        nMove1Height:=90
+        nMove2Top:=122.6
+        nMove2Left:=178-(45*2)
+        nMove2Width:=265
+        nMove2Height:=150
+        cImage:=jSapuRecaData["SapuReca_Files"]["RECA_FRAME_START"]
+        cJump1:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_1"]
+        cJump2:=jSapuRecaData["SapuReca_Files"]["RECA_JUMP_2"]
+        nJump1:=-88
+        nJump2:=-176
+    otherwise
+        return(0)
+    endcase
+
+    nOffset:=(nBoard-nBaseBoard)*88
+    nLeft:=nBaseLeft+nOffset
+    nMove1Left+=(nOffset/2)
+    nMove2Left+=(nOffset/2)
+
+    nShapeID:=AddShape(@jSapuRecaData,cKey,8,nLeft,315,nWidth,nHeight,cImage,cKey,.T.,0,0,1,cDirection,nMove1Left,nMove1Top,nMove1Width,nMove1Height,nMove2Left,nMove2Top,nMove2Width,nMove2Height,cJump1,cJump2,nJump1,nJump2,nIndex,{|bBlock as codeblock|Eval(bBlock)})
+
+return(nShapeID)
+
+static function AddShape(jSapuRecaData,cKey,nType,nLeft,nTop,nWidth,nHeight,cImage,cToolTip,lVisible,nMove,nDeform,nMark,cDirection,nMove1Left,nMove1Top,nMove1Width,nMove1Height,nMove2Left,nMove2Top,nMove2Width,nMove2Height,cMove1Image,cMove2Image,nMove1Jump,nMove2Jump,nIndex,bAction) as numeric
+
+    local aShapes as array
+    local cProperties:="" as character
+    local nShape as numeric
+
+    aShapes:=jSapuRecaData["SapuReca_Shapes"]["aShapes"]
+    aAdd(aShapes,Array(SAPURECA_SHAPE_ALEN))
+    nShape:=Len(aShapes)
+
+    SYMBOL_UNUSED(cKey)
+
+    aShapes[nShape][SAPURECA_SHAPE_ID]:=nShape
+    aShapes[nShape][SAPURECA_SHAPE_TYPE]:=nType
+    aShapes[nShape][SAPURECA_SHAPE_LEFT]:=nLeft
+    aShapes[nShape][SAPURECA_SHAPE_TOP]:=nTop
+    aShapes[nShape][SAPURECA_SHAPE_WIDTH]:=nWidth
+    aShapes[nShape][SAPURECA_SHAPE_HEIGHT]:=nHeight
+    aShapes[nShape][SAPURECA_SHAPE_IMAGE]:=cImage
+    aShapes[nShape][SAPURECA_SHAPE_TOOLTIP]:=cToolTip
+    aShapes[nShape][SAPURECA_SHAPE_MOVE]:=nMove
+    aShapes[nShape][SAPURECA_SHAPE_DEFORM]:=nDeform
+    aShapes[nShape][SAPURECA_SHAPE_MARK]:=nMark
+    aShapes[nShape][SAPURECA_SHAPE_CONTAINER]:=if(nType==1,1,0)
+    aShapes[nShape][SAPURECA_SHAPE_VISIBLE]:=lVisible
+    aShapes[nShape][SAPURECA_SHAPE_ACTION]:=bAction
+    aShapes[nShape][SAPURECA_SHAPE_DIRECTION]:=cDirection
+    aShapes[nShape][SAPURECA_SHAPE_MOVE1_LEFT]:=nMove1Left
+    aShapes[nShape][SAPURECA_SHAPE_MOVE1_TOP]:=nMove1Top
+    aShapes[nShape][SAPURECA_SHAPE_MOVE1_WIDTH]:=nMove1Width
+    aShapes[nShape][SAPURECA_SHAPE_MOVE1_HEIGHT]:=nMove1Height
+    aShapes[nShape][SAPURECA_SHAPE_MOVE2_LEFT]:=nMove2Left
+    aShapes[nShape][SAPURECA_SHAPE_MOVE2_TOP]:=nMove2Top
+    aShapes[nShape][SAPURECA_SHAPE_MOVE2_WIDTH]:=nMove2Width
+    aShapes[nShape][SAPURECA_SHAPE_MOVE2_HEIGHT]:=nMove2Height
+    aShapes[nShape][SAPURECA_SHAPE_MOVE1_IMAGE]:=cMove1Image
+    aShapes[nShape][SAPURECA_SHAPE_MOVE1_FRAME]:=nil
+    aShapes[nShape][SAPURECA_SHAPE_MOVE2_IMAGE]:=cMove2Image
+    aShapes[nShape][SAPURECA_SHAPE_MOVE2_FRAME]:=nil
+    aShapes[nShape][SAPURECA_SHAPE_MOVE1_JUMP]:=nMove1Jump
+    aShapes[nShape][SAPURECA_SHAPE_MOVE2_JUMP]:=nMove2Jump
+    aShapes[nShape][SAPURECA_SHAPE_INDEX]:=nIndex
+
+    AddProperty(@cProperties,"id=",aShapes[nShape][SAPURECA_SHAPE_ID])
+    AddProperty(@cProperties,"type=",aShapes[nShape][SAPURECA_SHAPE_TYPE])
+    AddProperty(@cProperties,"left=",aShapes[nShape][SAPURECA_SHAPE_LEFT])
+    AddProperty(@cProperties,"top=",aShapes[nShape][SAPURECA_SHAPE_TOP])
+    AddProperty(@cProperties,"width=",aShapes[nShape][SAPURECA_SHAPE_WIDTH])
+    AddProperty(@cProperties,"height=",aShapes[nShape][SAPURECA_SHAPE_HEIGHT])
+    if (!Empty(aShapes[nShape][SAPURECA_SHAPE_IMAGE]))
+        AddProperty(@cProperties,"image-file=",aShapes[nShape][SAPURECA_SHAPE_IMAGE])
+    else
+        AddProperty(@cProperties,"gradient=","1,0,0,0,0,0.0,#FFFFFF")
+        AddProperty(@cProperties,"pen-width=","0")
+        AddProperty(@cProperties,"pen-color=","#FFFFFF")
+    endif
+    AddProperty(@cProperties,"tooltip=",aShapes[nShape][SAPURECA_SHAPE_TOOLTIP])
+    AddProperty(@cProperties,"can-move=",aShapes[nShape][SAPURECA_SHAPE_MOVE])
+    AddProperty(@cProperties,"can-deform=",aShapes[nShape][SAPURECA_SHAPE_DEFORM])
+    AddProperty(@cProperties,"can-mark=",aShapes[nShape][SAPURECA_SHAPE_MARK])
+    AddProperty(@cProperties,"is-container=",aShapes[nShape][SAPURECA_SHAPE_CONTAINER])
+
+    aShapes[nShape][SAPURECA_SHAPE_PROPERTIES]:=cProperties
+
+return(nShape)
+
+static function ShapeGetIDAT(jSapuRecaData as json,cSection as character,nShape as numeric) as numeric
+
+    local aShapes as array
+    local nShapeAT:=0 as numeric
+
+    if ((ValType(jSapuRecaData)=="J").and.(jSapuRecaData:HasProperty(cSection)))
+        aShapes:=jSapuRecaData[cSection]["aShapes"]
+        nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape},nShape)
+        if (nShapeAT==0)
+            nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape})
+        endif
+    endif
+
+return(nShapeAT)
+
+static procedure ShapeSetVisibleByToolTip(jSapuRecaData as json,cToolTip as character,lVisible as logical)
+
+    local aShapes as array
+
+    local nShapeAT as numeric
+
+    if ((ValType(jSapuRecaData)=="J").and.(jSapuRecaData:HasProperty("SapuReca_Shapes")))
+        aShapes:=jSapuRecaData["SapuReca_Shapes"]["aShapes"]
+        nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_TOOLTIP]==cToolTip})
+        if (nShapeAT>0)
+            aShapes[nShapeAT][SAPURECA_SHAPE_VISIBLE]:=lVisible
+        endif
+    endif
+
+return
+
+static function AddProperty(cProperties as character,cProperty as character,uValue as variant) as character
+    cProperties+=cProperty
+    cProperties+=cValToChar(uValue)
+    cProperties+=";"
+return(cProperties)
+
+static procedure ExtractFiles(jSapuRecaData as json,cName as character)
+
+    local aNames:=jSapuRecaData[cName]:GetNames() as array
+
+    local cExtractFile as character
+    local cItemName as character
+    local cResource as character
+    local cTempPath:=jSapuRecaData["SapuReca_Path"]["Temp_Path"] as character
+
+    local nName as numeric
+    local nNames as numeric
+
+    if (!lIsDir(cTempPath))
+        MakeDir(cTempPath)
+    endif
+
+    nNames:=Len(aNames)
+    for nName:=1 to nNames
+        cItemName:=aNames[nName]
+        cResource:=jSapuRecaData[cName][cItemName]
+        cExtractFile:=(cTempPath+cResource)
+        Resource2File(cResource,cExtractFile)
+        jSapuRecaData[cName][cItemName]:=cExtractFile
+    next nName
+
+    MsObjects():FreeObjects(@aNames)
+
+return
+
+static procedure RemoveFiles(jSapuRecaData as json,cName as character)
+    local aNames:=jSapuRecaData[cName]:GetNames() as array
+    aEval(aNames,{|cItemName as character|if(File(jSapuRecaData[cName][cItemName]),fErase(jSapuRecaData[cName][cItemName]),nil)})
+    MsObjects():FreeObjects(@aNames)
+return

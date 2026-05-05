@@ -1,0 +1,36 @@
+#include "totvs.ch"
+#include "sapureca.th"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace sapureca
+using namespace sapureca
+using namespace naldodj.games
+
+function u_SapuRecaRun()
+return(sapureca.SapuReca():Run())
+
+class SapuReca
+   static method Run() as logical
+end class
+
+static method Run() class SapuReca
+
+    local lRun as logical
+
+    local oController as object
+
+    oController:=SapuRecaController():New()
+
+    lRun:=oController:CanExecute()
+
+    if (lRun)
+        lRun:=oController:Activate()
+        if (lRun)
+            oController:DeActivate()
+        endif
+    endif
+
+    MsObjects():FreeObjects(@oController)
+
+return(lRun)

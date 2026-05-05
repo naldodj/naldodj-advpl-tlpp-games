@@ -1,0 +1,50 @@
+#ifndef __SAPURECA_TH__
+
+    #define __SAPURECA_TH__
+
+    #define SAPURECA_SHAPE_ID             1
+    #define SAPURECA_SHAPE_TYPE           2
+    #define SAPURECA_SHAPE_LEFT           3
+    #define SAPURECA_SHAPE_TOP            4
+    #define SAPURECA_SHAPE_WIDTH          5
+    #define SAPURECA_SHAPE_HEIGHT         6
+    #define SAPURECA_SHAPE_IMAGE          7
+    #define SAPURECA_SHAPE_TOOLTIP        8
+    #define SAPURECA_SHAPE_MOVE           9
+    #define SAPURECA_SHAPE_DEFORM        10
+    #define SAPURECA_SHAPE_MARK          11
+    #define SAPURECA_SHAPE_CONTAINER     12
+    #define SAPURECA_SHAPE_PROPERTIES    13
+    #define SAPURECA_SHAPE_VISIBLE       14
+    #define SAPURECA_SHAPE_ACTION        15
+    #define SAPURECA_SHAPE_DIRECTION     16
+    #define SAPURECA_SHAPE_MOVE1_LEFT    17
+    #define SAPURECA_SHAPE_MOVE1_TOP     18
+    #define SAPURECA_SHAPE_MOVE1_WIDTH   19
+    #define SAPURECA_SHAPE_MOVE1_HEIGHT  20
+    #define SAPURECA_SHAPE_MOVE2_LEFT    21
+    #define SAPURECA_SHAPE_MOVE2_TOP     22
+    #define SAPURECA_SHAPE_MOVE2_WIDTH   23
+    #define SAPURECA_SHAPE_MOVE2_HEIGHT  24
+    #define SAPURECA_SHAPE_MOVE1_IMAGE   25
+    #define SAPURECA_SHAPE_MOVE1_FRAME   26
+    #define SAPURECA_SHAPE_MOVE2_IMAGE   27
+    #define SAPURECA_SHAPE_MOVE2_FRAME   28
+    #define SAPURECA_SHAPE_MOVE1_JUMP    29
+    #define SAPURECA_SHAPE_MOVE2_JUMP    30
+    #define SAPURECA_SHAPE_INDEX         31
+
+    #define SAPURECA_SHAPE_ALEN          31
+
+    #define SAPURECA_TITLE               "NaldoDJ Games :: SapuReca"
+    #define SAPURECA_PROGRAM             "SapuReca"
+    #define SAPURECA_VERSION             "version 2.0"
+    #define SAPURECA_COPYRIGHT           "2012-"+StrZero(Year(Date()),4)
+    #define SAPURECA_AUTHOR              "Marinaldo de Jesus"
+    #define SAPURECA_URL_COPYRIGHT       "http://www.blacktdn.com.br"
+
+    #ifndef __GAME_TOOL_TH__
+        #include "game.tool.th"
+    #endif
+
+#endif

@@ -1,0 +1,262 @@
+/*
+                                                                           _                 _  _
+ ___   __ _  _ __   _   _  _ __   ___   ___   __ _      ___   ___   _ __  | |_  _ __   ___  | || |  ___  _ __
+/ __| / _` || '_ \ | | | || '__| / _ \ / __| / _` |    / __| / _ \ | '_ \ | __|| '__| / _ \ | || | / _ \| '__|
+\__ \| (_| || |_) || |_| || |   |  __/| (__ | (_| | _ | (__ | (_) || | | || |_ | |   | (_) || || ||  __/| |
+|___/ \__,_|| .__/  \__,_||_|    \___| \___| \__,_|(_) \___| \___/ |_| |_| \__||_|    \___/ |_||_| \___||_|
+            |_|
+*/
+
+#include "totvs.ch"
+#include "sapureca.th"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace sapureca
+using namespace sapureca
+using namespace naldodj.games
+
+class SapuRecaController
+
+    private data jSapuRecaData as json
+
+    private data lExecute as logical
+    private data lActive as logical
+
+    private data oView as object
+    private data oModel as object
+
+    public method New() as object
+    public method Activate() as logical
+    public method DeActivate() as logical
+    public method CanExecute() as logical
+    public method IsActive() as logical
+
+    public method SapuRecaData() as json
+    public method SetSapuRecaData(cSection as character,cKey as character,xValue as variant) as logical
+    public method GetSapuRecaData(cSection as character,cKey as character,xDefault as variant) as variant
+
+    // Model interface
+    public method ReloadBoard() as logical
+    public method SwapFrog(nX as numeric,nY as numeric) as logical
+    public method CheckWin() as logical
+    public method SaveGame(cFile as character) as logical
+    public method RestoreGame(cFile as character) as logical
+    public method StartTime() as logical
+
+    // View interface
+    public method ShapeGetSize(cSection as character) as numeric
+    public method ShapeGetIDAT(cSection as character,nShape as numeric) as numeric
+    public method ShapeGetATValue(cSection as character,nShapeAT as numeric,nKeyAT as numeric) as variant
+    public method ViewCanMoveFrog(cShapeProperties as character) as logical
+
+endclass
+
+method New() class SapuRecaController
+    self:lActive:=.F.
+    if (self:CanExecute())
+        self:oModel:=SapuRecaModel():New()
+        self:oView:=SapuRecaView():New(self)
+    endif
+return(self)
+
+method Activate() class SapuRecaController
+    local lActive as logical
+    local oView:=self:oView as object
+    local oModel:=self:oModel as object
+    if ((self:CanExecute()).and.(!self:lActive))
+        FWMsgRun(nil,{||lActive:=oModel:Activate()},"Wait..","Start of new game")
+        self:lActive:=lActive
+        if (self:lActive)
+            self:jSapuRecaData:=oModel:SapuRecaData()
+            oView:Activate()
+        endif
+    endif
+return(self:lActive)
+
+method DeActivate() class SapuRecaController
+    if (self:lActive)
+        if (ValType(self:oView)=="O")
+            self:oView:DeActivate()
+            MsObjects():FreeObjects(@self:oView)
+        endif
+        if (ValType(self:oModel)=="O")
+            self:oModel:DeActivate()
+            MsObjects():FreeObjects(@self:oModel)
+        endif
+        self:lActive:=.F.
+    endif
+return(self:lActive)
+
+method CanExecute() class SapuRecaController
+    self:lExecute:=FWIsInCallStack("SAPURECA.U_SAPURECARUN")
+return(self:lExecute)
+
+method IsActive() class SapuRecaController
+return(self:lActive)
+
+method SapuRecaData() class SapuRecaController
+    local lSapuRecaData as logical
+    lSapuRecaData:=(self:CanExecute().and.self:IsActive())
+    if (lSapuRecaData)
+        self:jSapuRecaData:=self:oModel:SapuRecaData()
+    endif
+return(self:jSapuRecaData)
+
+method SetSapuRecaData(cSection,cKey,xValue) class SapuRecaController
+    local lSetSapuRecaData as logical
+    paramtype 1 var cSection as character
+    paramtype 2 var cKey as character
+    lSetSapuRecaData:=((self:IsActive()).and.(self:jSapuRecaData:HasProperty(cSection)))
+    lSetSapuRecaData:=((lSetSapuRecaData).and.(self:jSapuRecaData[cSection]:HasProperty(cKey)))
+    if (lSetSapuRecaData)
+        self:jSapuRecaData[cSection][cKey]:=xValue
+    endif
+return(lSetSapuRecaData)
+
+method GetSapuRecaData(cSection,cKey,xDefault) class SapuRecaController
+    local lGetSapuRecaData as logical
+    local xValue as variant
+    paramtype 1 var cSection as character
+    paramtype 2 var cKey as character optional default ""
+    lGetSapuRecaData:=((self:IsActive()).and.(self:jSapuRecaData:HasProperty(cSection)))
+    if (lGetSapuRecaData)
+        xValue:=self:jSapuRecaData[cSection]
+        if (!Empty(cKey).and.(ValType(xValue)=="J"))
+            if (xValue:HasProperty(cKey))
+                xValue:=xValue[cKey]
+            else
+                xValue:=xDefault
+            endif
+        endif
+    else
+        xValue:=xDefault
+    endif
+return(xValue)
+
+method ReloadBoard() class SapuRecaController
+    local lReloadBoard as logical
+    lReloadBoard:=self:IsActive()
+    if (lReloadBoard)
+        lReloadBoard:=self:oModel:ReloadBoard()
+        if (lReloadBoard)
+            self:jSapuRecaData:=self:oModel:SapuRecaData()
+        endif
+    endif
+return(lReloadBoard)
+
+method SwapFrog(nX,nY) class SapuRecaController
+    local lSwapFrog as logical
+    paramtype 1 var nX as numeric optional default 0
+    paramtype 2 var nY as numeric optional default 0
+    lSwapFrog:=self:IsActive()
+    if (lSwapFrog)
+        lSwapFrog:=self:oModel:SwapFrog(@nX,@nY)
+        self:jSapuRecaData:=self:oModel:SapuRecaData()
+    endif
+return(lSwapFrog)
+
+method CheckWin() class SapuRecaController
+    local lCheckWin as logical
+    if (self:IsActive())
+        lCheckWin:=self:oModel:CheckWin()
+    endif
+return(lCheckWin)
+
+method SaveGame(cFile) class SapuRecaController
+    local lSaveGame as logical
+    paramtype 1 var cFile as character
+    lSaveGame:=self:IsActive()
+    if (lSaveGame)
+        lSaveGame:=self:oModel:SaveGame(@cFile)
+    endif
+return(lSaveGame)
+
+method RestoreGame(cFile) class SapuRecaController
+    local lRestoreGame as logical
+    paramtype 1 var cFile as character
+    lRestoreGame:=self:IsActive()
+    if (lRestoreGame)
+        lRestoreGame:=self:oModel:RestoreGame(@cFile)
+        if (lRestoreGame)
+            self:jSapuRecaData:=self:oModel:SapuRecaData()
+        endif
+    endif
+return(lRestoreGame)
+
+method StartTime() class SapuRecaController
+    local lStartTime as logical
+    lStartTime:=self:IsActive()
+    if (lStartTime)
+        lStartTime:=self:oModel:StartTime()
+    endif
+return(lStartTime)
+
+method ShapeGetSize(cSection) class SapuRecaController
+
+    local aShapes as array
+    local nShapeSize:=0 as numeric
+
+    local lShapeGetSize as logical
+
+    paramtype 1 var cSection as character
+
+    lShapeGetSize:=self:IsActive()
+    if (lShapeGetSize)
+        aShapes:=self:GetSapuRecaData(cSection,"aShapes",{})
+        nShapeSize:=Len(aShapes)
+    endif
+
+return(nShapeSize)
+
+method ShapeGetIDAT(cSection,nShape) class SapuRecaController
+
+    local aShapes as array
+
+    local lShapeGetIDAT as logical
+
+    local nShapeAT:=0 as numeric
+
+    paramtype 1 var cSection as character
+    paramtype 2 var nShape as numeric
+
+    lShapeGetIDAT:=self:IsActive()
+    if (lShapeGetIDAT)
+        aShapes:=self:jSapuRecaData[cSection]["aShapes"]
+        nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape},nShape)
+        if (nShapeAT==0)
+            nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape})
+        endif
+    endif
+
+return(nShapeAT)
+
+method ShapeGetATValue(cSection,nShapeAT,nKeyAT) class SapuRecaController
+
+    local aShapes as array
+
+    local lShapeGetATValue as logical
+
+    local xValue as variant
+
+    paramtype 1 var cSection as character
+    paramtype 2 var nShapeAT as numeric
+    paramtype 3 var nKeyAT as numeric
+
+    lShapeGetATValue:=self:IsActive()
+    if (lShapeGetATValue)
+        aShapes:=self:jSapuRecaData[cSection]["aShapes"]
+        if ((nShapeAT>0).and.(nShapeAT<=Len(aShapes)))
+            if ((nKeyAT>0).and.(nKeyAT<=Len(aShapes[nShapeAT])))
+                xValue:=aShapes[nShapeAT][nKeyAT]
+            endif
+        endif
+    endif
+
+return(xValue)
+
+method ViewCanMoveFrog(cShapeProperties) class SapuRecaController
+    local lCanMoveFrog as logical
+    paramtype 1 var cShapeProperties as character
+    lCanMoveFrog:=((self:IsActive()).and.("can-mark=1"$cShapeProperties))
+return(lCanMoveFrog)

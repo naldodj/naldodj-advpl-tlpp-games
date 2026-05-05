@@ -1,0 +1,237 @@
+/*
+    H_GIF89.tlpp
+    Author: P.Chornyj <myorg63@mail.ru>
+    Adaptado para uso no Protheus por: Marinaldo de Jesus
+*/
+
+#include "totvs.ch"
+#include "fileio.ch"
+#include "parmtype.ch"
+#include "tlpp-core.th"
+
+namespace sapureca
+using namespace sapureca
+
+#define H_GIF89_TRUE .T.
+#define H_GIF89_FALSE .F.
+
+class H_GIF89
+    static method LoadGIF(cGIF as character,/*@*/aGifInfo as array,/*@*/aFrames as array,/*@*/aImgInfo as array,cPath as character) as logical
+    static method GetFrameDelay(cImageInfo as character,nDelay as numeric) as numeric
+    static method ReadFromStream(cFile as character,/*@*/cStream as character) as logical
+end class
+
+static method LoadGIF(cGIF,aGifInfo,aFrames,aImgInfo,cPath) class H_GIF89
+
+    local lLoadGif:=H_GIF89_TRUE as logical
+
+    local cDir as character
+    local cDriver as character
+    local cExt as character
+    local cFile as character
+    local cFileName as character
+    local cGifEnd:=Chr(0)+Chr(33)+Chr(249) as character
+    local cGifHeader as character
+    local cImgHeader as character
+    local cPathChr as character
+    local cPicBuf as character
+    local cStream as character
+
+    local i as numeric
+    local j as numeric
+    local nFileHandle as numeric
+    local nGifEnd:=Len(cGifEnd) as numeric
+    local nImgCount as numeric
+    local nRmtType:=GetRemoteType() as numeric
+
+    paramtype 1 var cGIF as character
+    paramtype 2 var aGifInfo as array optional default Array(3)
+    paramtype 3 var aFrames as array optional default Array(0)
+    paramtype 4 var aImgInfo as array optional default Array(0)
+    paramtype 5 var cPath as character optional default GetTempPath()
+
+    begin sequence
+
+        aSize(aGifInfo,3)
+        aSize(aFrames,0)
+        aSize(aImgInfo,0)
+
+        cPathChr:=if(nRmtType==2,"/","\")
+
+        if (!(SubStr(cPath,-1)==cPathChr))
+            cPath+=cPathChr
+        endif
+
+        if (!File(cGIF))
+            HGif89Alert("File "+cGIF+" is not found!")
+            lLoadGif:=H_GIF89_FALSE
+            break
+        endif
+
+        if (!H_GIF89():ReadFromStream(@cGIF,@cStream))
+            HGif89Alert("Error when reading file "+cGIF)
+            lLoadGif:=H_GIF89_FALSE
+            break
+        endif
+
+        nImgCount:=0
+        i:=1
+
+        if (Left(cStream,3)<>"GIF")
+            HGif89Alert("This file is not a GIF file: "+cGIF)
+            lLoadGif:=H_GIF89_FALSE
+            break
+        endif
+
+        aGifInfo[1]:=SubStr(cStream,4,3)
+        aGifInfo[2]:=Bin2W(SubStr(cStream,7,2))
+        aGifInfo[3]:=Bin2W(SubStr(cStream,9,2))
+
+        SplitPath(cGIF,@cDriver,@cDir,@cFile,@cExt)
+
+        j:=At(cGifEnd,cStream,i)
+        if (j==0)
+            aFrames:={cGIF}
+            aImgInfo:={Left(cStream,16)}
+            break
+        endif
+
+        ++j
+
+        cGifHeader:=Left(cStream,j)
+
+        i:=j+2
+
+        while (.T.)
+
+            j:=At(cGifEnd,cStream,i)+3
+
+            if (j>nGifEnd)
+
+                ++nImgCount
+
+                cFileName:=cPath+cFile+"_frame_"+StrZero(nImgCount,4)+".gif"
+                nFileHandle:=fCreate(cFileName,FC_NORMAL)
+
+                if (fError()<>0)
+                    HGif89Alert("Error while creating a temp file: "+Str(fError()))
+                    lLoadGif:=H_GIF89_FALSE
+                    break
+                endif
+
+                cPicBuf:=cGifHeader+SubStr(cStream,i-1,j-i)
+                cImgHeader:=Left(SubStr(cStream,i-1,j-i),16)
+
+                if (fWrite(nFileHandle,cPicBuf)<>Len(cPicBuf))
+                    HGif89Alert("Error while writing a file: "+Str(fError()))
+                    lLoadGif:=H_GIF89_FALSE
+                    break
+                endif
+
+                if (!fClose(nFileHandle))
+                    HGif89Alert("Error while closing a file: "+Str(fError()))
+                    lLoadGif:=H_GIF89_FALSE
+                    break
+                endif
+
+                aSize(aFrames,nImgCount)
+                aFrames[nImgCount]:=cFileName
+
+                aSize(aImgInfo,nImgCount)
+                aImgInfo[nImgCount]:=cImgHeader
+
+            endif
+
+            if (j==3)
+                exit
+            else
+                i:=j
+            endif
+
+        end while
+
+        if (!lLoadGif)
+            break
+        endif
+
+        if (i<Len(cStream))
+
+            ++nImgCount
+
+            cFileName:=cPath+cFile+"_frame_"+StrZero(nImgCount,4)+".gif"
+            nFileHandle:=fCreate(cFileName,FC_NORMAL)
+
+            if (fError()<>0)
+                HGif89Alert("Error while creating a temp file: "+Str(fError()))
+                lLoadGif:=H_GIF89_FALSE
+                break
+            endif
+
+            cPicBuf:=cGifHeader+SubStr(cStream,i-1,Len(cStream)-i)
+            cImgHeader:=Left(SubStr(cStream,i-1,Len(cStream)-i),16)
+
+            if (fWrite(nFileHandle,cPicBuf)<>Len(cPicBuf))
+                HGif89Alert("Error while writing a file: "+Str(fError()))
+                lLoadGif:=H_GIF89_FALSE
+                break
+            endif
+
+            if (!fClose(nFileHandle))
+                HGif89Alert("Error while closing a file: "+Str(fError()))
+                lLoadGif:=H_GIF89_FALSE
+                break
+            endif
+
+            aSize(aFrames,nImgCount)
+            aFrames[nImgCount]:=cFileName
+
+            aSize(aImgInfo,nImgCount)
+            aImgInfo[nImgCount]:=cImgHeader
+
+        endif
+
+    end sequence
+
+return(lLoadGif)
+
+static method GetFrameDelay(cImageInfo,nDelay) class H_GIF89
+    paramtype 1 var cImageInfo as character
+    paramtype 2 var nDelay as numeric optional default 10
+return(Bin2W(SubStr(cImageInfo,4,2))*nDelay)
+
+static method ReadFromStream(cFile,cStream) class H_GIF89
+
+    local lReadStream:=.F. as logical
+
+    local nFileHandle as numeric
+    local nFileSize as numeric
+
+    paramtype 1 var cFile as character
+    paramtype 2 var cStream as character optional
+
+    begin sequence
+
+        nFileHandle:=fOpen(cFile)
+
+        if (fError()<>0)
+            break
+        endif
+
+        nFileSize:=fSeek(nFileHandle,0,FS_END)
+        fSeek(nFileHandle,0,FS_SET)
+
+        cStream:=Space(nFileSize)
+        fRead(nFileHandle,@cStream,nFileSize)
+        lReadStream:=((fError()==0).and.(!Empty(cStream)))
+
+    end sequence
+
+    if (nFileHandle>=0)
+        fClose(nFileHandle)
+    endif
+
+return(lReadStream)
+
+static procedure HGif89Alert(cMessage as character)
+    ApMsgAlert(cMessage,"LoadGIF")
+return

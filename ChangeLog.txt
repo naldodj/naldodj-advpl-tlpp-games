@@ -2,8 +2,40 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add SapuReca game module with MVC and assets)"
 */
+
+2026-05-05 17:08 UTC naldodj (Add SapuReca game module with MVC and assets)
+  Add SapuReca game module with MVC and assets
+    Introduce the SapuReca mini-game: new include and full MVC implementation plus assets.
+    Adds includes/sapureca.th (constants and metadata), src/sapureca/{sapureca.tlpp, mvc/{sapureca.controller.tlpp,sapureca.model.tlpp,sapureca.view.tlpp}, resources/images/*, resources/songs/*} and a GIF helper (src/tools/h_gif89.tlpp).
+    The model handles game state, board building, save/restore and file extraction;
+      the controller exposes a clean API for view interactions;
+      the view manages UI, animation and sound.
+    Adds temporary file extraction, shape/animation helpers and all required image/sound resources to run the game.
+    + src/sapureca/mvc/sapureca.controller.tlpp
+    + src/sapureca/mvc/sapureca.model.tlpp
+    + src/sapureca/mvc/sapureca.view.tlpp
+    + src/sapureca/resources/images/instrucoes.gif
+    + src/sapureca/resources/images/pantano.jpg
+    + src/sapureca/resources/images/parabens.gif
+    + src/sapureca/resources/images/passaro_voando.gif
+    + src/sapureca/resources/images/perereca.ico
+    + src/sapureca/resources/images/reca_1_frame_0000.gif
+    + src/sapureca/resources/images/reca_j1.gif
+    + src/sapureca/resources/images/reca_j2.gif
+    + src/sapureca/resources/images/reiniciar.gif
+    + src/sapureca/resources/images/sapo_dancando.gif
+    + src/sapureca/resources/images/sapoinseto.gif
+    + src/sapureca/resources/images/sapu_1_frame_0000.gif
+    + src/sapureca/resources/images/sapu_j1.gif
+    + src/sapureca/resources/images/sapu_j2.gif
+    + src/sapureca/resources/songs/aplausos.wav
+    + src/sapureca/resources/songs/sapo.wav
+    + src/sapureca/resources/songs/sapos.wav
+    + src/sapureca/sapureca.tlpp
+    + src/tools/h_gif89.tlpp
+    + includes/sapureca.th
 
 2025-07-24 21:37 UTC naldodj (makepatch)
   + bin/patches/ext.txt
