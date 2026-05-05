@@ -2,8 +2,14 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add BACK_SLASH constant and type signatures)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Use constants for path separators and add include)"
 */
+
+2026-05-05 23:52 UTC naldodj (Use constants for path separators and add include)
+  Use constants for path separators and add include
+    Include game.tool.th and replace hard-coded '/' and '\\' path characters with FORWARD_SLASH and BACK_SLASH in H_GIF89::LoadGIF.
+    This centralizes platform-dependent path separator usage and avoids literal characters, improving clarity and maintainability.
+      * src/tools/h_gif89.tlpp
 
 2026-05-05 23:47 UTC naldodj (Add BACK_SLASH constant and type signatures)
   Add BACK_SLASH constant and type signatures

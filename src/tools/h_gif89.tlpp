@@ -8,6 +8,7 @@
 #include "fileio.ch"
 #include "parmtype.ch"
 #include "tlpp-core.th"
+#include "game.tool.th"
 
 namespace sapureca
 using namespace sapureca
@@ -56,7 +57,7 @@ static method LoadGIF(cGIF,aGifInfo,aFrames,aImgInfo,cPath) class H_GIF89
         aSize(aFrames,0)
         aSize(aImgInfo,0)
 
-        cPathChr:=if(nRmtType==2,"/","\")
+        cPathChr:=if(nRmtType==2,FORWARD_SLASH,BACK_SLASH)
 
         if (!(SubStr(cPath,-1)==cPathChr))
             cPath+=cPathChr
