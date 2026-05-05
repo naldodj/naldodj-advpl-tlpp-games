@@ -2,8 +2,15 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add SapuReca game module with MVC and assets)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add GIF frame state & step playback; adjust timers)"
 */
+
+2026-05-05 18:26 UTC naldodj (Add GIF frame state & step playback; adjust timers)
+  Add GIF frame state & step playback; adjust timers
+    Introduce a per-timer GIF state array (__aSapuRecaGIFState) and a new PlayGIFFrameStep function to advance GIFs one frame at a time while preserving current frame state.
+    Timers now use SAPURECA_ANIMATE_SLEEP interval instead of 1, and TPlayGIF sampling frequency was reduced (mod 15 -> mod 2) to make playback more responsive. Removed PreLoadGIFFrames call and ensure GIF state is reset on AnimationDeactivate and RemoveGIFCache.
+    These changes reduce redundant work, allow stepped frame updates per timer, and keep per-timer busy flags to prevent concurrent updates.
+      * src/sapureca/mvc/sapureca.view.tlpp
 
 2026-05-05 17:08 UTC naldodj (Add SapuReca game module with MVC and assets)
   Add SapuReca game module with MVC and assets

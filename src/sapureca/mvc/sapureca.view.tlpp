@@ -21,6 +21,7 @@ using namespace naldodj.games
 
 static __aSapuRecaTTimer as array
 static __aSapuRecaGifCache as array
+static __aSapuRecaGIFState as array
 static __lSapuRecaMoving as logical
 static __lSapuRecaStopTimers as logical
 
@@ -252,6 +253,8 @@ method AnimationCreate() class SapuRecaView
         DEFAULT __aSapuRecaTTimer:=Array(5)
         aFill(__aSapuRecaTTimer,.F.)
         DEFAULT __aSapuRecaGifCache:=Array(0)
+        DEFAULT __aSapuRecaGIFState:=Array(5)
+        aFill(__aSapuRecaGIFState,nil)
         __lSapuRecaStopTimers:=.F.
 
         self:jAnimation:=JSONObject():New()
@@ -270,21 +273,19 @@ method AnimationCreate() class SapuRecaView
         self:jAnimation["oGIFFreg"]:=oGIFFreg
         self:jAnimation["oGIFHFreg"]:=oGIFHFreg
 
-        PreLoadGIFFrames(@aShapes,@self)
-
         nGIFFly:=Randomize(1,1500)
         nGIFFrog:=Randomize(1,1500)
         nGIFFreg:=Randomize(1,1500)
 
-        DEFINE TIMER oTimerFly OF self:oDlg INTERVAL 1 ACTION Eval(oTimerFly:bAction)
+        DEFINE TIMER oTimerFly OF self:oDlg INTERVAL SAPURECA_ANIMATE_SLEEP ACTION Eval(oTimerFly:bAction)
         oTimerFly:bAction:={||TPlayGIF(4,@nGIFFly,"flyAlone",@oGIFFly,@aShapes,@oView,.F.)}
         self:jAnimation["oTimerFly"]:=oTimerFly
 
-        DEFINE TIMER oTimerFrog OF self:oDlg INTERVAL 1 ACTION Eval(oTimerFrog:bAction)
+        DEFINE TIMER oTimerFrog OF self:oDlg INTERVAL SAPURECA_ANIMATE_SLEEP ACTION Eval(oTimerFrog:bAction)
         oTimerFrog:bAction:={||TPlayGIF(2,@nGIFFrog,"Frog",@oGIFFrog,@aShapes,@oView,.F.)}
         self:jAnimation["oTimerFrog"]:=oTimerFrog
 
-        DEFINE TIMER oTimerFreg OF self:oDlg INTERVAL 1 ACTION Eval(oTimerFreg:bAction)
+        DEFINE TIMER oTimerFreg OF self:oDlg INTERVAL SAPURECA_ANIMATE_SLEEP ACTION Eval(oTimerFreg:bAction)
         oTimerFreg:bAction:={||TPlayGIF(3,@nGIFFreg,"Freg",@oGIFHFreg,@aShapes,@oView,.T.)}
         self:jAnimation["oTimerFreg"]:=oTimerFreg
 
@@ -362,6 +363,8 @@ method AnimationDeactivate(lRemove) class SapuRecaView
     if (lRemove)
         RemoveGIFCache()
     endif
+    DEFAULT __aSapuRecaGIFState:=Array(5)
+    aFill(__aSapuRecaGIFState,nil)
 
 return(lAnimationDeactivate)
 
@@ -625,11 +628,7 @@ static function TPlayGIF(nTimer,nAnimeCGIF,cShape,oGIF,aShapes,oView,lHide) as l
         if (!lPlay)
             break
         endif
-        lPlay:=(aScan(__aSapuRecaTTimer,{|lTimer as logical|lTimer})==0)
-        if (!lPlay)
-            break
-        endif
-        lPlay:=((++nAnimeCGIF%15)==0)
+        lPlay:=((++nAnimeCGIF%2)==0)
         if (!lPlay)
             break
         endif
@@ -655,10 +654,93 @@ static function PlayGIFC(nTimer,cShape,oObjGIF,aShapes,oView,lHide) as logical
     lPlayGIFC:=(nShapeAT>0)
     if (lPlayGIFC)
         cGIFFile:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_IMAGE]
-        lPlayGIFC:=PlayGIFFrames(@nTimer,@cGIFFile,@oObjGIF,@oView,@lHide)
+        lPlayGIFC:=PlayGIFFrameStep(@nTimer,@cGIFFile,@oObjGIF,@oView,@lHide)
     endif
 
 return(lPlayGIFC)
+
+static function PlayGIFFrameStep(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
+
+    local aGIFFrames as array
+    local aPictures as array
+
+    local aState as variant
+
+    local cBMPFile as character
+    local cTempPath as character
+
+    local lBusy as logical
+    local lPlayGIFFrameStep as logical
+
+    local nCurrentFrame as numeric
+    local nTotalFrames as numeric
+
+    DEFAULT lHide:=.F.
+    DEFAULT __aSapuRecaTTimer:=Array(5)
+    DEFAULT __aSapuRecaGIFState:=Array(5)
+    DEFAULT __lSapuRecaStopTimers:=.F.
+
+    if (nTimer>Len(__aSapuRecaTTimer))
+        aSize(__aSapuRecaTTimer,nTimer)
+    endif
+    if (nTimer>Len(__aSapuRecaGIFState))
+        aSize(__aSapuRecaGIFState,nTimer)
+    endif
+
+    lBusy:=((ValType(__aSapuRecaTTimer[nTimer])=="L").and.__aSapuRecaTTimer[nTimer])
+    lPlayGIFFrameStep:=((!lBusy).and.(!__lSapuRecaStopTimers).and.File(cGIFFile).and.(ValType(oObjGIF)=="O"))
+    if (lPlayGIFFrameStep)
+        __aSapuRecaTTimer[nTimer]:=.T.
+
+        begin sequence
+
+            cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca\")
+            aGIFFrames:=GetGIFFrames(@cGIFFile,@cTempPath)
+            lPlayGIFFrameStep:=(Len(aGIFFrames)>=3)
+            if (!lPlayGIFFrameStep)
+                break
+            endif
+
+            aPictures:=aGIFFrames[2]
+            nTotalFrames:=Len(aPictures)
+            lPlayGIFFrameStep:=(nTotalFrames>0)
+            if (!lPlayGIFFrameStep)
+                break
+            endif
+
+            aState:=__aSapuRecaGIFState[nTimer]
+            if ((ValType(aState)<>"A").or.(Len(aState)<3).or.(aState[1]<>cGIFFile))
+                cBMPFile:=oObjGIF:cBMPFile
+                aState:={cGIFFile,1,cBMPFile}
+            endif
+
+            nCurrentFrame:=aState[2]
+            if ((ValType(nCurrentFrame)<>"N").or.(nCurrentFrame<=0).or.(nCurrentFrame>nTotalFrames))
+                nCurrentFrame:=1
+            endif
+
+            if (lHide)
+                oObjGIF:Show()
+            endif
+            oObjGIF:cBMPFile:=aPictures[nCurrentFrame]
+            if (lHide)
+                oObjGIF:Hide()
+            endif
+
+            nCurrentFrame++
+            if (nCurrentFrame>nTotalFrames)
+                nCurrentFrame:=1
+            endif
+
+            aState[2]:=nCurrentFrame
+            __aSapuRecaGIFState[nTimer]:=aState
+
+        end sequence
+
+        __aSapuRecaTTimer[nTimer]:=.F.
+    endif
+
+return(lPlayGIFFrameStep)
 
 static function PlayGIFFrames(nTimer,cGIFFile,oObjGIF,oView,lHide) as logical
 
@@ -796,5 +878,7 @@ static procedure RemoveGIFCache()
     next
 
     aSize(__aSapuRecaGifCache,0)
+    DEFAULT __aSapuRecaGIFState:=Array(5)
+    aFill(__aSapuRecaGIFState,nil)
 
 return
