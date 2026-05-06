@@ -64,15 +64,19 @@ return(self)
 
 method Activate() class Game15Model
     self:lExecute:=self:CanExecute()
-    self:lActive:=self:lExecute
-    if (self:lActive)
+    self:lActive:=.F.
+    if (self:lExecute)
         self:jGame15Data:=InitGame15()
-        self:lActive:=(valType(self:jGame15Data)=="J")
-        self:lActive:=self:lActive.and.(self:jGame15Data:HasProperty("Game15_Table"))
-        self:lActive:=self:lActive.and.(self:jGame15Data["Game15_Table"]:HasProperty("G15_Alias"))
-        self:lActive:=self:lActive.and.(Select(self:jGame15Data["Game15_Table"]["G15_Alias"])>0)
-        self:StartTime()
-        self:lActive:=self:lActive.and.Activate(self:jGame15Data)
+        self:lActive:=Game15DataIsReady(self:jGame15Data)
+        if (self:lActive)
+            self:lActive:=Activate(self:jGame15Data)
+        endif
+        if (self:lActive)
+            self:lActive:=Game15BoardIsReady(self:jGame15Data)
+        endif
+        if (self:lActive)
+            self:StartTime()
+        endif
     endif
 return(self:lActive)
 
@@ -118,7 +122,7 @@ return(self:lActive)
 method Game15Data() class Game15Model
     local lGame15Data as logical
     local jGame15Data as json
-    lGame15Data:=(self:CanExecute().and.self:IsActive())
+    lGame15Data:=(self:CanExecute().and.(ValType(self:jGame15Data)=="J"))
     if (lGame15Data)
         jGame15Data:=self:jGame15Data
     endif
@@ -128,7 +132,8 @@ method ReloadBoard() class Game15Model
     local lReload as logical
     lReload:=self:IsActive()
     if (lReload)
-        self:Activate()
+        CloseTopTable(self:jGame15Data)
+        lReload:=self:Activate()
     endif
 return(lReload)
 
@@ -198,6 +203,72 @@ method Time2NextDay(cTime,dDate) class Game15Model
     paramtype 1 var cTime as character
     paramtype 2 var dDate as date
 return(Time2NextDay(@cTime,@dDate))
+
+static function Game15DataIsReady(jGame15Data as json) as logical
+
+    local lGame15DataIsReady as logical
+
+    lGame15DataIsReady:=(ValType(jGame15Data)=="J")
+    if (lGame15DataIsReady)
+        lGame15DataIsReady:=jGame15Data:HasProperty("Game15_Shapes")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Shapes"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data["Game15_Shapes"]:HasProperty("aShapes"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Shapes"]["aShapes"])=="A")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_Clicks"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Clicks"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_About"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_About"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_TopTable"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_TopTable"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_Table"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Table"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Coordinates"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Coordinates"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_Files_ico"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Files_ico"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_Files_bmps_aux"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Files_bmps_aux"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_Files_bmps_play"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Files_bmps_play"])=="J")
+        lGame15DataIsReady:=lGame15DataIsReady.and.(jGame15Data:HasProperty("Game15_Files_buttons"))
+        lGame15DataIsReady:=lGame15DataIsReady.and.(ValType(jGame15Data["Game15_Files_buttons"])=="J")
+    endif
+
+return(lGame15DataIsReady)
+
+static function Game15BoardIsReady(jGame15Data as json) as logical
+
+    local lGame15BoardIsReady as logical
+
+    lGame15BoardIsReady:=Game15DataIsReady(jGame15Data)
+    if (lGame15BoardIsReady)
+        lGame15BoardIsReady:=(Len(jGame15Data["Game15_Shapes"]["aShapes"])>0)
+        lGame15BoardIsReady:=lGame15BoardIsReady.and.(Len(jGame15Data["Game15_About"]["aShapes"])>0)
+        lGame15BoardIsReady:=lGame15BoardIsReady.and.(Len(jGame15Data["Game15_TopTable"]["aShapes"])>0)
+    endif
+
+return(lGame15BoardIsReady)
+
+static procedure CloseTopTable(jGame15Data as json)
+
+    local cG15Alias as character
+
+    if (;
+            (ValType(jGame15Data)=="J");
+            .and.;
+            (jGame15Data:HasProperty("Game15_Table"));
+            .and.;
+            (ValType(jGame15Data["Game15_Table"])=="J");
+    )
+        if (jGame15Data["Game15_Table"]:HasProperty("G15_Alias"))
+            cG15Alias:=jGame15Data["Game15_Table"]["G15_Alias"]
+            if ((!Empty(cG15Alias)).and.(Select(cG15Alias)>0))
+                (cG15Alias)->(dbCloseArea())
+            endif
+        endif
+    endif
+
+return
 
 /*
     Funcao:Activate
@@ -1100,7 +1171,7 @@ static function OpenTopTable(jGame15Data as json)
     local aG15Columns as array
 
     local cRDD:="DBFCDX" as character
-    local cG15Path:="\g15\" as character
+    local cG15Path:=BACK_SLASH+"g15"+BACK_SLASH as character
     local cG15File:=cG15Path+"game15.dat" as character
     local cG15Index:=cG15Path+"game15.cdx" as character
     local cG15Alias:="GAME15" as character
@@ -1170,11 +1241,23 @@ static function OpenTopTable(jGame15Data as json)
     aG15Columns[7][G15_DBS_TITLE]:="RecNo"
     aG15Columns[7][G15_DBS_POS]:=Len(aG15Columns)
 
+    if (;
+            (!jGame15Data:HasProperty("Game15_Table"));
+            .or.;
+            (ValType(jGame15Data["Game15_Table"])<>"J");
+    )
+        jGame15Data["Game15_Table"]:=JSONObject():New()
+    endif
+    jGame15Data["Game15_Table"]["G15_Alias"]:=cG15Alias
+    jGame15Data["Game15_Table"]["G15_Fields"]:=Array(0)
+    jGame15Data["Game15_Table"]["G15_Columns"]:=Array(0)
+    jGame15Data["Game15_Table"]["lIsOpen"]:=.F.
+
     begin sequence
 
         nAttempts:=0
         while (!lIsDir(cG15Path))
-            MakeDir(cG15Path)
+            FWMakeDir(cG15Path)
             if (!lIsDir(cG15Path))
                 Sleep(300)
                 if (++nAttempts>10)
@@ -1282,6 +1365,7 @@ static function OpenTopTable(jGame15Data as json)
     MsObjects():FreeObjects(@aG15Fields)
     MsObjects():FreeObjects(@aG15Columns)
 
+    jGame15Data["Game15_Table"]["G15_Alias"]:=cG15Alias
     jGame15Data["Game15_Table"]["lIsOpen"]:=(select(cG15Alias)>0)
     lIsOpen:=jGame15Data["Game15_Table"]["lIsOpen"]
 
@@ -1466,7 +1550,7 @@ return(lLock)
 static function InitGame15() as json
 
     local cFile as character
-    local cTempPath:=(GetTempPath()+"Game15\") as character
+    local cTempPath:=(GetTempPath()+"Game15"+BACK_SLASH) as character
 
     local jGame15Data:=JSONObject():New() as json
 
@@ -1569,7 +1653,7 @@ static procedure ExtractFiles(jGame15Data,cName)
     local nNames as numeric
 
     if (!lIsDir(cTempPath))
-        MakeDir(cTempPath)
+        FWMakeDir(cTempPath)
     endif
 
     nNames:=Len(aNames)

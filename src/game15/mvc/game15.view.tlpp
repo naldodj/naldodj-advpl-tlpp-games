@@ -115,7 +115,7 @@ method CreateBoard(bViewActivate) class Game15View
 
         aAdd(oView:aNotPlayButtonsActions,{"Close",{||oView:oTPaintPanel:ClearAll(),oView:oTPaintPanel:oWnd:End()}})
         aAdd(oView:aNotPlayButtonsActions,{"Load Game",{||RestoreGame(@oController,@bRestoreGameUpdateView)}})
-        aAdd(oView:aNotPlayButtonsActions,{"Start of new game",{||FWMsgRun(nil,{||oView:oTPaintPanel:ClearAll(),oController:ReloadBoard(),LoadGame(nil,nil,@oController,@oView:oTPaintPanel)},"Wait..","Start of new game")}})
+        aAdd(oView:aNotPlayButtonsActions,{"Start of new game",{||FWMsgRun(nil,{||StartNewGame(@oView,@oController)},"Wait..","Start of new game")}})
         aAdd(oView:aNotPlayButtonsActions,{"Save a game",{||SaveGame(@oController)}})
         aAdd(oView:aNotPlayButtonsActions,{"About",{||oView:MsgAbout()}})
         aAdd(oView:aNotPlayButtonsActions,{"Top Table",{||oView:ShowTopTable()}})
@@ -437,6 +437,18 @@ static function lClickGame15(x as numeric,y as numeric,oView as object,oControll
     end sequence
 
 return(lAction)
+
+static function StartNewGame(oView as object,oController as object) as logical
+
+    local lStartNewGame as logical
+
+    lStartNewGame:=oController:ReloadBoard()
+    if (lStartNewGame)
+        oView:oTPaintPanel:ClearAll()
+        LoadGame(nil,nil,@oController,@oView:oTPaintPanel)
+    endif
+
+return(lStartNewGame)
 
 static function rClickTopTable(x as numeric,y as numeric,oView as object,oTPaintPanel as object,oTWBrowse as object,aTWBrowseItems as array) as logical
     SYMBOL_UNUSED(x)

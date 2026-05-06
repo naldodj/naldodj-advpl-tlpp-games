@@ -719,7 +719,7 @@ static procedure ExtractFiles(jSapuRecaData as json,cName as character)
     local nNames as numeric
 
     if (!lIsDir(cTempPath))
-        MakeDir(cTempPath)
+        FWMakeDir(cTempPath)
     endif
 
     nNames:=Len(aNames)

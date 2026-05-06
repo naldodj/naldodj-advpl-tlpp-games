@@ -2,8 +2,20 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Use constants for path separators and add include)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Harden Game15 JSON handling & file ops)"
 */
+
+2026-05-06 00:53 UTC naldodj (Harden Game15 JSON handling & file ops)
+  Harden Game15 JSON handling & file ops
+    Add robust validation and lifecycle helpers for Game15 data and improve filesystem calls.
+    Controller: add ValType checks and safer accessors (GetGame15Data) to avoid nil/crash cases, validate data before building browse arrays or shapes, and guard UI callbacks.
+    Model: introduce Game15DataIsReady, Game15BoardIsReady and CloseTopTable helpers; simplify Activate flow to use these checks, close top table before reloading, and normalize path/backslash and directory creation via FWMakeDir.
+    View: extract StartNewGame helper and update "Start of new game" action to use it. sapureca.model: replace MakeDir with FWMakeDir for consistent directory creation.
+    These changes increase resilience when JSON sections are missing and standardize file/dir operations.
+      * src/game15/mvc/game15.controller.tlpp
+      * src/sapureca/mvc/sapureca.model.tlpp
+      * src/game15/mvc/game15.model.tlpp
+      * src/game15/mvc/game15.view.tlpp
 
 2026-05-05 23:52 UTC naldodj (Use constants for path separators and add include)
   Use constants for path separators and add include

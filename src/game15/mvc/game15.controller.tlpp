@@ -84,6 +84,9 @@ method Activate() class Game15Controller
         self:lActive:=lActive
         if (self:lActive)
             self:jGame15Data:=oModel:Game15Data()
+            self:lActive:=(ValType(self:jGame15Data)=="J")
+        endif
+        if (self:lActive)
             self:lSetDeleted:=Set(_SET_DELETED,.T.)
             bViewActivate:={||oController:StartTime()}
             oView:Activate(bViewActivate)
@@ -132,6 +135,7 @@ method ReloadBoard() class Game15Controller
         lReload:=self:oModel:ReloadBoard()
         if (lReload)
             self:jGame15Data:=self:oModel:Game15Data()
+            lReload:=(ValType(self:jGame15Data)=="J")
         endif
     endif
 return(lReload)
@@ -215,8 +219,11 @@ method BuildTWBrowseArrayItems(/*@*/aTWBrowseItems) class Game15Controller
     lBuildTWBrowseArrayItems:=self:IsActive()
     if (lBuildTWBrowseArrayItems)
         paramtype 1 var aTWBrowseItems as array
-        cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
-        lBuildTWBrowseArrayItems:=BuildTWBrowseArrayItems(@cG15Alias,@aTWBrowseItems)
+        cG15Alias:=self:GetGame15Data("Game15_Table","G15_Alias","")
+        lBuildTWBrowseArrayItems:=(!Empty(cG15Alias).and.(Select(cG15Alias)>0))
+        if (lBuildTWBrowseArrayItems)
+            BuildTWBrowseArrayItems(@cG15Alias,@aTWBrowseItems)
+        endif
     endif
 return(lBuildTWBrowseArrayItems)
 
@@ -226,10 +233,13 @@ method BuildTWBrowseArrayHeaders(/*@*/aTWBrowseHeaders) class Game15Controller
     lBuildTWBrowseArrayHeaders:=self:IsActive()
     if (lBuildTWBrowseArrayHeaders)
         paramtype 1 var aTWBrowseHeaders as array
-        aG15Columns:=self:jGame15Data["Game15_Table"]["G15_Columns"]
-        aSort(aG15Columns,nil,nil,{|x,y|x[G15_DBS_POS]<y[G15_DBS_POS]})
         aSize(aTWBrowseHeaders,0)
-        aEval(aG15Columns,{|f as array,n as numeric|aAdd(aTWBrowseHeaders,f[G15_DBS_TITLE])})
+        aG15Columns:=self:GetGame15Data("Game15_Table","G15_Columns",{})
+        lBuildTWBrowseArrayHeaders:=(ValType(aG15Columns)=="A")
+        if (lBuildTWBrowseArrayHeaders)
+            aSort(aG15Columns,nil,nil,{|x,y|x[G15_DBS_POS]<y[G15_DBS_POS]})
+            aEval(aG15Columns,{|f as array,n as numeric|aAdd(aTWBrowseHeaders,f[G15_DBS_TITLE])})
+        endif
     endif
 return(lBuildTWBrowseArrayHeaders)
 
@@ -239,8 +249,8 @@ method GetPlayerNameSize() class Game15Controller
     local lGetPlayerNameSize as logical
     lGetPlayerNameSize:=self:IsActive()
     if (lGetPlayerNameSize)
-        cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
-        if (Select(cG15Alias)>0)
+        cG15Alias:=self:GetGame15Data("Game15_Table","G15_Alias","")
+        if ((!Empty(cG15Alias)).and.(Select(cG15Alias)>0))
             nPlayerNameSize:=Len((cG15Alias)->G15_NAME)
         endif
     endif
@@ -250,8 +260,8 @@ method SetGame15Data(cSection,cKey,xValue) class Game15Controller
     local lSetGame15Data as logical
     paramtype 1 var cSection as character
     paramtype 2 var cKey as character
-    lSetGame15Data:=((self:IsActive()).and.(self:jGame15Data:HasProperty(cSection)))
-    lSetGame15Data:=((lSetGame15Data).and.(self:jGame15Data[cSection]:HasProperty(cKey)))
+    lSetGame15Data:=((self:IsActive()).and.(ValType(self:jGame15Data)=="J").and.(self:jGame15Data:HasProperty(cSection)))
+    lSetGame15Data:=((lSetGame15Data).and.(ValType(self:jGame15Data[cSection])=="J").and.(self:jGame15Data[cSection]:HasProperty(cKey)))
     if (lSetGame15Data)
         self:jGame15Data[cSection][cKey]:=xValue
     endif
@@ -262,7 +272,8 @@ method GetGame15Data(cSection,cKey,xDefault) class Game15Controller
     local xValue as variant
     paramtype 1 var cSection as character
     paramtype 2 var cKey as character optional default ""
-    lGetGame15Data:=((self:IsActive()).and.(self:jGame15Data:HasProperty(cSection)))
+    paramtype 3 var xDefault as array,block,date,character,json,logical,numeric optional default NIL
+    lGetGame15Data:=((self:IsActive()).and.(ValType(self:jGame15Data)=="J").and.(self:jGame15Data:HasProperty(cSection)))
     if (lGetGame15Data)
         xValue:=self:jGame15Data[cSection]
         if (!Empty(cKey).and.(ValType(xValue)=="J"))
@@ -289,7 +300,7 @@ method ShapeGetSize(cSection) class Game15Controller
 
     lShapeGetSize:=self:IsActive()
     if (lShapeGetSize)
-        aShapes:=self:GetGame15Data(cSection,"aShapes")
+        aShapes:=self:GetGame15Data(cSection,"aShapes",{})
         nShapeSize:=Len(aShapes)
     endif
 
@@ -308,10 +319,13 @@ method ShapeGetIDAT(cSection,nShape) class Game15Controller
 
     lShapeGetIDAT:=self:IsActive()
     if (lShapeGetIDAT)
-        aShapes:=self:jGame15Data[cSection]["aShapes"]
-        nShapeAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_ID]==nShape)},nShape)
-        if (nShapeAT==0)
-            nShapeAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_ID]==nShape)})
+        aShapes:=self:GetGame15Data(cSection,"aShapes",{})
+        lShapeGetIDAT:=(ValType(aShapes)=="A")
+        if (lShapeGetIDAT)
+            nShapeAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_ID]==nShape)},nShape)
+            if (nShapeAT==0)
+                nShapeAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_ID]==nShape)})
+            endif
         endif
     endif
 
@@ -331,10 +345,13 @@ method ShapeGetATValue(cSection,nShapeAT,nKeyAT) class Game15Controller
 
     lShapeGetATValue:=self:IsActive()
     if (lShapeGetATValue)
-        aShapes:=self:jGame15Data[cSection]["aShapes"]
-        if ((nShapeAT>0).and.(nShapeAT<=Len(aShapes)))
-            if ((nKeyAT>0).and.(nKeyAT<=Len(aShapes[nShapeAT])))
-                xValue:=aShapes[nShapeAT][nKeyAT]
+        aShapes:=self:GetGame15Data(cSection,"aShapes",{})
+        lShapeGetATValue:=(ValType(aShapes)=="A")
+        if (lShapeGetATValue)
+            if ((nShapeAT>0).and.(nShapeAT<=Len(aShapes)))
+                if ((nKeyAT>0).and.(nKeyAT<=Len(aShapes[nShapeAT])))
+                    xValue:=aShapes[nShapeAT][nKeyAT]
+                endif
             endif
         endif
     endif
@@ -371,18 +388,21 @@ method ViewSetTWBrowseItemsLine(oTWBrowse,aTWBrowseItems) class Game15Controller
     lViewSetTWBrowseItemsLine:=self:IsActive()
 
     if (lViewSetTWBrowseItemsLine)
-        cG15Alias:=self:jGame15Data["Game15_Table"]["G15_Alias"]
-        oTWBrowse:bLine:={||(cG15Alias)->(MsGoto(aTWBrowseItems[oTWBrowse:nAT][G15_AT_R_E_C_N_O_])),;
-                                {;
-                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_TIME],;
-                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_DPTIME],;
-                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_NPLAYS],;
-                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_CLICKS],;
-                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_TCLICK],;
-                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_NAME],;
-                                    aTWBrowseItems[oTWBrowse:nAT][G15_AT_R_E_C_N_O_];
-                        };
-                    }
+        cG15Alias:=self:GetGame15Data("Game15_Table","G15_Alias","")
+        lViewSetTWBrowseItemsLine:=(!Empty(cG15Alias).and.(Select(cG15Alias)>0).and.(Len(aTWBrowseItems)>0))
+        if (lViewSetTWBrowseItemsLine)
+            oTWBrowse:bLine:={||(cG15Alias)->(MsGoto(aTWBrowseItems[oTWBrowse:nAT][G15_AT_R_E_C_N_O_])),;
+                                    {;
+                                        aTWBrowseItems[oTWBrowse:nAT][G15_AT_TIME],;
+                                        aTWBrowseItems[oTWBrowse:nAT][G15_AT_DPTIME],;
+                                        aTWBrowseItems[oTWBrowse:nAT][G15_AT_NPLAYS],;
+                                        aTWBrowseItems[oTWBrowse:nAT][G15_AT_CLICKS],;
+                                        aTWBrowseItems[oTWBrowse:nAT][G15_AT_TCLICK],;
+                                        aTWBrowseItems[oTWBrowse:nAT][G15_AT_NAME],;
+                                        aTWBrowseItems[oTWBrowse:nAT][G15_AT_R_E_C_N_O_];
+                            };
+                        }
+        endif
     endif
 
 return
