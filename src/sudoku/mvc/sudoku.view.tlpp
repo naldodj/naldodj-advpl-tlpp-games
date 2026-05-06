@@ -22,6 +22,7 @@ class SudokuView
 
     private data lActive as logical
     private data lExecute as logical
+    private data cSudokuTimeDisplay as character
 
     public data oDlg as object
     public data oController as object
@@ -53,6 +54,7 @@ endclass
 method New(oController) class SudokuView
     paramtype 1 var oController as object
     self:lActive:=.F.
+    self:SudokuDataSet("cSudokuTimeDisplay","00:00:00")
     if (self:CanExecute().and.(GetClassName(oController)=="SUDOKU.SUDOKUCONTROLLER"))
         self:jSudokuData:=JSONObject():New()
         self:oController:=oController
@@ -249,7 +251,6 @@ method CreateBoard() class SudokuView
 return(lCreateBoard)
 
 method SudokuTTimerCreate(oParent) class SudokuView
-    local cSpace50 as character
     local lSudokuTTimerCreate as logical
     local oView as object
     local oSudokuGetTTimer as object
@@ -258,10 +259,12 @@ method SudokuTTimerCreate(oParent) class SudokuView
         paramtype 1 var oParent as object class TBAR
         oView:=self
         oView:SudokuTTimerDeactivate()
+        oView:SudokuDataSet("dSudokuStartDate",Date())
         oView:SudokuDataSet("cSudokuStartTime",Time())
+        oView:SudokuDataSet("nSudokuStartSeconds",Seconds())
         oView:SudokuDataSet("cSudokuTimeElapsed","00:00:00")
-        cSpace50:=Space(50)
-        @ 000,080 MSGET oSudokuGetTTimer VAR (cSpace50+oView:SudokuData()["cSudokuTimeElapsed"]) SIZE 200,010 OF oParent PIXEL WHEN .F. CENTERED
+        self:SudokuDataSet("cSudokuTimeDisplay",oView:SudokuDataGet("cSudokuTimeElapsed","00:00:00"))
+        @ 000,080 MSGET oSudokuGetTTimer VAR self:SudokuDataGet("cSudokuTimeDisplay") SIZE 250,010 OF oParent PIXEL WHEN .F. CENTERED
         oView:SudokuDataSet("oSudokuGetTTimer",oSudokuGetTTimer)
         DEFINE;
          TIMER self:jSudokuData["oSudokuTTimer"];
@@ -272,14 +275,26 @@ method SudokuTTimerCreate(oParent) class SudokuView
 return(lSudokuTTimerCreate)
 
 method SudokuTTimerUpdate() class SudokuView
+    local cSudokuTimeElapsed as character
+    local dSudokuStartDate as date
     local lSudokuTTimerUpdate as logical
+    local nSudokuElapsedSeconds as numeric
+    local nSudokuStartSeconds as numeric
     lSudokuTTimerUpdate:=((self:CanExecute()).and.(self:IsActive()))
     lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("cSudokuTimeElapsed")))
-    lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("cSudokuStartTime")))
+    lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("dSudokuStartDate")))
+    lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("nSudokuStartSeconds")))
     lSudokuTTimerUpdate:=((lSudokuTTimerUpdate).and.(self:jSudokuData:HasProperty("oSudokuGetTTimer")))
     if (lSudokuTTimerUpdate)
-        self:SudokuDataSet("cSudokuTimeElapsed",ElapTime(self:jSudokuData["cSudokuStartTime"],Time()))
+        dSudokuStartDate:=self:jSudokuData["dSudokuStartDate"]
+        nSudokuStartSeconds:=self:jSudokuData["nSudokuStartSeconds"]
+        nSudokuElapsedSeconds:=(((DateDiffDay(Date(),dSudokuStartDate))*86400)+(Seconds()-nSudokuStartSeconds))
+        nSudokuElapsedSeconds:=Max(0,Int(nSudokuElapsedSeconds))
+        cSudokuTimeElapsed:=timeCalc():SecsToTime(nSudokuElapsedSeconds)
+        self:SudokuDataSet("cSudokuTimeElapsed",cSudokuTimeElapsed)
+        self:SudokuDataSet("cSudokuTimeDisplay",Space(15)+cSudokuTimeElapsed)
         self:SudokuDataGet("oSudokuGetTTimer"):Refresh()
+        ProcessMessages()
     endif
 return(lSudokuTTimerUpdate)
 
@@ -288,7 +303,7 @@ method SudokuTTimerActivate() class SudokuView
     lSudokuTTimerActivate:=((self:CanExecute()).and.(self:IsActive()))
     lSudokuTTimerActivate:=((lSudokuTTimerActivate).and.(self:jSudokuData:HasProperty("oSudokuTTimer")))
     if (lSudokuTTimerActivate)
-        self:SudokuDataSet("cSudokuTimeElapsed","00:00:00")
+        self:SudokuTTimerUpdate()
         ACTIVATE TIMER self:SudokuDataGet("oSudokuTTimer")
     endif
 return(lSudokuTTimerActivate)
@@ -298,6 +313,7 @@ method SudokuTTimerDeactivate() class SudokuView
     lSudokuTTimerDeactivate:=((self:CanExecute()).and.(self:IsActive()))
     lSudokuTTimerDeactivate:=((lSudokuTTimerDeactivate).and.(self:jSudokuData:HasProperty("oSudokuTTimer")))
     if (lSudokuTTimerDeactivate)
+        self:SudokuTTimerUpdate()
         self:SudokuDataGet("oSudokuTTimer"):Deactivate()
     endif
 return(lSudokuTTimerDeactivate)
@@ -444,3 +460,6 @@ return(jObjects)
 
 static function SudokuHelp() as numeric
 return(ShellExecute("open","https://blacktdn.com.br/2008/11/sudoku-tutorial.html","","",1))
+
+static function DateDiffDay(dDate1,dDate2) as numeric
+return(dDate1-dDate2)

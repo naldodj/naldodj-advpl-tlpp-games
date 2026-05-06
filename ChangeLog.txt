@@ -2,8 +2,15 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Harden Game15 JSON handling & file ops)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Improve Sudoku timer tracking and display)"
 */
+
+2026-05-06 05:35 UTC naldodj (Improve Sudoku timer tracking and display)
+  Improve Sudoku timer tracking and display
+    Add persistent timer state and improved elapsed-time calculation/display.
+    Introduces cSudokuTimeDisplay, stores start date/time/seconds (dSudokuStartDate, nSudokuStartSeconds), and computes total elapsed seconds across days using a new DateDiffDay helper; elapsed seconds are converted to HH:MM:SS and shown via the oSudokuGetTTimer control.
+    Initialize display in New, remove unused cSpace50, and ensure timer UI is refreshed (with ProcessMessages) when activating/updating/deactivating the timer.
+      * src/sudoku/mvc/sudoku.view.tlpp
 
 2026-05-06 00:53 UTC naldodj (Harden Game15 JSON handling & file ops)
   Harden Game15 JSON handling & file ops
