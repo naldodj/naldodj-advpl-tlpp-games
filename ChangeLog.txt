@@ -2,8 +2,15 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Improve Sudoku timer tracking and display)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add game.tool include; use BACK_SLASH in paths)"
 */
+
+2026-05-06 05:46 UTC naldodj (Add game.tool include; use BACK_SLASH in paths)
+  Add game.tool include; use BACK_SLASH in paths
+    Include game.tool.th and replace hardcoded Windows backslashes with BACK_SLASH concatenation for the MCP IO directory and the WinExec call, improving readability and avoiding escaped backslash literals.
+    Also cleaned up a sponsor comment's stray punctuation.
+    No behavioral logic changes aside from how path strings are constructed.
+      * src/mcp/dna.games.mcp.tlpp
 
 2026-05-06 05:35 UTC naldodj (Improve Sudoku timer tracking and display)
   Improve Sudoku timer tracking and display

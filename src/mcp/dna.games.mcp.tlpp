@@ -1,6 +1,7 @@
 #include "totvs.ch"
 #include "parmtype.ch"
 #include "tlpp-core.th"
+#include "game.tool.th"
 
 /*
      _
@@ -31,10 +32,10 @@ procedure u_DNAGamesMCPRunServer()
     local cDirMCPIO as character
     local lTMCPServer as logical
     local oTMCPServer as object
-    //?????Quer o codigo completo? Apoie! ?? : [Torne-se um Sponsor](https://github.com/sponsors/naldodj)
+    //Quer o codigo completo? Apoie! : [Torne-se um Sponsor](https://github.com/sponsors/naldodj)
     lTMCPServer:=FindClass("DNA.TECH.TMCPServer")
     if (lTMCPServer)
-        cDirMCPIO:="c:\tmp\tmcpserver\mcp_io\dna_games_mcp_io\"
+        cDirMCPIO:="c:"+BACK_SLASH+"tmp"+BACK_SLASH+"tmcpserver"+BACK_SLASH+"mcp_io"+BACK_SLASH+"dna_games_mcp_io"+BACK_SLASH
         DirTools():MakeDir(cDirMCPIO)
         oTMCPServer:=TMCPServer():New("DNAGamesMCPServer")
         oTMCPServer:SetMemberData("cFileMsgIN",cDirMCPIO+"hb.totvs.mcp.msg.json")
@@ -51,6 +52,6 @@ return
 static function MCPExecuteInBrowser(oTMCPServer as object,jParam as json,cFunction as character) as json
     local nRet as numeric
     oTMCPServer:ConOut("Executing MCP function: "+cFunction+" with parameters: "+jParam:ToJSON())
-    nRet:=WinExec("C:\totvs\protheus1212410\web.agent.mcp.client.bat "+cFunction)
+    nRet:=WinExec("C:"+BACK_SLASH+"totvs"+BACK_SLASH+"protheus1212410"+BACK_SLASH+"web.agent.mcp.client.bat "+cFunction)
     jParam["HasError"]:=(nRet!=0)
 return(jParam)
