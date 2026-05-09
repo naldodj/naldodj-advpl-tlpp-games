@@ -12,6 +12,7 @@
 
 namespace sapureca
 using namespace sapureca
+using namespace naldodj.games
 
 #define H_GIF89_TRUE .T.
 #define H_GIF89_FALSE .F.
@@ -62,6 +63,8 @@ static method LoadGIF(cGIF,aGifInfo,aFrames,aImgInfo,cPath) class H_GIF89
         if (!(SubStr(cPath,-1)==cPathChr))
             cPath+=cPathChr
         endif
+
+        DirTools():MakeDir(@cPath)
 
         if (!File(cGIF))
             HGif89Alert("File "+cGIF+" is not found!")

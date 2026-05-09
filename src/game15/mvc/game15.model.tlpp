@@ -1257,7 +1257,7 @@ static function OpenTopTable(jGame15Data as json)
 
         nAttempts:=0
         while (!lIsDir(cG15Path))
-            FWMakeDir(cG15Path)
+            DirTools():MakeDir(cG15Path)
             if (!lIsDir(cG15Path))
                 Sleep(300)
                 if (++nAttempts>10)
@@ -1653,7 +1653,7 @@ static procedure ExtractFiles(jGame15Data,cName)
     local nNames as numeric
 
     if (!lIsDir(cTempPath))
-        FWMakeDir(cTempPath)
+        DirTools():MakeDir(cTempPath)
     endif
 
     nNames:=Len(aNames)

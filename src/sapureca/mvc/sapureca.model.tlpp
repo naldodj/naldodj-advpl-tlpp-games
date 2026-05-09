@@ -16,6 +16,9 @@ namespace sapureca
 using namespace sapureca
 using namespace naldodj.games
 
+#define SAPURECA_CANVAS_WIDTH 635
+#define SAPURECA_CANVAS_HEIGHT 497
+
 class SapuRecaModel
 
     private data jSapuRecaData as json
@@ -151,6 +154,8 @@ method SwapFrog(nX,nY) class SapuRecaModel
     local nAnimTop as numeric
     local nAnimWidth as numeric
     local nLeft as numeric
+    local nOldLeft as numeric
+    local nOldTop as numeric
     local nShape as numeric
     local nShapeAT as numeric
     local nTop as numeric
@@ -220,6 +225,9 @@ method SwapFrog(nX,nY) class SapuRecaModel
             break
         endif
 
+        nOldLeft:=aShapes[nShapeAT][SAPURECA_SHAPE_LEFT]
+        nOldTop:=aShapes[nShapeAT][SAPURECA_SHAPE_TOP]
+
         aBoard[nATPos]:=0
         aBoard[nATJump]:=nIndex
 
@@ -256,7 +264,7 @@ method SwapFrog(nX,nY) class SapuRecaModel
 
         bUpdateView:=self:jSapuRecaData["SapuReca_Shapes"]["bUpdateView"]
         if (ValType(bUpdateView)=="B")
-            Eval(bUpdateView,nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight)
+            Eval(bUpdateView,nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight,nOldLeft,nOldTop)
         endif
 
         lSwapFrog:=.T.
@@ -387,8 +395,8 @@ static procedure BuildShapes(jSapuRecaData as json)
     jSapuRecaData["SapuReca_Shapes"]["nParabensID"]:=0
     jSapuRecaData["SapuReca_Shapes"]["nReiniciarID"]:=0
 
-    AddShape(@jSapuRecaData,"Container",1,0,0,497,635,"","Container",.T.,0,1,0,"C",0,0,497,635,0,0,497,635,"","",0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
-    AddShape(@jSapuRecaData,"SapuReca",8,0,0,497,635,jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],"SapuReca",.T.,0,1,0,"C",0,0,497,635,0,0,497,635,jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+    AddShape(@jSapuRecaData,"Container",1,0,0,SAPURECA_CANVAS_WIDTH,SAPURECA_CANVAS_HEIGHT,"","Container",.T.,0,1,0,"C",0,0,SAPURECA_CANVAS_WIDTH,SAPURECA_CANVAS_HEIGHT,0,0,SAPURECA_CANVAS_WIDTH,SAPURECA_CANVAS_HEIGHT,"","",0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
+    AddShape(@jSapuRecaData,"SapuReca",8,0,0,SAPURECA_CANVAS_WIDTH,SAPURECA_CANVAS_HEIGHT,jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],"SapuReca",.T.,0,1,0,"C",0,0,SAPURECA_CANVAS_WIDTH,SAPURECA_CANVAS_HEIGHT,0,0,SAPURECA_CANVAS_WIDTH,SAPURECA_CANVAS_HEIGHT,jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],jSapuRecaData["SapuReca_Files"]["JOGO_BACKGROUND"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
 
     jSapuRecaData["SapuReca_Shapes"]["nInstrucoesID"]:=;
         AddShape(@jSapuRecaData,"Instrucoes",8,180,100,293,78,jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"],"Instrucoes",.T.,0,0,0,"C",180,100,293,78,180,100,293,78,jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"],jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"],0,0,-1,{|bBlock as codeblock|Eval(bBlock)})
@@ -719,7 +727,7 @@ static procedure ExtractFiles(jSapuRecaData as json,cName as character)
     local nNames as numeric
 
     if (!lIsDir(cTempPath))
-        FWMakeDir(cTempPath)
+        DirTools():MakeDir(cTempPath)
     endif
 
     nNames:=Len(aNames)

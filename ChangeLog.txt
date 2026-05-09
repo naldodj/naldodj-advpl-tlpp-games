@@ -2,8 +2,19 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add game.tool include; use BACK_SLASH in paths)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add DirTools and improve SapuReca animations)"
 */
+
+2026-05-09 16:51 UTC naldodj (Add DirTools and improve SapuReca animations)
+  Add DirTools and improve SapuReca animations
+  Add naldodj.games.DirTools with MakeDir/MakeFileDir/DirRemove and use it across the codebase (replacing direct FWMakeDir calls) for more robust directory handling.
+  Introduce SAPURECA canvas dimensions and several new animation/timer constants; refactor SapuReca view/model animation logic: add ResumeBackgroundSound, background loop/resume timers, improve AnimateJump to support GIF-frame playback and a tweened jump fallback, and extend UpdatePosition/SwapFrog to pass previous coordinates.
+  Overhaul GIF handling: expose frame delays via H_GIF89, add repaint modes, per-frame delay calculation, and safer GIF frame set routines; unify temp-path creation to use DirTools.
+  Minor UI rect/coordinate fixes and housekeeping (remove unused timers/objects and adjust PlaySound behavior to restart background resume timer).
+  Add game.tool include; use BACK_SLASH in paths Include game.tool.th and replace hardcoded Windows backslashes with BACK_SLASH concatenation for the MCP IO directory and the WinExec call, improving readability and avoiding escaped backslash literals.
+    Also cleaned up a sponsor comment's stray punctuation.
+    No behavioral logic changes aside from how path strings are constructed.
+      * src/mcp/dna.games.mcp.tlpp
 
 2026-05-06 05:46 UTC naldodj (Add game.tool include; use BACK_SLASH in paths)
   Add game.tool include; use BACK_SLASH in paths

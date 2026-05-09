@@ -12,9 +12,16 @@
 #include "parmtype.ch"
 #include "tlpp-core.th"
 
-#define SAPURECA_ANIMATE_DELAY 5
-#define SAPURECA_ANIMATE_SLEEP 100
-#define SAPURECA_ANIMATE_TIMER 1
+#define SAPURECA_ANIMATE_TIMER 20
+#define SAPURECA_JUMP_TIMER 16
+#define SAPURECA_BACKGROUND_LOOP 9300
+#define SAPURECA_BACKGROUND_RESUME 500
+#define SAPURECA_DIALOG_BOTTOM 497
+#define SAPURECA_DIALOG_RIGHT 635
+#define SAPURECA_GIF_DELAY_UNIT 10
+#define SAPURECA_GIF_REPAINT_NORMAL 1
+#define SAPURECA_GIF_REPAINT_VISIBLE 2
+#define SAPURECA_GIF_REPAINT_TRANSIENT 3
 
 namespace sapureca
 using namespace sapureca
@@ -44,14 +51,15 @@ class SapuRecaView
     public method CanExecute() as logical
 
     public method PlaySound(cWave as character) as logical
-    public method UpdatePosition(nShape as numeric,nLeft as numeric,nTop as numeric,lWin as logical,cJumpImage as character,nAnimLeft as numeric,nAnimTop as numeric,nAnimWidth as numeric,nAnimHeight as numeric) as logical
+    public method UpdatePosition(nShape as numeric,nLeft as numeric,nTop as numeric,lWin as logical,cJumpImage as character,nAnimLeft as numeric,nAnimTop as numeric,nAnimWidth as numeric,nAnimHeight as numeric,nOldLeft as numeric,nOldTop as numeric) as logical
     public method AnimationPreLoad() as logical
     public method AnimationCreate() as logical
     public method AnimationActivate() as logical
     public method AnimationDeactivate(lRemove as logical) as logical
+    public method ResumeBackgroundSound() as logical
 
     private method CreateBoard() as logical
-    private method AnimateJump(nShape as numeric,cJumpImage as character,nAnimLeft as numeric,nAnimTop as numeric,nAnimWidth as numeric,nAnimHeight as numeric) as logical
+    private method AnimateJump(nShape as numeric,cJumpImage as character,nAnimLeft as numeric,nAnimTop as numeric,nAnimWidth as numeric,nAnimHeight as numeric,nLeft as numeric,nTop as numeric,nOldLeft as numeric,nOldTop as numeric) as logical
 
 endclass
 
@@ -127,16 +135,16 @@ method CreateBoard() class SapuRecaView
         oController:=self:oController
         cTitle:=SAPURECA_TITLE
 
-        oTRect:=TRect():New(0,0,497,635)
+        oTRect:=TRect():New(0,0,SAPURECA_DIALOG_BOTTOM,SAPURECA_DIALOG_RIGHT)
 
         cIcon:=oController:GetSapuRecaData("SapuReca_Files","JOGO_ICO","")
         DEFINE MSDIALOG oView:oDlg TITLE __Web2Ascii(cTitle) FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF GetWndDefault() ICON cIcon PIXEL
 
         jCoordinates:=oController:GetSapuRecaData("Coordinates")
-        jCoordinates["nTop"]:=0
-        jCoordinates["nLeft"]:=0
-        jCoordinates["nWidth"]:=497
-        jCoordinates["nHeight"]:=635
+        jCoordinates["nTop"]:=oTRect:nTop
+        jCoordinates["nLeft"]:=oTRect:nLeft
+        jCoordinates["nWidth"]:=oTRect:nRight
+        jCoordinates["nHeight"]:=oTRect:nBottom
 
         oView:oTPaintPanel:=TPaintPanel():New(jCoordinates["nTop"],jCoordinates["nLeft"],jCoordinates["nWidth"],jCoordinates["nHeight"],oView:oDlg,.F.)
         oView:oTPaintPanel:Align:=CONTROL_ALIGN_ALLCLIENT
@@ -160,26 +168,37 @@ method PlaySound(cWave) class SapuRecaView
 
     local cWaveFile as character
     local lPlaySound as logical
+    local oTimerBackgroundResume as object
 
     paramtype 1 var cWave as character
 
-    lPlaySound:=((self:CanExecute()).and.(self:IsActive()))
+    lPlaySound:=((self:IsActive()).and.(ValType(self:oController)=="O").and.(self:oController:IsActive()))
     if (lPlaySound)
         cWaveFile:=self:oController:GetSapuRecaData("SapuReca_Waves",cWave,"")
         lPlaySound:=File(cWaveFile)
         if (lPlaySound)
             ShellExecute("Open",cWaveFile,"","",0)
+            if (cWave=="SOM_SAPU_RECA")
+                if ((ValType(self:jAnimation)=="J").and.(self:jAnimation:HasProperty("oTimerBackgroundResume")))
+                    oTimerBackgroundResume:=self:jAnimation["oTimerBackgroundResume"]
+                    if (ValType(oTimerBackgroundResume)=="O")
+                        oTimerBackgroundResume:DeActivate()
+                        oTimerBackgroundResume:Activate()
+                    endif
+                endif
+            endif
         endif
     endif
 
 return(lPlaySound)
 
-method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight) class SapuRecaView
+method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight,nOldLeft,nOldTop) class SapuRecaView
 
     local nInstrucoesID as numeric
     local nParabensID as numeric
     local nReiniciarID as numeric
 
+    local lAnimated as logical
     local lUpdatePosition as logical
 
     paramtype 1 var nShape as numeric
@@ -191,6 +210,8 @@ method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnim
     paramtype 7 var nAnimTop as numeric optional default 0
     paramtype 8 var nAnimWidth as numeric optional default 0
     paramtype 9 var nAnimHeight as numeric optional default 0
+    paramtype 10 var nOldLeft as numeric optional default nLeft
+    paramtype 11 var nOldTop as numeric optional default nTop
 
     lUpdatePosition:=((self:CanExecute()).and.(self:IsActive()).and.(ValType(self:oTPaintPanel)=="O"))
     if (lUpdatePosition)
@@ -205,8 +226,10 @@ method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnim
             self:oTPaintPanel:SetVisible(nReiniciarID,.T.)
         endif
 
-        self:AnimateJump(nShape,@cJumpImage,@nAnimLeft,@nAnimTop,@nAnimWidth,@nAnimHeight)
-        self:oTPaintPanel:SetPosition(nShape,nLeft,nTop)
+        lAnimated:=self:AnimateJump(nShape,@cJumpImage,@nAnimLeft,@nAnimTop,@nAnimWidth,@nAnimHeight,@nLeft,@nTop,@nOldLeft,@nOldTop)
+        if (!lAnimated)
+            self:oTPaintPanel:SetPosition(nShape,nLeft,nTop)
+        endif
         self:oTPaintPanel:SetVisible(nShape,.T.)
 
         if ((lWin).and.(nParabensID>0))
@@ -247,19 +270,11 @@ method AnimationCreate() class SapuRecaView
 
     local lAnimationCreate as logical
 
-    local nGIFFly as numeric
-    local nGIFFreg as numeric
-    local nGIFFrog as numeric
-
     local oGIFFly as object
     local oGIFFreg as object
     local oGIFFrog as object
-    local oGIFHFreg as object
-
-    local oTimerFly as object
-    local oTimerFreg as object
-    local oTimerFrog as object
-
+    local oTimerBackgroundLoop as object
+    local oTimerBackgroundResume as object
     local oView as object
 
     lAnimationCreate:=((self:CanExecute()).and.(self:IsActive()).and.(ValType(self:oTPaintPanel)=="O"))
@@ -282,32 +297,18 @@ method AnimationCreate() class SapuRecaView
         oGIFFly:=CreateAnimationBitmap("flyAlone",@self,@aShapes,.F.)
         oGIFFrog:=CreateAnimationBitmap("Frog",@self,@aShapes,.F.)
         oGIFFreg:=CreateAnimationBitmap("Freg",@self,@aShapes,.F.)
-        oGIFHFreg:=CreateAnimationBitmap("Freg",@self,@aShapes,.T.)
-
-        if (ValType(oGIFHFreg)=="O")
-            oGIFHFreg:Hide()
-        endif
 
         self:jAnimation["oGIFFly"]:=oGIFFly
         self:jAnimation["oGIFFrog"]:=oGIFFrog
         self:jAnimation["oGIFFreg"]:=oGIFFreg
-        self:jAnimation["oGIFHFreg"]:=oGIFHFreg
 
-        nGIFFly:=Randomize(1,1500)
-        nGIFFrog:=Randomize(1,1500)
-        nGIFFreg:=Randomize(1,1500)
+        DEFINE TIMER oTimerBackgroundLoop OF self:oDlg INTERVAL SAPURECA_BACKGROUND_LOOP ACTION Eval(oTimerBackgroundLoop:bAction)
+        oTimerBackgroundLoop:bAction:={||oView:PlaySound("SOM_BACKGROUND")}
+        self:jAnimation["oTimerBackgroundLoop"]:=oTimerBackgroundLoop
 
-        DEFINE TIMER oTimerFly OF self:oDlg INTERVAL SAPURECA_ANIMATE_TIMER ACTION Eval(oTimerFly:bAction)
-        oTimerFly:bAction:={||TPlayGIF(4,@nGIFFly,"flyAlone",@oGIFFly,@aShapes,@oView,.F.)}
-        self:jAnimation["oTimerFly"]:=oTimerFly
-
-        DEFINE TIMER oTimerFrog OF self:oDlg INTERVAL SAPURECA_ANIMATE_TIMER ACTION Eval(oTimerFrog:bAction)
-        oTimerFrog:bAction:={||TPlayGIF(2,@nGIFFrog,"Frog",@oGIFFrog,@aShapes,@oView,.F.)}
-        self:jAnimation["oTimerFrog"]:=oTimerFrog
-
-        DEFINE TIMER oTimerFreg OF self:oDlg INTERVAL SAPURECA_ANIMATE_TIMER ACTION Eval(oTimerFreg:bAction)
-        oTimerFreg:bAction:={||TPlayGIF(3,@nGIFFreg,"Freg",@oGIFHFreg,@aShapes,@oView,.T.)}
-        self:jAnimation["oTimerFreg"]:=oTimerFreg
+        DEFINE TIMER oTimerBackgroundResume OF self:oDlg INTERVAL SAPURECA_BACKGROUND_RESUME ACTION Eval(oTimerBackgroundResume:bAction)
+        oTimerBackgroundResume:bAction:={||oView:ResumeBackgroundSound()}
+        self:jAnimation["oTimerBackgroundResume"]:=oTimerBackgroundResume
 
         cBGWAV:=self:oController:GetSapuRecaData("SapuReca_Waves","SOM_BACKGROUND","")
         SYMBOL_UNUSED(cBGWAV)
@@ -323,14 +324,12 @@ method AnimationActivate() class SapuRecaView
     lAnimationActivate:=((self:CanExecute()).and.(self:IsActive()).and.(ValType(self:jAnimation)=="J"))
     if (lAnimationActivate)
         __lSapuRecaStopTimers:=.F.
-        if (self:jAnimation:HasProperty("oTimerFly").and.(ValType(self:jAnimation["oTimerFly"])=="O"))
-            self:jAnimation["oTimerFly"]:Activate()
+        self:PlaySound("SOM_BACKGROUND")
+        if (self:jAnimation:HasProperty("oTimerBackgroundLoop").and.(ValType(self:jAnimation["oTimerBackgroundLoop"])=="O"))
+            self:jAnimation["oTimerBackgroundLoop"]:Activate()
         endif
-        if (self:jAnimation:HasProperty("oTimerFrog").and.(ValType(self:jAnimation["oTimerFrog"])=="O"))
-            self:jAnimation["oTimerFrog"]:Activate()
-        endif
-        if (self:jAnimation:HasProperty("oTimerFreg").and.(ValType(self:jAnimation["oTimerFreg"])=="O"))
-            self:jAnimation["oTimerFreg"]:Activate()
+        if (self:jAnimation:HasProperty("oTimerBackgroundResume").and.(ValType(self:jAnimation["oTimerBackgroundResume"])=="O"))
+            self:jAnimation["oTimerBackgroundResume"]:DeActivate()
         endif
     endif
 
@@ -346,20 +345,15 @@ method AnimationDeactivate(lRemove) class SapuRecaView
     if (lAnimationDeactivate)
         __lSapuRecaStopTimers:=.T.
         __lSapuRecaMoving:=.F.
-        if (self:jAnimation:HasProperty("oTimerFly").and.(ValType(self:jAnimation["oTimerFly"])=="O"))
-            self:jAnimation["oTimerFly"]:DeActivate()
-            self:jAnimation["oTimerFly"]:End()
-            FreeObj(@self:jAnimation["oTimerFly"])
+        if (self:jAnimation:HasProperty("oTimerBackgroundLoop").and.(ValType(self:jAnimation["oTimerBackgroundLoop"])=="O"))
+            self:jAnimation["oTimerBackgroundLoop"]:DeActivate()
+            self:jAnimation["oTimerBackgroundLoop"]:End()
+            FreeObj(@self:jAnimation["oTimerBackgroundLoop"])
         endif
-        if (self:jAnimation:HasProperty("oTimerFrog").and.(ValType(self:jAnimation["oTimerFrog"])=="O"))
-            self:jAnimation["oTimerFrog"]:DeActivate()
-            self:jAnimation["oTimerFrog"]:End()
-            FreeObj(@self:jAnimation["oTimerFrog"])
-        endif
-        if (self:jAnimation:HasProperty("oTimerFreg").and.(ValType(self:jAnimation["oTimerFreg"])=="O"))
-            self:jAnimation["oTimerFreg"]:DeActivate()
-            self:jAnimation["oTimerFreg"]:End()
-            FreeObj(@self:jAnimation["oTimerFreg"])
+        if (self:jAnimation:HasProperty("oTimerBackgroundResume").and.(ValType(self:jAnimation["oTimerBackgroundResume"])=="O"))
+            self:jAnimation["oTimerBackgroundResume"]:DeActivate()
+            self:jAnimation["oTimerBackgroundResume"]:End()
+            FreeObj(@self:jAnimation["oTimerBackgroundResume"])
         endif
         if (self:jAnimation:HasProperty("oGIFFly").and.(ValType(self:jAnimation["oGIFFly"])=="O"))
             self:jAnimation["oGIFFly"]:Hide()
@@ -373,10 +367,6 @@ method AnimationDeactivate(lRemove) class SapuRecaView
             self:jAnimation["oGIFFreg"]:Hide()
             FreeObj(@self:jAnimation["oGIFFreg"])
         endif
-        if (self:jAnimation:HasProperty("oGIFHFreg").and.(ValType(self:jAnimation["oGIFHFreg"])=="O"))
-            self:jAnimation["oGIFHFreg"]:Hide()
-            FreeObj(@self:jAnimation["oGIFHFreg"])
-        endif
         MsObjects():FreeObjects(@self:jAnimation)
     endif
 
@@ -388,9 +378,37 @@ method AnimationDeactivate(lRemove) class SapuRecaView
 
 return(lAnimationDeactivate)
 
-method AnimateJump(nShape,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight) class SapuRecaView
+method ResumeBackgroundSound() class SapuRecaView
 
+    local lResumeBackgroundSound as logical
+
+    lResumeBackgroundSound:=((self:IsActive()).and.(ValType(self:jAnimation)=="J"))
+    if (lResumeBackgroundSound)
+        if (self:jAnimation:HasProperty("oTimerBackgroundResume").and.(ValType(self:jAnimation["oTimerBackgroundResume"])=="O"))
+            self:jAnimation["oTimerBackgroundResume"]:DeActivate()
+        endif
+        self:PlaySound("SOM_BACKGROUND")
+    endif
+
+return(lResumeBackgroundSound)
+
+method AnimateJump(nShape,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight,nLeft,nTop,nOldLeft,nOldTop) class SapuRecaView
+
+    local aGIFFrames as array
+    local aPictures as array
+
+    local cFirstFrame as character
+    local cTempPath as character
+
+    local nArc as numeric
+    local nDistance as numeric
+    local nFrame as numeric
+    local nFrames as numeric
+    local nProgress as numeric
+    local nStepLeft as numeric
+    local nStepTop as numeric
     local lAnimateJump as logical
+    local lTweenJump as logical
     local oObjGIF as object
     local oTPaintPanel as object
 
@@ -400,18 +418,76 @@ method AnimateJump(nShape,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight) 
     paramtype 4 var nAnimTop as numeric optional default 0
     paramtype 5 var nAnimWidth as numeric optional default 0
     paramtype 6 var nAnimHeight as numeric optional default 0
+    paramtype 7 var nLeft as numeric optional default 0
+    paramtype 8 var nTop as numeric optional default 0
+    paramtype 9 var nOldLeft as numeric optional default nLeft
+    paramtype 10 var nOldTop as numeric optional default nTop
 
-    lAnimateJump:=((self:CanExecute()).and.(self:IsActive()).and.File(cJumpImage))
+    lAnimateJump:=((self:CanExecute()).and.(self:IsActive()).and.(ValType(self:oTPaintPanel)=="O"))
+    lAnimateJump:=((lAnimateJump).and.File(cJumpImage).and.(nAnimWidth>0).and.(nAnimHeight>0))
     if (lAnimateJump)
         oTPaintPanel:=self:oTPaintPanel
-        oTPaintPanel:SetVisible(nShape,.F.)
-        @ nAnimTop,nAnimLeft BITMAP oObjGIF FILE cJumpImage OF oTPaintPanel SIZE nAnimWidth,nAnimHeight NOBORDER WHEN .F. PIXEL
-        PlayGIFFrames(5,@cJumpImage,@oObjGIF,@self,.F.)
-        if (ValType(oObjGIF)=="O")
+        cTempPath:=self:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca"+BACK_SLASH)
+        aGIFFrames:=GetGIFFrames(@cJumpImage,@cTempPath)
+        lAnimateJump:=(Len(aGIFFrames)>=3)
+        if (lAnimateJump)
+            aPictures:=aGIFFrames[2]
+            lAnimateJump:=(Len(aPictures)>0)
+        endif
+        if (lAnimateJump)
+            cFirstFrame:=aPictures[1]
+            lAnimateJump:=File(cFirstFrame)
+        endif
+        if (lAnimateJump)
+            oTPaintPanel:SetPosition(nShape,nOldLeft,nOldTop)
+            oTPaintPanel:SetVisible(nShape,.F.)
+            oTPaintPanel:Refresh()
+            ProcessMessages()
+            @ nAnimTop,nAnimLeft BITMAP oObjGIF FILE cFirstFrame OF oTPaintPanel SIZE nAnimWidth,nAnimHeight NOBORDER WHEN .F. PIXEL
+            lAnimateJump:=(ValType(oObjGIF)=="O")
+        endif
+        if (lAnimateJump)
+            oObjGIF:Show()
+            oObjGIF:Refresh()
+            ProcessMessages()
+            PlayGIFFrames(5,@cJumpImage,@oObjGIF,@self,.F.)
             oObjGIF:Hide()
             FreeObj(@oObjGIF)
+            oTPaintPanel:SetPosition(nShape,nLeft,nTop)
+            oTPaintPanel:SetVisible(nShape,.T.)
+            oTPaintPanel:Refresh()
+            ProcessMessages()
         endif
     endif
+
+    lTweenJump:=((!lAnimateJump).and.(self:CanExecute()).and.(self:IsActive()).and.(ValType(self:oTPaintPanel)=="O"))
+    lTweenJump:=((lTweenJump).and.((nOldLeft<>nLeft).or.(nOldTop<>nTop)))
+    if (lTweenJump)
+        oTPaintPanel:=self:oTPaintPanel
+        nDistance:=Abs(nLeft-nOldLeft)
+        nFrames:=Max(12,Int(nDistance/8))
+        nFrames:=Min(nFrames,26)
+        nArc:=Max(24,nDistance/4)
+        nArc:=Min(nArc,48)
+        oTPaintPanel:SetVisible(nShape,.T.)
+        oTPaintPanel:SetPosition(nShape,nOldLeft,nOldTop)
+        oTPaintPanel:Refresh()
+        ProcessMessages()
+        for nFrame:=1 to nFrames
+            nProgress:=(nFrame/nFrames)
+            nStepLeft:=Round(nOldLeft+((nLeft-nOldLeft)*nProgress),0)
+            nStepTop:=Round(nOldTop+((nTop-nOldTop)*nProgress)-(4*nArc*nProgress*(1-nProgress)),0)
+            oTPaintPanel:SetPosition(nShape,nStepLeft,nStepTop)
+            oTPaintPanel:Refresh()
+            ProcessMessages()
+            Sleep(SAPURECA_JUMP_TIMER)
+        next nFrame
+        oTPaintPanel:SetPosition(nShape,nLeft,nTop)
+        oTPaintPanel:Refresh()
+        ProcessMessages()
+    endif
+
+    lAnimateJump:=(lAnimateJump.or.lTweenJump)
 
 return(lAnimateJump)
 
@@ -520,7 +596,7 @@ static function lClickSapuReca(x as numeric,y as numeric,oView as object,oContro
             break
         endif
 
-        bUpdateView:={|nID as numeric,nLeft as numeric,nTop as numeric,lWin as logical,cJumpImage as character,nAnimLeft as numeric,nAnimTop as numeric,nAnimWidth as numeric,nAnimHeight as numeric|oView:UpdatePosition(nID,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight)}
+        bUpdateView:={|nID as numeric,nLeft as numeric,nTop as numeric,lWin as logical,cJumpImage as character,nAnimLeft as numeric,nAnimTop as numeric,nAnimWidth as numeric,nAnimHeight as numeric,nOldLeft as numeric,nOldTop as numeric|oView:UpdatePosition(nID,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnimWidth,nAnimHeight,nOldLeft,nOldTop)}
         oController:SetSapuRecaData("SapuReca_Shapes","bUpdateView",bUpdateView)
 
         lAction:=Eval(bShapeAction,{||oController:SwapFrog(@x,@y)})
@@ -547,7 +623,7 @@ static procedure PreLoadGIFFrames(aShapes as array,oView as object)
 
     for nShape:=1 to nShapes
         cToolTip:=aShapes[nShape][SAPURECA_SHAPE_TOOLTIP]
-        lAnimatedShape:=((aShapes[nShape][SAPURECA_SHAPE_MARK]==1).or.(cToolTip=="Frog").or.(cToolTip=="Freg").or.(cToolTip=="flyAlone"))
+        lAnimatedShape:=(aShapes[nShape][SAPURECA_SHAPE_MARK]==1)
         if (lAnimatedShape)
             cGIFFile:=aShapes[nShape][SAPURECA_SHAPE_MOVE1_IMAGE]
             if (IsGIFFile(@cGIFFile).and.File(cGIFFile))
@@ -559,6 +635,10 @@ static procedure PreLoadGIFFrames(aShapes as array,oView as object)
             endif
         endif
     next nShape
+
+    if (cTempPath!=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca"+BACK_SLASH))
+        oView:oController:SetSapuRecaData("SapuReca_Path","Temp_Path",cTempPath)
+    endif
 
 return
 
@@ -628,11 +708,12 @@ return(oGIF)
 static function ShapeGetATByToolTip(aShapes as array,cToolTip as character) as numeric
 return(aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_TOOLTIP]==cToolTip}))
 
-static function TPlayGIF(nTimer as numeric,nAnimeCGIF as numeric,cShape as character,oGIF as object,aShapes as array,oView as object,lHide as logical) as logical
+static function TPlayGIF(nTimer as numeric,cShape as character,oGIF as object,aShapes as array,oView as object,lHide as logical,nRepaintMode as numeric) as logical
 
     local lPlay as logical
 
     DEFAULT lHide:=.F.
+    DEFAULT nRepaintMode:=SAPURECA_GIF_REPAINT_NORMAL
     DEFAULT __aSapuRecaTTimer:=Array(5)
     DEFAULT __lSapuRecaMoving:=.F.
     DEFAULT __lSapuRecaStopTimers:=.F.
@@ -647,20 +728,12 @@ static function TPlayGIF(nTimer as numeric,nAnimeCGIF as numeric,cShape as chara
         if (!lPlay)
             break
         endif
-        lPlay:=((++nAnimeCGIF%2)==0)
-        if (!lPlay)
-            break
-        endif
-        lPlay:=PlayGIFC(@nTimer,@cShape,@oGIF,@aShapes,@oView,@lHide)
+        lPlay:=PlayGIFC(@nTimer,@cShape,@oGIF,@aShapes,@oView,@lHide,@nRepaintMode)
     end sequence
-
-    if (nAnimeCGIF>1500)
-        nAnimeCGIF:=Randomize(1,1500)
-    endif
 
 return(lPlay)
 
-static function PlayGIFC(nTimer as numeric,cShape as character,oObjGIF as object,aShapes as array,oView as object,lHide as logical) as logical
+static function PlayGIFC(nTimer as numeric,cShape as character,oObjGIF as object,aShapes as array,oView as object,lHide as logical,nRepaintMode as numeric) as logical
 
     local cGIFFile as character
 
@@ -669,18 +742,20 @@ static function PlayGIFC(nTimer as numeric,cShape as character,oObjGIF as object
     local nShapeAT as numeric
 
     DEFAULT lHide:=.F.
+    DEFAULT nRepaintMode:=SAPURECA_GIF_REPAINT_NORMAL
     nShapeAT:=ShapeGetATByToolTip(@aShapes,@cShape)
     lPlayGIFC:=(nShapeAT>0)
     if (lPlayGIFC)
         cGIFFile:=aShapes[nShapeAT][SAPURECA_SHAPE_MOVE1_IMAGE]
-        lPlayGIFC:=PlayGIFFrameStep(@nTimer,@cGIFFile,@oObjGIF,@oView,@lHide)
+        lPlayGIFC:=PlayGIFFrameStep(@nTimer,@cGIFFile,@oObjGIF,@oView,@lHide,@nRepaintMode)
     endif
 
 return(lPlayGIFC)
 
-static function PlayGIFFrameStep(nTimer as numeric,cGIFFile as character,oObjGIF as object,oView as object,lHide as logical) as logical
+static function PlayGIFFrameStep(nTimer as numeric,cGIFFile as character,oObjGIF as object,oView as object,lHide as logical,nRepaintMode as numeric) as logical
 
     local aGIFFrames as array
+    local aImageInfo as array
     local aPictures as array
 
     local aState as variant
@@ -689,12 +764,16 @@ static function PlayGIFFrameStep(nTimer as numeric,cGIFFile as character,oObjGIF
     local cTempPath as character
 
     local lBusy as logical
+    local lNewState as logical
     local lPlayGIFFrameStep as logical
 
     local nCurrentFrame as numeric
+    local nFrameDelay as numeric
+    local nFrameElapsed as numeric
     local nTotalFrames as numeric
 
     DEFAULT lHide:=.F.
+    DEFAULT nRepaintMode:=SAPURECA_GIF_REPAINT_NORMAL
     DEFAULT __aSapuRecaTTimer:=Array(5)
     DEFAULT __aSapuRecaGIFState:=Array(5)
     DEFAULT __lSapuRecaStopTimers:=.F.
@@ -722,16 +801,18 @@ static function PlayGIFFrameStep(nTimer as numeric,cGIFFile as character,oObjGIF
             endif
 
             aPictures:=aGIFFrames[2]
+            aImageInfo:=aGIFFrames[3]
             nTotalFrames:=Len(aPictures)
-            lPlayGIFFrameStep:=(nTotalFrames>0)
+            lPlayGIFFrameStep:=((nTotalFrames>0).and.(Len(aImageInfo)>0))
             if (!lPlayGIFFrameStep)
                 break
             endif
 
             aState:=__aSapuRecaGIFState[nTimer]
-            if ((ValType(aState)<>"A").or.(Len(aState)<3).or.(aState[1]<>cGIFFile))
+            lNewState:=((ValType(aState)<>"A").or.(Len(aState)<4).or.(aState[1]<>cGIFFile))
+            if (lNewState)
                 cBMPFile:=oObjGIF:cBMPFile
-                aState:={cGIFFile,1,cBMPFile}
+                aState:={cGIFFile,1,cBMPFile,0}
             endif
 
             nCurrentFrame:=aState[2]
@@ -739,20 +820,25 @@ static function PlayGIFFrameStep(nTimer as numeric,cGIFFile as character,oObjGIF
                 nCurrentFrame:=1
             endif
 
-            if (lHide)
-                oObjGIF:Show()
-            endif
-            oObjGIF:cBMPFile:=aPictures[nCurrentFrame]
-            if (lHide)
-                oObjGIF:Hide()
+            nFrameElapsed:=aState[4]
+            if (ValType(nFrameElapsed)<>"N")
+                nFrameElapsed:=0
             endif
 
-            nCurrentFrame++
-            if (nCurrentFrame>nTotalFrames)
-                nCurrentFrame:=1
+            nFrameDelay:=SapuRecaGIFFrameDelay(@aImageInfo,@nCurrentFrame)
+            nFrameElapsed+=SAPURECA_ANIMATE_TIMER
+
+            if ((lNewState).or.(nFrameElapsed>=nFrameDelay))
+                SapuRecaSetGIFFrame(@oObjGIF,@aPictures[nCurrentFrame],@lHide,@oView,@nRepaintMode)
+                nCurrentFrame++
+                if (nCurrentFrame>nTotalFrames)
+                    nCurrentFrame:=1
+                endif
+                nFrameElapsed:=0
             endif
 
             aState[2]:=nCurrentFrame
+            aState[4]:=nFrameElapsed
             __aSapuRecaGIFState[nTimer]:=aState
 
         end sequence
@@ -763,13 +849,53 @@ static function PlayGIFFrameStep(nTimer as numeric,cGIFFile as character,oObjGIF
 
 return(lPlayGIFFrameStep)
 
+static function SapuRecaGIFFrameDelay(aImageInfo as array,nCurrentFrame as numeric) as numeric
+
+    local nDelay:=SAPURECA_ANIMATE_TIMER as numeric
+
+    if ((ValType(aImageInfo)=="A").and.(nCurrentFrame>0).and.(nCurrentFrame<=Len(aImageInfo)))
+        nDelay:=H_GIF89():GetFrameDelay(aImageInfo[nCurrentFrame],SAPURECA_GIF_DELAY_UNIT)
+    endif
+
+    if (nDelay<=0)
+        nDelay:=SAPURECA_ANIMATE_TIMER
+    endif
+
+return(nDelay)
+
+static procedure SapuRecaSetGIFFrame(oObjGIF as object,cBMPFile as character,lHide as logical,oView as object,nRepaintMode as numeric)
+
+    DEFAULT lHide:=.F.
+    DEFAULT nRepaintMode:=if(lHide,SAPURECA_GIF_REPAINT_TRANSIENT,SAPURECA_GIF_REPAINT_NORMAL)
+
+    do case
+    case (nRepaintMode==SAPURECA_GIF_REPAINT_TRANSIENT)
+        oObjGIF:Show()
+        oObjGIF:cBMPFile:=cBMPFile
+        oObjGIF:Refresh()
+        ProcessMessages()
+        oObjGIF:Hide()
+    case (nRepaintMode==SAPURECA_GIF_REPAINT_VISIBLE)
+        oObjGIF:cBMPFile:=cBMPFile
+        oObjGIF:Show()
+        oObjGIF:Refresh()
+        ProcessMessages()
+    otherwise
+        oObjGIF:cBMPFile:=cBMPFile
+        oObjGIF:Refresh()
+        ProcessMessages()
+    endcase
+
+    SYMBOL_UNUSED(oView)
+
+return
+
 static function PlayGIFFrames(nTimer as numeric,cGIFFile as character,oObjGIF as object,oView as object,lHide as logical) as logical
 
     local aGIFFrames as array
     local aImageInfo as array
     local aPictures as array
 
-    local cBMPFile as character
     local cTempPath as character
 
     local lPlayGIFFrames as logical
@@ -789,7 +915,6 @@ static function PlayGIFFrames(nTimer as numeric,cGIFFile as character,oObjGIF as
 
         begin sequence
 
-            cBMPFile:=oObjGIF:cBMPFile
             cTempPath:=oView:oController:GetSapuRecaData("SapuReca_Path","Temp_Path",GetTempPath()+"SapuReca"+BACK_SLASH)
             aGIFFrames:=GetGIFFrames(@cGIFFile,@cTempPath)
             lPlayGIFFrames:=(Len(aGIFFrames)>=3)
@@ -804,30 +929,14 @@ static function PlayGIFFrames(nTimer as numeric,cGIFFile as character,oObjGIF as
             if (!lPlayGIFFrames)
                 break
             endif
-            nInterval:=H_GIF89():GetFrameDelay(aImageInfo[1],SAPURECA_ANIMATE_DELAY)
-
             for nCurrentFrame:=1 to nTotalFrames
                 if (__lSapuRecaStopTimers)
                     exit
                 endif
-                if (lHide)
-                    oObjGIF:Show()
-                endif
-                oObjGIF:cBMPFile:=aPictures[nCurrentFrame]
-                if (lHide)
-                    oObjGIF:Hide()
-                endif
-                Sleep(SAPURECA_ANIMATE_SLEEP)
+                SapuRecaSetGIFFrame(@oObjGIF,@aPictures[nCurrentFrame],@lHide,@oView,if(lHide,SAPURECA_GIF_REPAINT_TRANSIENT,SAPURECA_GIF_REPAINT_VISIBLE))
+                nInterval:=SapuRecaGIFFrameDelay(@aImageInfo,@nCurrentFrame)
+                Sleep(nInterval)
             next nCurrentFrame
-
-            if (!__lSapuRecaStopTimers)
-                oObjGIF:cBMPFile:=cBMPFile
-                if (lHide)
-                    oObjGIF:Hide()
-                endif
-            endif
-
-            Sleep(nInterval/SAPURECA_ANIMATE_SLEEP)
 
         end sequence
 
@@ -872,7 +981,7 @@ static function LoadGIFFrames(cGIFFile as character,cTempPath as character) as a
     local cMsg as character
 
     if (!lIsDir(cTempPath))
-        FWMakeDir(cTempPath)
+        DirTools():MakeDir(cTempPath)
     endif
 
     if (H_GIF89():LoadGIF(@cGIFFile,@aPictInfo,@aPictures,@aImageInfo,@cTempPath))
