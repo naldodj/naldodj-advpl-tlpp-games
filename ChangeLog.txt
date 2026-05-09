@@ -2,8 +2,17 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add DirTools and improve SapuReca animations)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add applause resume timer and sound logic)"
 */
+
+2026-05-09 18:43 UTC naldodj (Add applause resume timer and sound logic)
+  Add applause resume timer and sound logic
+  Introduce SAPURECA_APPLAUSE_RESUME constant and new oTimerApplauseResume to manage applause/background audio overlap and resumption.
+  Adjust dialog layout constants (add TOP and BOTTOM_ADJUSTED) and use them when creating the dialog and paint panel coordinates.
+  Revise PlaySound flow to: prevent background sound when board finished, stop background timers when applause starts, centralize ShellExecute call, and activate appropriate resume timers for SOM_SAPU_RECA and SOM_APLAUSOS.
+  Update UpdatePosition to play background on non-win moves and only play applause on wins. Ensure AnimationCreate/Activate/Deactivate create, deactivate, and free the new applause timer.
+  Improve ResumeBackgroundSound to respect the finished flag and restart the background loop timer when appropriate.
+    * src/sapureca/mvc/sapureca.view.tlpp
 
 2026-05-09 16:51 UTC naldodj (Add DirTools and improve SapuReca animations)
   Add DirTools and improve SapuReca animations

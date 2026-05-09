@@ -14,10 +14,13 @@
 
 #define SAPURECA_ANIMATE_TIMER 20
 #define SAPURECA_JUMP_TIMER 16
+#define SAPURECA_APPLAUSE_RESUME 12000
 #define SAPURECA_BACKGROUND_LOOP 9300
 #define SAPURECA_BACKGROUND_RESUME 500
 #define SAPURECA_DIALOG_BOTTOM 497
-#define SAPURECA_DIALOG_RIGHT 635
+#define SAPURECA_DIALOG_BOTTOM_ADJUSTED 489
+#define SAPURECA_DIALOG_TOP -8
+#define SAPURECA_DIALOG_RIGHT 629
 #define SAPURECA_GIF_DELAY_UNIT 10
 #define SAPURECA_GIF_REPAINT_NORMAL 1
 #define SAPURECA_GIF_REPAINT_VISIBLE 2
@@ -135,16 +138,16 @@ method CreateBoard() class SapuRecaView
         oController:=self:oController
         cTitle:=SAPURECA_TITLE
 
-        oTRect:=TRect():New(0,0,SAPURECA_DIALOG_BOTTOM,SAPURECA_DIALOG_RIGHT)
+        oTRect:=TRect():New(SAPURECA_DIALOG_TOP,0,SAPURECA_DIALOG_BOTTOM_ADJUSTED,SAPURECA_DIALOG_RIGHT)
 
         cIcon:=oController:GetSapuRecaData("SapuReca_Files","JOGO_ICO","")
         DEFINE MSDIALOG oView:oDlg TITLE __Web2Ascii(cTitle) FROM oTRect:nTop,oTRect:nLeft TO oTRect:nBottom,oTRect:nRight OF GetWndDefault() ICON cIcon PIXEL
 
         jCoordinates:=oController:GetSapuRecaData("Coordinates")
-        jCoordinates["nTop"]:=oTRect:nTop
-        jCoordinates["nLeft"]:=oTRect:nLeft
-        jCoordinates["nWidth"]:=oTRect:nRight
-        jCoordinates["nHeight"]:=oTRect:nBottom
+        jCoordinates["nTop"]:=0
+        jCoordinates["nLeft"]:=0
+        jCoordinates["nWidth"]:=SAPURECA_DIALOG_RIGHT
+        jCoordinates["nHeight"]:=SAPURECA_DIALOG_BOTTOM
 
         oView:oTPaintPanel:=TPaintPanel():New(jCoordinates["nTop"],jCoordinates["nLeft"],jCoordinates["nWidth"],jCoordinates["nHeight"],oView:oDlg,.F.)
         oView:oTPaintPanel:Align:=CONTROL_ALIGN_ALLCLIENT
@@ -167,23 +170,54 @@ return(lCreateBoard)
 method PlaySound(cWave) class SapuRecaView
 
     local cWaveFile as character
+    local lFinished as logical
     local lPlaySound as logical
+    local oTimerApplauseResume as object
+    local oTimerBackgroundLoop as object
     local oTimerBackgroundResume as object
 
     paramtype 1 var cWave as character
 
     lPlaySound:=((self:IsActive()).and.(ValType(self:oController)=="O").and.(self:oController:IsActive()))
     if (lPlaySound)
+        if (cWave=="SOM_BACKGROUND")
+            lFinished:=self:oController:GetSapuRecaData("SapuReca_Board","lFinished",.F.)
+            lPlaySound:=(!lFinished)
+        endif
+    endif
+    if (lPlaySound)
         cWaveFile:=self:oController:GetSapuRecaData("SapuReca_Waves",cWave,"")
         lPlaySound:=File(cWaveFile)
         if (lPlaySound)
-            ShellExecute("Open",cWaveFile,"","",0)
-            if (cWave=="SOM_SAPU_RECA")
+            if (cWave=="SOM_APLAUSOS")
+                if ((ValType(self:jAnimation)=="J").and.(self:jAnimation:HasProperty("oTimerBackgroundLoop")))
+                    oTimerBackgroundLoop:=self:jAnimation["oTimerBackgroundLoop"]
+                    if (ValType(oTimerBackgroundLoop)=="O")
+                        oTimerBackgroundLoop:DeActivate()
+                    endif
+                endif
                 if ((ValType(self:jAnimation)=="J").and.(self:jAnimation:HasProperty("oTimerBackgroundResume")))
                     oTimerBackgroundResume:=self:jAnimation["oTimerBackgroundResume"]
                     if (ValType(oTimerBackgroundResume)=="O")
                         oTimerBackgroundResume:DeActivate()
-                        oTimerBackgroundResume:Activate()
+                    endif
+                endif
+            endif
+            ShellExecute("Open",cWaveFile,"","",0)
+            if ((cWave=="SOM_SAPU_RECA").or.(cWave=="SOM_APLAUSOS"))
+                if (ValType(self:jAnimation)=="J")
+                    if ((cWave=="SOM_SAPU_RECA").and.(self:jAnimation:HasProperty("oTimerBackgroundResume")))
+                        oTimerBackgroundResume:=self:jAnimation["oTimerBackgroundResume"]
+                        if (ValType(oTimerBackgroundResume)=="O")
+                            oTimerBackgroundResume:DeActivate()
+                            oTimerBackgroundResume:Activate()
+                        endif
+                    elseif ((cWave=="SOM_APLAUSOS").and.(self:jAnimation:HasProperty("oTimerApplauseResume")))
+                        oTimerApplauseResume:=self:jAnimation["oTimerApplauseResume"]
+                        if (ValType(oTimerApplauseResume)=="O")
+                            oTimerApplauseResume:DeActivate()
+                            oTimerApplauseResume:Activate()
+                        endif
                     endif
                 endif
             endif
@@ -226,6 +260,10 @@ method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnim
             self:oTPaintPanel:SetVisible(nReiniciarID,.T.)
         endif
 
+        if (!lWin)
+            self:PlaySound("SOM_SAPU_RECA")
+        endif
+
         lAnimated:=self:AnimateJump(nShape,@cJumpImage,@nAnimLeft,@nAnimTop,@nAnimWidth,@nAnimHeight,@nLeft,@nTop,@nOldLeft,@nOldTop)
         if (!lAnimated)
             self:oTPaintPanel:SetPosition(nShape,nLeft,nTop)
@@ -235,8 +273,6 @@ method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnim
         if ((lWin).and.(nParabensID>0))
             self:oTPaintPanel:SetVisible(nParabensID,.T.)
             self:PlaySound("SOM_APLAUSOS")
-        else
-            self:PlaySound("SOM_SAPU_RECA")
         endif
 
         self:oTPaintPanel:Refresh()
@@ -273,6 +309,7 @@ method AnimationCreate() class SapuRecaView
     local oGIFFly as object
     local oGIFFreg as object
     local oGIFFrog as object
+    local oTimerApplauseResume as object
     local oTimerBackgroundLoop as object
     local oTimerBackgroundResume as object
     local oView as object
@@ -310,6 +347,10 @@ method AnimationCreate() class SapuRecaView
         oTimerBackgroundResume:bAction:={||oView:ResumeBackgroundSound()}
         self:jAnimation["oTimerBackgroundResume"]:=oTimerBackgroundResume
 
+        DEFINE TIMER oTimerApplauseResume OF self:oDlg INTERVAL SAPURECA_APPLAUSE_RESUME ACTION Eval(oTimerApplauseResume:bAction)
+        oTimerApplauseResume:bAction:={||oView:ResumeBackgroundSound()}
+        self:jAnimation["oTimerApplauseResume"]:=oTimerApplauseResume
+
         cBGWAV:=self:oController:GetSapuRecaData("SapuReca_Waves","SOM_BACKGROUND","")
         SYMBOL_UNUSED(cBGWAV)
 
@@ -330,6 +371,9 @@ method AnimationActivate() class SapuRecaView
         endif
         if (self:jAnimation:HasProperty("oTimerBackgroundResume").and.(ValType(self:jAnimation["oTimerBackgroundResume"])=="O"))
             self:jAnimation["oTimerBackgroundResume"]:DeActivate()
+        endif
+        if (self:jAnimation:HasProperty("oTimerApplauseResume").and.(ValType(self:jAnimation["oTimerApplauseResume"])=="O"))
+            self:jAnimation["oTimerApplauseResume"]:DeActivate()
         endif
     endif
 
@@ -354,6 +398,11 @@ method AnimationDeactivate(lRemove) class SapuRecaView
             self:jAnimation["oTimerBackgroundResume"]:DeActivate()
             self:jAnimation["oTimerBackgroundResume"]:End()
             FreeObj(@self:jAnimation["oTimerBackgroundResume"])
+        endif
+        if (self:jAnimation:HasProperty("oTimerApplauseResume").and.(ValType(self:jAnimation["oTimerApplauseResume"])=="O"))
+            self:jAnimation["oTimerApplauseResume"]:DeActivate()
+            self:jAnimation["oTimerApplauseResume"]:End()
+            FreeObj(@self:jAnimation["oTimerApplauseResume"])
         endif
         if (self:jAnimation:HasProperty("oGIFFly").and.(ValType(self:jAnimation["oGIFFly"])=="O"))
             self:jAnimation["oGIFFly"]:Hide()
@@ -380,14 +429,32 @@ return(lAnimationDeactivate)
 
 method ResumeBackgroundSound() class SapuRecaView
 
+    local lFinished as logical
     local lResumeBackgroundSound as logical
 
     lResumeBackgroundSound:=((self:IsActive()).and.(ValType(self:jAnimation)=="J"))
     if (lResumeBackgroundSound)
+        lFinished:=self:oController:GetSapuRecaData("SapuReca_Board","lFinished",.F.)
+        lResumeBackgroundSound:=(!lFinished)
+    endif
+    if (lResumeBackgroundSound)
         if (self:jAnimation:HasProperty("oTimerBackgroundResume").and.(ValType(self:jAnimation["oTimerBackgroundResume"])=="O"))
             self:jAnimation["oTimerBackgroundResume"]:DeActivate()
         endif
+        if (self:jAnimation:HasProperty("oTimerApplauseResume").and.(ValType(self:jAnimation["oTimerApplauseResume"])=="O"))
+            self:jAnimation["oTimerApplauseResume"]:DeActivate()
+        endif
         self:PlaySound("SOM_BACKGROUND")
+        if (self:jAnimation:HasProperty("oTimerBackgroundLoop").and.(ValType(self:jAnimation["oTimerBackgroundLoop"])=="O"))
+            self:jAnimation["oTimerBackgroundLoop"]:Activate()
+        endif
+    elseif (ValType(self:jAnimation)=="J")
+        if (self:jAnimation:HasProperty("oTimerBackgroundResume").and.(ValType(self:jAnimation["oTimerBackgroundResume"])=="O"))
+            self:jAnimation["oTimerBackgroundResume"]:DeActivate()
+        endif
+        if (self:jAnimation:HasProperty("oTimerApplauseResume").and.(ValType(self:jAnimation["oTimerApplauseResume"])=="O"))
+            self:jAnimation["oTimerApplauseResume"]:DeActivate()
+        endif
     endif
 
 return(lResumeBackgroundSound)
