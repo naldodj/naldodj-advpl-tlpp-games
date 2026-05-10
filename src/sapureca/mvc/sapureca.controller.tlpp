@@ -216,6 +216,7 @@ method ShapeGetIDAT(cSection,nShape) class SapuRecaController
 
     local lShapeGetIDAT as logical
 
+    local nStart:=0 as numeric
     local nShapeAT:=0 as numeric
 
     paramtype 1 var cSection as character
@@ -223,10 +224,17 @@ method ShapeGetIDAT(cSection,nShape) class SapuRecaController
 
     lShapeGetIDAT:=self:IsActive()
     if (lShapeGetIDAT)
-        aShapes:=self:jSapuRecaData[cSection]["aShapes"]
-        nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape},nShape)
-        if (nShapeAT==0)
-            nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape})
+        if (nShape>0)
+            aShapes:=self:GetSapuRecaData(cSection,"aShapes",{})
+            if (ValType(aShapes)=="A")
+                nStart:=Min(Max(nShape,1),Len(aShapes))
+                if (nStart>0)
+                    nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape},nStart)
+                endif
+                if (nShapeAT==0)
+                    nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape})
+                endif
+            endif
         endif
     endif
 

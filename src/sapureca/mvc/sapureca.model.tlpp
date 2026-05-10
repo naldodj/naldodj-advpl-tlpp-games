@@ -680,13 +680,21 @@ return(nShape)
 static function ShapeGetIDAT(jSapuRecaData as json,cSection as character,nShape as numeric) as numeric
 
     local aShapes as array
+    local nStart:=0 as numeric
     local nShapeAT:=0 as numeric
 
     if ((ValType(jSapuRecaData)=="J").and.(jSapuRecaData:HasProperty(cSection)))
-        aShapes:=jSapuRecaData[cSection]["aShapes"]
-        nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape},nShape)
-        if (nShapeAT==0)
-            nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape})
+        if (nShape>0)
+            aShapes:=jSapuRecaData[cSection]["aShapes"]
+            if (ValType(aShapes)=="A")
+                nStart:=Min(Max(nShape,1),Len(aShapes))
+                if (nStart>0)
+                    nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape},nStart)
+                endif
+                if (nShapeAT==0)
+                    nShapeAT:=aScan(aShapes,{|aShape as array|aShape[SAPURECA_SHAPE_ID]==nShape})
+                endif
+            endif
         endif
     endif
 
