@@ -2,8 +2,20 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add applause resume timer and sound logic)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Refactor UI to FWLayer panels; update Sudoku styles)"
 */
+
+2026-05-10 19:29 UTC naldodj (Refactor UI to FWLayer panels; update Sudoku styles)
+  Refactor UI to FWLayer panels; update Sudoku styles
+    Move view layout to FWLayer-based panels (oFWLayer, oTBarPanel, oTPanel) and reparent controls into toolbar/body lines;
+      adjust dialog sizes, group coordinates and buttonbar appearance/labels.
+    In the controller, detect panel parent (oTPanel) for dialogs and adjust layout row size.
+    Update Sudoku CSS color palettes for both dark and light themes.
+    Simplify SudokuGetBlock by removing the unused nStepBlock parameter and related logic, and update callers accordingly.
+    Minor local variable and declaration cleanups across controller/model/view.
+  * src/sudoku/mvc/sudoku.controller.tlpp
+  * src/sudoku/mvc/sudoku.model.tlpp
+  * src/sudoku/mvc/sudoku.view.tlpp
 
 2026-05-09 18:43 UTC naldodj (Add applause resume timer and sound logic)
   Add applause resume timer and sound logic

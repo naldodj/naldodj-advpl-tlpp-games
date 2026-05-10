@@ -207,6 +207,7 @@ return(cSudokuBoard)
 
 method BuildSudokuBoard(oFont) class SudokuController
 
+    local aSudokuBoard as array
     local aSudokuSolved as array
     local aSudokuBoardView as array
 
@@ -231,7 +232,10 @@ method BuildSudokuBoard(oFont) class SudokuController
     local nCntRow as numeric
     local nCntCol as numeric
     local nColIndex as numeric
+    local nSudokuGetNum as numeric
 
+    local oDlg as object
+    local oParent as object
     local oView as object
     local oController as object
 
@@ -242,10 +246,14 @@ method BuildSudokuBoard(oFont) class SudokuController
         oController:=self
         oView:=oController:oView
 
-        oDlg:=oView:oDlg
+        oParent:=oView:oTPanel
+        if (ValType(oParent)!="O")
+            oParent:=oView:oDlg
+        endif
+        oDlg:=oParent
         aSudokuBoard:=oController:SudokuData()["aSudokuBoard"]
 
-        nRow:=20
+        nRow:=10
 
         nWidth:=CalcFieldSize("C",1,0,"9","9",oFont)
         nHeight:=nWidth

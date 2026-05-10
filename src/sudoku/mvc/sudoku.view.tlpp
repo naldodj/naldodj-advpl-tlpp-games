@@ -23,8 +23,11 @@ class SudokuView
     private data lActive as logical
     private data lExecute as logical
     private data cSudokuTimeDisplay as character
+    private data oFWLayer as object
 
     public data oDlg as object
+    public data oTBarPanel as object
+    public data oTPanel as object
     public data oController as object
 
     public method New(oController as object) as object
@@ -166,18 +169,27 @@ method SudokuLevel(aLevels,lAskSudokuLevel,lSudokuKeepLevelOption,nLevel) class 
         cTitle:=SUDOKU_TITLE
 
         DEFINE FONT jObjects["oFont"] NAME "Roboto" SIZE 0,-11 BOLD
-        DEFINE MSDIALOG jObjects["oDlg"] FROM 094,001 to 300,350 TITLE __Web2Ascii(cTitle) OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
+        DEFINE MSDIALOG jObjects["oDlg"] FROM 094,001 TO 320,350 TITLE __Web2Ascii(cTitle) OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
 
-            @ 015,005 GROUP jObjects["oGroup"] to 075,172 LABEL __Web2Ascii("Escolha o N&iacute;vel do Jogo") OF jObjects["oDlg"] PIXEL
+            jObjects["oFWLayer"]:=FWLayer():New()
+            jObjects["oFWLayer"]:Init(jObjects["oDlg"],.F.)
+            jObjects["oFWLayer"]:AddLine("SUDOKU_BAR",020,.F.)
+            jObjects["oFWLayer"]:AddLine("SUDOKU_BODY",080,.F.)
+
+            jObjects["oTBarPanel"]:=jObjects["oFWLayer"]:GetLinePanel("SUDOKU_BAR")
+            jObjects["oTPanel"]:=jObjects["oFWLayer"]:GetLinePanel("SUDOKU_BODY")
+            jObjects["oTBarPanel"]:nLeft+=010
+
+            @ 005,005 GROUP jObjects["oGroup"] TO 065,172 LABEL __Web2Ascii("Escolha o N&iacute;vel do Jogo") OF jObjects["oTPanel"] PIXEL
             jObjects["oGroup"]:oFont:=jObjects["oFont"]
 
-            jObjects["oRadio"]:=TRadMenu():New(025,010,aLevels,BSetGet(nLevel),jObjects["oDlg"],nil,nil,nil,nil,,nil,nil,115,010,nil,nil,nil,.T.)
+            jObjects["oRadio"]:=TRadMenu():New(015,010,aLevels,BSetGet(nLevel),jObjects["oTPanel"],nil,nil,nil,nil,,nil,nil,115,010,nil,nil,nil,.T.)
 
-            @ 085,010 CHECKBOX jObjects["oCheckBox"] VAR lSudokuKeepLevelOption PROMPT __Web2Ascii("Utilizar a op&ccedil;ao acima at&eacute; o final do Jogo.") SIZE 160,010 OF jObjects["oDlg"] PIXEL
+            @ 080,010 CHECKBOX jObjects["oCheckBox"] VAR lSudokuKeepLevelOption PROMPT __Web2Ascii("Utilizar a op&ccedil;ao acima at&eacute; o final do Jogo.") SIZE 160,010 OF jObjects["oTPanel"] PIXEL
 
             jObjects["oDlg"]:lEscClose:=.F.//Nao permite sair ao se pressionar a tecla ESC.
 
-        ACTIVATE MSDIALOG jObjects["oDlg"] CENTERED ON INIT (jObjectsSudokuParametersBar:=SudokuParametersBar(@jObjects["oDlg"],@lAskSudokuLevel))
+        ACTIVATE MSDIALOG jObjects["oDlg"] CENTERED ON INIT (jObjectsSudokuParametersBar:=SudokuParametersBar(@jObjects["oDlg"],@jObjects["oTBarPanel"],@lAskSudokuLevel))
 
         MsObjects():FreeObjects(@jObjectsSudokuParametersBar)
         MsObjects():FreeObjects(@jObjects)
@@ -198,6 +210,7 @@ method CreateBoard() class SudokuView
 
     local oDlg as object
     local oView as object
+    local oTPanel as object
     local oController as object
 
     begin sequence
@@ -217,24 +230,34 @@ method CreateBoard() class SudokuView
         DEFINE FONT jSudokuData["oFont"] NAME "Courier New" SIZE 0,-11 BOLD
         DEFINE FONT jSudokuData["oFontNum"] NAME "Courier New" SIZE 18,30 BOLD
 
-        DEFINE MSDIALOG self:oDlg TITLE __Web2Ascii(cTitle) From 0,0 to 610,610 OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
+        DEFINE MSDIALOG self:oDlg TITLE __Web2Ascii(cTitle) From 0,0 TO 610,610 OF GetWndDefault() STYLE DS_MODALFRAME STATUS PIXEL
         oDlg:=self:oDlg
 
         oDlg:lEscClose:=.F.
 
+        self:oFWLayer:=FWLayer():New()
+        self:oFWLayer:Init(oDlg,.F.)
+        self:oFWLayer:AddLine("SUDOKU_BAR",004,.F.)
+        self:oFWLayer:AddLine("SUDOKU_BODY",096,.F.)
+
+        self:oTBarPanel:=self:oFWLayer:GetLinePanel("SUDOKU_BAR")
+        self:oTPanel:=self:oFWLayer:GetLinePanel("SUDOKU_BODY")
+        self:oTBarPanel:nLeft+=010
+        oTPanel:=self:oTPanel
+
         jSudokuData["aSudokuGrps"]:=Array(9)
 
-        @ 015,005 GROUP jSudokuData["aSudokuGrps"][1] to 100,100 OF oDlg PIXEL
-        @ 015,102 GROUP jSudokuData["aSudokuGrps"][2] to 100,200 OF oDlg PIXEL
-        @ 015,202 GROUP jSudokuData["aSudokuGrps"][3] to 100,300 OF oDlg PIXEL
+        @ 005,005 GROUP jSudokuData["aSudokuGrps"][1] TO 090,100 OF oTPanel PIXEL
+        @ 005,102 GROUP jSudokuData["aSudokuGrps"][2] TO 090,200 OF oTPanel PIXEL
+        @ 005,202 GROUP jSudokuData["aSudokuGrps"][3] TO 090,300 OF oTPanel PIXEL
 
-        @ 100,005 GROUP jSudokuData["aSudokuGrps"][4] to 200,100 OF oDlg PIXEL
-        @ 100,102 GROUP jSudokuData["aSudokuGrps"][5] to 200,200 OF oDlg PIXEL
-        @ 100,202 GROUP jSudokuData["aSudokuGrps"][6] to 200,300 OF oDlg PIXEL
+        @ 090,005 GROUP jSudokuData["aSudokuGrps"][4] TO 190,100 OF oTPanel PIXEL
+        @ 090,102 GROUP jSudokuData["aSudokuGrps"][5] TO 190,200 OF oTPanel PIXEL
+        @ 090,202 GROUP jSudokuData["aSudokuGrps"][6] TO 190,300 OF oTPanel PIXEL
 
-        @ 200,005 GROUP jSudokuData["aSudokuGrps"][7] to 300,100 OF oDlg PIXEL
-        @ 200,102 GROUP jSudokuData["aSudokuGrps"][8] to 300,200 OF oDlg PIXEL
-        @ 200,202 GROUP jSudokuData["aSudokuGrps"][9] to 300,300 OF oDlg PIXEL
+        @ 190,005 GROUP jSudokuData["aSudokuGrps"][7] TO 290,100 OF oTPanel PIXEL
+        @ 190,102 GROUP jSudokuData["aSudokuGrps"][8] TO 290,200 OF oTPanel PIXEL
+        @ 190,202 GROUP jSudokuData["aSudokuGrps"][9] TO 290,300 OF oTPanel PIXEL
 
         aEval(jSudokuData["aSudokuGrps"],{|,nElem|jSudokuData["aSudokuGrps"][nElem]:oFont:=jSudokuData["oFont"]})
 
@@ -338,6 +361,7 @@ method SudokuBoardBar(aSudokuBoardView) class SudokuView
 
     local oDlg as object
     local oView as object
+    local oTPanel as object
     local oController as object
 
     if (self:CanExecute())
@@ -346,6 +370,13 @@ method SudokuBoardBar(aSudokuBoardView) class SudokuView
 
         oView:=self
         oDlg:=oView:oDlg
+        oTPanel:=oView:oTBarPanel
+        if (ValType(oTPanel)!="O")
+            oTPanel:=oView:oTPanel
+        endif
+        if (ValType(oTPanel)!="O")
+            oTPanel:=oDlg
+        endif
         oController:=oView:oController
 
         bButtonNewGame:={;
@@ -395,33 +426,27 @@ method SudokuBoardBar(aSudokuBoardView) class SudokuView
 
         bButtonHelp:={||SudokuHelp()}
 
-        DEFINE BUTTONBAR jObjects["oSudokuBoardButtonBar"] SIZE 025,025 3D TOP OF oDlg //PIXEL
+        DEFINE BUTTONBAR jObjects["oSudokuBoardButtonBar"] SIZE 050,050 3DLOOK TOP OF oTPanel
         jObjects["oSudokuBoardButtonBar"]:bRClicked:={||AllwaysTrue()}
 
-        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonNewGame"] RESOURCE "PMSCOLOR" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonNewGame) TOOLTIP __Web2Ascii("Novo Jogo...<F2>")
-        jObjects["oSudokuBoardButtonBarButtonNewGame"]:cTitle:=__Web2Ascii("Novo")
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonNewGame"] RESOURCE "PMSCOLOR" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonNewGame) TOOLTIP __Web2Ascii("Novo Jogo...<F2>") PROMPT __Web2Ascii("Novo")
         SetKey(VK_F2,jObjects["oSudokuBoardButtonBarButtonNewGame"]:bAction)
 
-        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonFillNumbers"] RESOURCE "DESTINOS" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonFillNumbers) TOOLTIP __Web2Ascii('Preencher n&uacute;meros...<F3>')
-        jObjects["oSudokuBoardButtonBarButtonFillNumbers"]:cTitle:=__Web2Ascii("n&uacute;meros")
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonFillNumbers"] RESOURCE "DESTINOS" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonFillNumbers) TOOLTIP __Web2Ascii('Preencher n&uacute;meros...<F3>') PROMPT __Web2Ascii("N&uacute;meros")
         SetKey(VK_F3,jObjects["oSudokuBoardButtonBarButtonFillNumbers"]:bAction)
 
-        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonParameters"] RESOURCE "BMPPARAM" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonParameters) TOOLTIP __Web2Ascii('Par&acirc;metros...<F4>')
-        jObjects["oSudokuBoardButtonBarButtonParameters"]:cTitle:=__Web2Ascii("Config.")
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonParameters"] RESOURCE "BMPPARAM" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonParameters) TOOLTIP __Web2Ascii('Par&acirc;metros...<F4>') PROMPT __Web2Ascii("Config.")
         SetKey(VK_F4,jObjects["oSudokuBoardButtonBarButtonParameters"]:bAction)
 
-        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonOK"] RESOURCE "OK" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonOK) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>')
-        jObjects["oSudokuBoardButtonBarButtonOK"]:cTitle:=__Web2Ascii("OK")
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonOK"] RESOURCE "OK" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonOK) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>') PROMPT __Web2Ascii("OK")
         oDlg:bSet15:=jObjects["oSudokuBoardButtonBarButtonOK"]:bAction
         SetKey(15,oDlg:bSet15)
 
-        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonEnd"] RESOURCE "FINAL" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonEndGame) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>')
-        jObjects["oSudokuBoardButtonBarButtonEnd"]:cTitle:=__Web2Ascii("Sair")
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonEnd"] RESOURCE "FINAL" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonEndGame) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>') PROMPT __Web2Ascii("Sair")
         oDlg:bSet24:=jObjects["oSudokuBoardButtonBarButtonEnd"]:bAction
         SetKey(24,oDlg:bSet24)
 
-        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>')
-        jObjects["oSudokuBoardButtonBarButtonHelp"]:cTitle:=__Web2Ascii("Ajuda")
+        DEFINE BUTTON jObjects["oSudokuBoardButtonBarButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oSudokuBoardButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>') PROMPT __Web2Ascii("Ajuda")
         SetKey(VK_F1,jObjects["oSudokuBoardButtonBarButtonHelp"]:bAction)
 
         oView:SudokuTTimerCreate(jObjects["oSudokuBoardButtonBar"])
@@ -431,7 +456,7 @@ method SudokuBoardBar(aSudokuBoardView) class SudokuView
 
 return(jObjects)
 
-static function SudokuParametersBar(oDlg as object,lAskSudokuLevel as logical) as json
+static function SudokuParametersBar(oDlg as object,oTPanel as object,lAskSudokuLevel as logical) as json
 
     local bButtonOK:={||oDlg:End()} as codeblock
     local bButtonEnd:={||if(((lAskSudokuLevel).or.ApMsgNoYes("Deseja Sair do Jogo?","Sair")),oDlg:End(),NIL)} as codeblock
@@ -439,21 +464,22 @@ static function SudokuParametersBar(oDlg as object,lAskSudokuLevel as logical) a
 
     local jObjects:=JSONObject():New() as json
 
-    DEFINE BUTTONBAR jObjects["oSudokuParametersButtonBar"] SIZE 025,025 3D TOP OF oDlg
+    if (ValType(oTPanel)!="O")
+        oTPanel:=oDlg
+    endif
+
+    DEFINE BUTTONBAR jObjects["oSudokuParametersButtonBar"] SIZE 050,050 3DLOOK TOP OF oTPanel
     jObjects["oSudokuParametersButtonBar"]:bRClicked:={||AllwaysTrue()}
 
-    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonOK"] RESOURCE "OK" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonOK) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>')
-    jObjects["oSudokuParametersButtonBarButtonOK"]:cTitle:=__Web2Ascii("OK")
+    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonOK"] RESOURCE "OK" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonOK) TOOLTIP __Web2Ascii('Ok...<Ctrl-O>') PROMPT __Web2Ascii("OK")
     oDlg:bSet15:=jObjects["oSudokuParametersButtonBarButtonOK"]:bAction
     SetKey(15,oDlg:bSet15)
 
-    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonEnd"] RESOURCE "FINAL" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonEnd) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>')
-    jObjects["oSudokuParametersButtonBarButtonEnd"]:cTitle:=__Web2Ascii("Sair")
+    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonEnd"] RESOURCE "FINAL" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonEnd) TOOLTIP __Web2Ascii('Sair...<Ctrl-X>') PROMPT __Web2Ascii("Sair")
     oDlg:bSet24:=jObjects["oSudokuParametersButtonBarButtonEnd"]:bAction
     SetKey(24,oDlg:bSet24)
 
-    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>')
-    jObjects["oSudokuParametersButtonBarButtonHelp"]:cTitle:=__Web2Ascii("Ajuda")
+    DEFINE BUTTON jObjects["oSudokuParametersButtonBarButtonHelp"] RESOURCE "S4WB016N" OF jObjects["oSudokuParametersButtonBar"] GROUP ACTION Eval(bButtonHelp) TOOLTIP __Web2Ascii('Ajuda...<F1>') PROMPT __Web2Ascii("Ajuda")
     SetKey(VK_F1,jObjects["oSudokuParametersButtonBarButtonHelp"]:bAction)
 
 return(jObjects)
