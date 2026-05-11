@@ -260,9 +260,7 @@ method UpdatePosition(nShape,nLeft,nTop,lWin,cJumpImage,nAnimLeft,nAnimTop,nAnim
             self:oTPaintPanel:SetVisible(nReiniciarID,.T.)
         endif
 
-        if (!lWin)
-            self:PlaySound("SOM_SAPU_RECA")
-        endif
+        self:PlaySound("SOM_SAPU_RECA")
 
         lAnimated:=self:AnimateJump(nShape,@cJumpImage,@nAnimLeft,@nAnimTop,@nAnimWidth,@nAnimHeight,@nLeft,@nTop,@nOldLeft,@nOldTop)
         if (!lAnimated)

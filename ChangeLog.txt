@@ -2,8 +2,14 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Add bounded start index to ShapeGetIDAT)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Always play SOM_SAPU_RECA sound)"
 */
+
+2026-05-11 10:08 UTC naldodj (Always play SOM_SAPU_RECA sound)
+  Always play SOM_SAPU_RECA sound
+  Remove conditional around PlaySound in UpdatePosition so SOM_SAPU_RECA is played unconditionally.
+  This ensures the sound feedback occurs regardless of the lWin flag by calling PlaySound directly instead of only when !lWin.
+    * src/sapureca/mvc/sapureca.view.tlpp
 
 2026-05-10 19:39 UTC naldodj (Add bounded start index to ShapeGetIDAT)
   Add bounded start index to ShapeGetIDAT
