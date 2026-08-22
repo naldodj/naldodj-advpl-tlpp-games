@@ -26,10 +26,6 @@
     #DEFINE G15_AT_ALEN         7
     #DEFINE G15_AT_R_E_C_N_O_       G15_AT_ALEN //Deixar G15_AT_R_E_C_N_O_ sempre como ultimo campo do aTWBrowseItems
 
-    #ifndef _DBSTRUCT_CH_
-        #include "dbstruct.ch"
-    #endif
-
     #DEFINE G15_DBS_NAME    DBS_NAME
     #DEFINE G15_DBS_TYPE    DBS_TYPE
     #DEFINE G15_DBS_LEN     DBS_LEN
@@ -49,5 +45,13 @@
     #ifndef __GAME_TOOL_TH__
         #include "game.tool.th"
     #endif
+
+    #ifndef _DBSTRUCT_CH_
+        #include "dbstruct.ch"
+    #endif
+
+    #include "totvs.ch"
+    #include "parmtype.ch"
+    #include "tlpp-core.th"
 
 #endif

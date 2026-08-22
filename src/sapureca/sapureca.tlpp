@@ -1,7 +1,4 @@
-#include "totvs.ch"
 #include "sapureca.th"
-#include "parmtype.ch"
-#include "tlpp-core.th"
 
 namespace sapureca
 using namespace sapureca

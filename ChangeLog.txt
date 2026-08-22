@@ -2,8 +2,28 @@
      * Change  ! Fix  % Optimize  + Add  - Remove  ; Comment
    Entries may not always be in chronological/commit order.
    See license at the end of file.
-   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Always play SOM_SAPU_RECA sound)"
+   (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm")+" UTC naldodj (Centralize game includes and server asset sync)"
 */
+
+2026-08-22 13:51 UTC naldodj (Centralize game includes and server asset sync)
+  Centralize game includes and server asset sync
+    This commit consolidates the common TLPP/TOTVS includes into the game headers and removes redundant per-file includes.
+    It adds a dedicated server temp path for resource extraction and updates the Game15/SapuReca loaders to use dna.tech.fileTools when available, then sync ZIPped assets back to the local temp folder.
+    Temporary files are now cleaned up by iterating property-name arrays instead of single property references.
+      * includes/game.tool.th
+      * includes/game15.th
+      * includes/sapureca.th
+      * includes/sudoku.th
+      * src/game15/game15.tlpp
+      * src/game15/mvc/game15.controller.tlpp
+      * src/game15/mvc/game15.model.tlpp
+      * src/game15/mvc/game15.view.tlpp
+      * src/sapureca/mvc/sapureca.model.tlpp
+      * src/sapureca/sapureca.tlpp
+      * src/sudoku/mvc/sudoku.controller.tlpp
+      * src/sudoku/mvc/sudoku.model.tlpp
+      * src/sudoku/mvc/sudoku.view.tlpp
+      * src/sudoku/sudoku.tlpp
 
 2026-05-11 10:08 UTC naldodj (Always play SOM_SAPU_RECA sound)
   Always play SOM_SAPU_RECA sound

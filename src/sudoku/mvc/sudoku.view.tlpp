@@ -7,10 +7,7 @@
 
 */
 
-#include "totvs.ch"
 #include "sudoku.th"
-#include "parmtype.ch"
-#include "tlpp-core.th"
 
 namespace sudoku
 using namespace sudoku

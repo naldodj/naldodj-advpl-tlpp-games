@@ -20,4 +20,12 @@
         #endif
     #endif
 
+    #ifndef DNA_TECH_GAMES_SRV_PATH
+        #define DNA_TECH_GAMES_SRV_PATH BACK_SLASH+"dna.tech"+BACK_SLASH+"games"+BACK_SLASH
+    #endif
+
+    #ifndef _DIRECTRY_CH
+        #include "directry.ch"
+    #endif
+
 #endif

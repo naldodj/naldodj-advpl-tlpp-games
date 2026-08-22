@@ -1,6 +1,4 @@
-#include "totvs.ch"
-#include "parmtype.ch"
-#include "tlpp-core.th"
+#include "sudoku.th"
 
 /*
                  _         _

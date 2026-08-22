@@ -13,4 +13,8 @@
         #include "game.tool.th"
     #endif
 
+    #include "totvs.ch"
+    #include "parmtype.ch"
+    #include "tlpp-core.th"
+
 #endif

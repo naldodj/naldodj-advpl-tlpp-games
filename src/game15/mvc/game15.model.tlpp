@@ -7,14 +7,8 @@
  |___/
 
 */
-#include "totvs.ch"
-#include "game15.th"
-#include "parmtype.ch"
-#include "tlpp-core.th"
 
-#ifndef _DBSTRUCT_CH_
-    #include "dbstruct.ch"
-#endif
+#include "game15.th"
 
 namespace game15
 using namespace game15
@@ -97,17 +91,12 @@ method DeActivate() class Game15Model
             endif
         endif
 
-        if (self:jGame15Data:HasProperty("Game15_Files_buttons"))
-            RemoveFiles(@self:jGame15Data,"Game15_Files_buttons")
-        endif
-
-        if (self:jGame15Data:HasProperty("Game15_Files_bmps_aux"))
-            RemoveFiles(@self:jGame15Data,"Game15_Files_bmps_aux")
-        endif
-
-        if (self:jGame15Data:HasProperty("Game15_Files_bmps_play"))
-            RemoveFiles(@self:jGame15Data,"Game15_Files_bmps_play")
-        endif
+        RemoveFiles(@self:jGame15Data,{;
+                 "Game15_Files_buttons";
+                ,"Game15_Files_bmps_aux";
+                ,"Game15_Files_bmps_play";
+            };
+        )
 
         MsObjects():FreeObjects(@self:jGame15Data)
 
@@ -1551,6 +1540,7 @@ static function InitGame15() as json
 
     local cFile as character
     local cTempPath:=(GetTempPath()+"Game15"+BACK_SLASH) as character
+    local cTempPathSrv:=(DNA_TECH_GAMES_SRV_PATH+"game15"+BACK_SLASH) as character
 
     local jGame15Data:=JSONObject():New() as json
 
@@ -1597,6 +1587,7 @@ static function InitGame15() as json
 
     jGame15Data["Game15_Path"]:=JSONObject():New()
     jGame15Data["Game15_Path"]["Temp_Path"]:=cTempPath
+    jGame15Data["Game15_Path"]["Temp_Path_SRV"]:=cTempPathSrv
 
     jGame15Data["Game15_Files_ico"]:=JSONObject():New()
     jGame15Data["Game15_Files_ico"]["ico"]:="game15_ico.ico"
@@ -1624,9 +1615,12 @@ static function InitGame15() as json
     jGame15Data["Game15_Files_buttons"]["start"]:="game15_start"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
     jGame15Data["Game15_Files_buttons"]["top10"]:="game15_top10"+if(lThemeIsDark,"_dark"+if(lThemeIsDarkNew,"_new",""),"")+".png"
 
-    ExtractFiles(@jGame15Data,"Game15_Files_buttons")
-    ExtractFiles(@jGame15Data,"Game15_Files_bmps_aux")
-    ExtractFiles(@jGame15Data,"Game15_Files_bmps_play")
+    ExtractFiles(@jGame15Data,{;
+             "Game15_Files_buttons";
+            ,"Game15_Files_bmps_aux";
+            ,"Game15_Files_bmps_play";
+       };
+    )
 
     OpenTopTable(@jGame15Data)
 
@@ -1638,32 +1632,63 @@ return(jGame15Data)
     Data:16/04/2012
     Uso:Extrai os arquivos do RPO
 */
-static procedure ExtractFiles(jGame15Data,cName)
+static procedure ExtractFiles(jGame15Data,aNames)
 
-    local aNames:=jGame15Data[cName]:GetNames() as array
+    local aFiles as array
 
+    local cName as character
     local cTempPath:=jGame15Data["Game15_Path"]["Temp_Path"] as character
+    local cTempPathSrv as character
     local cItemName as character
     local cResource as character
     local cExtractFile as character
+    local cExtractFileSRV as character
 
+    local lHasFileTools as logical
     local lResouce2File as logical
 
     local nName as numeric
     local nNames as numeric
 
+    local nFile as numeric
+    local nFiles as numeric
+
     if (!lIsDir(cTempPath))
         DirTools():MakeDir(cTempPath)
     endif
 
+    lHasFileTools:=FindClass("dna.tech.fileTools")
+    if (lHasFileTools)
+        cTempPathSrv:=jGame15Data["Game15_Path"]["Temp_Path_SRV"]
+        if (!lIsDir(cTempPathSrv))
+            DirTools():MakeDir(cTempPathSrv)
+        endif
+    endif
+
     nNames:=Len(aNames)
     for nName:=1 to nNames
-        cItemName:=aNames[nName]
-        cResource:=jGame15Data[cName][cItemName]
-        cExtractFile:=(cTempPath+cResource)
-        lResouce2File:=Resource2File(cResource,cExtractFile)
-        jGame15Data[cName][cItemName]:=cExtractFile
+        cName:=aNames[nName]
+        aFiles:=jGame15Data[cName]:GetNames()
+        nFiles:=Len(aFiles)
+        for nFile:=1 to nFiles
+            cItemName:=aFiles[nFile]
+            cResource:=jGame15Data[cName][cItemName]
+            cExtractFile:=(cTempPath+cResource)
+            if (lHasFileTools)
+                cExtractFileSRV:=(cTempPathSrv+cResource)
+                lResouce2File:=Resource2File(cResource,cExtractFileSRV)
+            else
+                lResouce2File:=Resource2File(cResource,cExtractFile)
+            endif
+            jGame15Data[cName][cItemName]:=cExtractFile
+        next nFile
+        MsObjects():FreeObjects(@aFiles)
     next nName
+
+    if (lHasFileTools)
+        lResouce2File:=dna.tech.fileTools():GetDataFromServerWithZip(cTempPathSrv,cTempPath)
+        aEval(Directory(cTempPathSrv+"*.*"),{|x as array|fErase(x[F_NAME])})
+    endif
 
 return
 
@@ -1673,10 +1698,19 @@ return
     Data:16/04/2012
     Uso:Exclui os arquivos Temporarios
 */
-static procedure RemoveFiles(jGame15Data,cName)
-    local aNames:=jGame15Data[cName]:GetNames() as array
-    aEval(aNames,{|cItemName|if(File(jGame15Data[cName][cItemName]),fErase(jGame15Data[cName][cItemName]),NIL)})
-    MsObjects():FreeObjects(@aNames)
+static procedure RemoveFiles(jGame15Data,aNames)
+    local aFiles as array
+    local cName as character
+    local nName as numeric
+    local nNames:=Len(aNames) as numeric
+    for nName:=1 to nNames
+        cName:=aNames[nName]
+        if (jGame15Data:HasProperty(cName))
+            aFiles:=jGame15Data[cName]:GetNames()
+            aEval(aFiles,{|cItemName as character|if(File(jGame15Data[cName][cItemName]),fErase(jGame15Data[cName][cItemName]),NIL)})
+            MsObjects():FreeObjects(@aFiles)
+        endif
+    next nName
 return
 
 /*
@@ -1762,13 +1796,13 @@ static function SwapButtons(jGame15Data as json) as logical
         nButtons:=Len(jGame15Data["Game15_Files_bmps_play"]:GetNames())
         nSQRTBtn:=SQRT(nButtons)
 
-        nD:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]>0)})
-        nJ:=(aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
+        nD:=aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_BTNNUMBER]>0)})
+        nJ:=(aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
 
-        nFree:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nButtons},nD,nJ)
-        nPress:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_ID]==nShape},nShape,nJ)
+        nFree:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==nButtons},nD,nJ)
+        nPress:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_ID]==nShape},nShape,nJ)
         if (nPress==0)
-            nPress:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_ID]==nShape},nD,nJ)
+            nPress:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_ID]==nShape},nD,nJ)
         endif
 
         nMin:=Min(aShapes[nFree][G15_SHAPE_BTNINDEX],aShapes[nPress][G15_SHAPE_BTNINDEX])
@@ -1868,7 +1902,7 @@ static function HL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nL:=nRow
             aAdd(aMatchL,nL)
-            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nL},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==nL},nD,nJ)
             nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
@@ -1908,7 +1942,7 @@ static function HR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nR:=((nButtons-nRow)+1)
             aAdd(aMatchR,nR)
-            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nR},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==nR},nD,nJ)
             nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
@@ -1948,7 +1982,7 @@ static function HL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nL:=nRow
             aAdd(aMatchL,nL)
-            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nL},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==nL},nD,nJ)
             nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
@@ -1988,7 +2022,7 @@ static function HR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
         for nRow:=nCol to nButtons step nSQRTBtn
             nR:=((nButtons-nRow)+1)
             aAdd(aMatchR,nR)
-            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nR},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==nR},nD,nJ)
             nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=((++nIndex)==nBtnIDX)
             if (lMatch)
@@ -2025,7 +2059,7 @@ static function VL1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     for nCol:=1 to nButtons
         aMatchV[nCol]:=nCol
-        nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==nCol},nD,nJ)
+        nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==nCol},nD,nJ)
         nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
         lMatch:=(nCol==nBtnIDX)
         if (lMatch)
@@ -2061,7 +2095,7 @@ static function VR1AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
 
     for nCol:=1 to nButtons
         aMatchV[nCol]:=((nButtons-nCol)+1)
-        nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nCol]},nD,nJ)
+        nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nCol]},nD,nJ)
         nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
         lMatch:=(nCol==nBtnIDX)
         if (lMatch)
@@ -2098,7 +2132,7 @@ static function VL2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
     for nCol:=nSQRTBtn to nButtons step nSQRTBtn
         for nRow:=nCol to 1 step -(1)
             aMatchV[++nIndex]:=nRow
-            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
             nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=(nIndex==nBtnIDX)
             if (lMatch)
@@ -2139,7 +2173,7 @@ static function VR2AlgMatch(aShapes as array,nSQRTBtn as numeric,nButtons as num
     for nCol:=nButtons to 1 step -(nSQRTBtn)
         for nRow:=((nCol-nSQRTBtn)+1) to nButtons
             aMatchV[++nIndex]:=nRow
-            nAT:=aScan(aShapes,{|aShape|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|aShape[G15_SHAPE_BTNNUMBER]==aMatchV[nIndex]},nD,nJ)
             nBtnIDX:=aShapes[nAT][G15_SHAPE_BTNINDEX]
             lMatch:=(nIndex==nBtnIDX)
             if (lMatch)
@@ -2198,10 +2232,10 @@ static procedure SaveGame(aShapes as array,cG15File as character)
         endif
         cG15File+=cExt
 
-        nD:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]>0)})
-        nJ:=(aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
+        nD:=aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_BTNNUMBER]>0)})
+        nJ:=(aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
 
-        aEval(aShapes,{|aShape|aAdd(aSaveG,aClone(aShape))},nD,nJ)
+        aEval(aShapes,{|aShape as array|aAdd(aSaveG,aClone(aShape))},nD,nJ)
 
         lSaveGame:=aUtils():SaveArray(@aSaveG,@cG15File)
 
@@ -2242,8 +2276,8 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
             break
         endif
 
-        nD:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]>0)})
-        nJ:=(aScan(aShapes,{|aShape|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
+        nD:=aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_BTNNUMBER]>0)})
+        nJ:=(aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_BTNNUMBER]==0)},nD+1)-nD)
 
         if (Len(aRestG)!=nJ)
             lRestoreGame:=.F.
@@ -2260,7 +2294,7 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
                 lRestoreGame:=.F.
                 break
             endif
-            nAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_TOOLTIP]==aRestG[nBTn][G15_SHAPE_TOOLTIP])},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_TOOLTIP]==aRestG[nBTn][G15_SHAPE_TOOLTIP])},nD,nJ)
             if (nAT==0)
                 lRestoreGame:=.F.
                 break
@@ -2280,7 +2314,7 @@ static procedure RestoreGame(aShapes as array,cG15File as character,bUpdateView 
         next nBTn
 
         for nBTn:=1 to nBTns
-            nAT:=aScan(aShapes,{|aShape|(aShape[G15_SHAPE_TOOLTIP]==aRestG[nBTn][G15_SHAPE_TOOLTIP])},nD,nJ)
+            nAT:=aScan(aShapes,{|aShape as array|(aShape[G15_SHAPE_TOOLTIP]==aRestG[nBTn][G15_SHAPE_TOOLTIP])},nD,nJ)
             aShapes[nAT][G15_SHAPE_TOP]:=aRestG[nBTn][G15_SHAPE_TOP]
             aShapes[nAT][G15_SHAPE_LEFT]:=aRestG[nBTn][G15_SHAPE_LEFT]
             aShapes[nAT][G15_SHAPE_BTNINDEX]:=aRestG[nBTn][G15_SHAPE_BTNINDEX]

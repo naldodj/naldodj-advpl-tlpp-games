@@ -7,10 +7,8 @@
  |___/
 
 */
-#include "totvs.ch"
+
 #include "game15.th"
-#include "parmtype.ch"
-#include "tlpp-core.th"
 
 namespace game15
 using namespace game15

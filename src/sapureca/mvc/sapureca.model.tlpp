@@ -70,12 +70,7 @@ return(self:lActive)
 
 method DeActivate() class SapuRecaModel
     if ((self:lActive).and.(ValType(self:jSapuRecaData)=="J"))
-        if (self:jSapuRecaData:HasProperty("SapuReca_Files"))
-            RemoveFiles(@self:jSapuRecaData,"SapuReca_Files")
-        endif
-        if (self:jSapuRecaData:HasProperty("SapuReca_Waves"))
-            RemoveFiles(@self:jSapuRecaData,"SapuReca_Waves")
-        endif
+        RemoveFiles(@self:jSapuRecaData,{"SapuReca_Files","SapuReca_Waves"})
         MsObjects():FreeObjects(@self:jSapuRecaData)
         self:lActive:=.F.
     endif
@@ -325,7 +320,8 @@ return(lStartTime)
 
 static function InitSapuReca() as json
 
-    local cTempPath:=(GetTempPath()+"SapuReca"+BACK_SLASH) as character
+    local cTempPath:=(GetTempPath()+"sapureca"+BACK_SLASH) as character
+    local cTempPathSrv:=(DNA_TECH_GAMES_SRV_PATH+"sapureca"+BACK_SLASH) as character
     local jSapuRecaData:=JSONObject():New() as json
 
     jSapuRecaData["SapuReca_Shapes"]:=JSONObject():New()
@@ -349,6 +345,7 @@ static function InitSapuReca() as json
 
     jSapuRecaData["SapuReca_Path"]:=JSONObject():New()
     jSapuRecaData["SapuReca_Path"]["Temp_Path"]:=cTempPath
+    jSapuRecaData["SapuReca_Path"]["Temp_Path_SRV"]:=cTempPathSrv
 
     jSapuRecaData["SapuReca_Files"]:=JSONObject():New()
     jSapuRecaData["SapuReca_Files"]["JOGO_INSTRUCOES"]:="instrucoes.gif"
@@ -371,8 +368,7 @@ static function InitSapuReca() as json
     jSapuRecaData["SapuReca_Waves"]["SOM_SAPU_RECA"]:="sapo.wav"
     jSapuRecaData["SapuReca_Waves"]["SOM_BACKGROUND"]:="sapos.wav"
 
-    ExtractFiles(@jSapuRecaData,"SapuReca_Files")
-    ExtractFiles(@jSapuRecaData,"SapuReca_Waves")
+    ExtractFiles(@jSapuRecaData,{"SapuReca_Files","SapuReca_Waves"})
 
 return(jSapuRecaData)
 
@@ -722,37 +718,89 @@ static function AddProperty(cProperties as character,cProperty as character,uVal
     cProperties+=";"
 return(cProperties)
 
-static procedure ExtractFiles(jSapuRecaData as json,cName as character)
+/*
+    Funcao:ExtractFiles
+    Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
+    Data:16/04/2012
+    Uso:Extrai os arquivos do RPO
+*/
+static procedure ExtractFiles(jSapuRecaData,aNames)
 
-    local aNames:=jSapuRecaData[cName]:GetNames() as array
+    local aFiles as array
 
-    local cExtractFile as character
+    local cName as character
+    local cTempPath:=jSapuRecaData["SapuReca_Path"]["Temp_Path"] as character
+    local cTempPathSrv as character
     local cItemName as character
     local cResource as character
-    local cTempPath:=jSapuRecaData["SapuReca_Path"]["Temp_Path"] as character
+    local cExtractFile as character
+    local cExtractFileSRV as character
+
+    local lHasFileTools as logical
+    local lResouce2File as logical
 
     local nName as numeric
     local nNames as numeric
+
+    local nFile as numeric
+    local nFiles as numeric
 
     if (!lIsDir(cTempPath))
         DirTools():MakeDir(cTempPath)
     endif
 
+    lHasFileTools:=FindClass("dna.tech.fileTools")
+    if (lHasFileTools)
+        cTempPathSrv:=jSapuRecaData["SapuReca_Path"]["Temp_Path_SRV"]
+        if (!lIsDir(cTempPathSrv))
+            DirTools():MakeDir(cTempPathSrv)
+        endif
+    endif
+
     nNames:=Len(aNames)
     for nName:=1 to nNames
-        cItemName:=aNames[nName]
-        cResource:=jSapuRecaData[cName][cItemName]
-        cExtractFile:=(cTempPath+cResource)
-        Resource2File(cResource,cExtractFile)
-        jSapuRecaData[cName][cItemName]:=cExtractFile
+        cName:=aNames[nName]
+        aFiles:=jSapuRecaData[cName]:GetNames()
+        nFiles:=Len(aFiles)
+        for nFile:=1 to nFiles
+            cItemName:=aFiles[nFile]
+            cResource:=jSapuRecaData[cName][cItemName]
+            cExtractFile:=(cTempPath+cResource)
+            if (lHasFileTools)
+                cExtractFileSRV:=(cTempPathSrv+cResource)
+                lResouce2File:=Resource2File(cResource,cExtractFileSRV)
+            else
+                lResouce2File:=Resource2File(cResource,cExtractFile)
+            endif
+            jSapuRecaData[cName][cItemName]:=cExtractFile
+        next nFile
+        MsObjects():FreeObjects(@aFiles)
     next nName
 
-    MsObjects():FreeObjects(@aNames)
+    if (lHasFileTools)
+        lResouce2File:=dna.tech.fileTools():GetDataFromServerWithZip(cTempPathSrv,cTempPath)
+        aEval(Directory(cTempPathSrv+"*.*"),{|x as array|fErase(x[F_NAME])})
+    endif
 
 return
 
-static procedure RemoveFiles(jSapuRecaData as json,cName as character)
-    local aNames:=jSapuRecaData[cName]:GetNames() as array
-    aEval(aNames,{|cItemName as character|if(File(jSapuRecaData[cName][cItemName]),fErase(jSapuRecaData[cName][cItemName]),nil)})
-    MsObjects():FreeObjects(@aNames)
+/*
+    Funcao:RemoveFiles
+    Autor:Marinaldo de Jesus [http://www.blacktdn.com.br]
+    Data:16/04/2012
+    Uso:Exclui os arquivos Temporarios
+*/
+static procedure RemoveFiles(jSapuRecaData,aNames)
+    local aFiles as array
+    local cName as character
+    local nName as numeric
+    local nNames:=Len(aNames) as numeric
+    for nName:=1 to nNames
+        cName:=aNames[nName]
+        if (jSapuRecaData:HasProperty(cName))
+            aFiles:=jSapuRecaData[cName]:GetNames()
+            aEval(aFiles,{|cItemName as character|if(File(jSapuRecaData[cName][cItemName]),fErase(jSapuRecaData[cName][cItemName]),NIL)})
+            MsObjects():FreeObjects(@aFiles)
+        endif
+    next nName
 return
