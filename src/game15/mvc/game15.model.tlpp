@@ -1632,7 +1632,7 @@ return(jGame15Data)
     Data:16/04/2012
     Uso:Extrai os arquivos do RPO
 */
-static procedure ExtractFiles(jGame15Data,aNames)
+static procedure ExtractFiles(jGame15Data as json,aNames as array)
 
     local aFiles as array
 
@@ -1698,7 +1698,7 @@ return
     Data:16/04/2012
     Uso:Exclui os arquivos Temporarios
 */
-static procedure RemoveFiles(jGame15Data,aNames)
+static procedure RemoveFiles(jGame15Data as json,aNames as array)
     local aFiles as array
     local cName as character
     local nName as numeric
